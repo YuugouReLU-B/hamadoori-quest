@@ -5,12 +5,3 @@
 export function formatTitleWithLineBreaks(title: string): string {
   return title.replace(/（/g, "\n（").replace(/\(/g, "\n(");
 }
-
-const VOTING_MISSION_SLUGS = ["early-vote", "absent-vote", "overseas-vote"];
-
-/**
- * 投票系ミッションかどうかを判定する
- */
-export function isVotingMission(slug: string): boolean {
-  return VOTING_MISSION_SLUGS.includes(slug);
-}

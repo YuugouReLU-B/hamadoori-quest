@@ -1,4 +1,4 @@
-import { formatTitleWithLineBreaks, isVotingMission } from "./og-helpers";
+import { formatTitleWithLineBreaks } from "./og-helpers";
 
 describe("formatTitleWithLineBreaks", () => {
   it("returns title unchanged when no brackets present", () => {
@@ -37,32 +37,5 @@ describe("formatTitleWithLineBreaks", () => {
 
   it("returns empty string for empty input", () => {
     expect(formatTitleWithLineBreaks("")).toBe("");
-  });
-});
-
-describe("isVotingMission", () => {
-  it("returns true for early-vote", () => {
-    expect(isVotingMission("early-vote")).toBe(true);
-  });
-
-  it("returns true for absent-vote", () => {
-    expect(isVotingMission("absent-vote")).toBe(true);
-  });
-
-  it("returns true for overseas-vote", () => {
-    expect(isVotingMission("overseas-vote")).toBe(true);
-  });
-
-  it("returns false for non-voting slug", () => {
-    expect(isVotingMission("some-other-mission")).toBe(false);
-  });
-
-  it("returns false for empty string", () => {
-    expect(isVotingMission("")).toBe(false);
-  });
-
-  it("returns false for partial match", () => {
-    expect(isVotingMission("early-vote-extra")).toBe(false);
-    expect(isVotingMission("vote")).toBe(false);
   });
 });
