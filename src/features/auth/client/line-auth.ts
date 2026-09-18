@@ -34,3 +34,20 @@ export function buildLineLoginHref(
   const query = params.toString();
   return query ? `/api/auth/line-start?${query}` : "/api/auth/line-start";
 }
+
+/**
+ * 認可URLを先に用意しておくためのエンドポイントのパス。
+ *
+ * ページ表示時にこれを叩いて認可URLを受け取り、ボタンの href に直接入れる。
+ * タップから access.line.me への遷移を「リンクのタップ一回」にするため
+ * （間にサーバーサイドのリダイレクトを挟むと、iOSのユニバーサルリンクが反応せず
+ * LINEアプリが起動しない）。
+ */
+export function buildLinePrepareHref(returnUrl?: string): string {
+  const params = new URLSearchParams();
+  if (returnUrl) {
+    params.set("returnUrl", returnUrl);
+  }
+  const query = params.toString();
+  return query ? `/api/auth/line-prepare?${query}` : "/api/auth/line-prepare";
+}

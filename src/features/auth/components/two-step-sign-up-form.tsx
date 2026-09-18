@@ -6,7 +6,7 @@ import { FormMessage, type Message } from "@/components/common/form-message";
 import { buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { buildLineLoginHref } from "@/features/auth/client/line-auth";
+import { useLineLoginHref } from "@/features/auth/hooks/use-line-login-href";
 import { cn } from "@/lib/utils/utils";
 
 interface SignUpFormProps {
@@ -23,6 +23,7 @@ interface SignUpFormProps {
 export default function SignUpForm({ searchParams }: SignUpFormProps) {
   const [isTermsAgreed, setIsTermsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const lineLoginHref = useLineLoginHref();
 
   return (
     <div className="flex flex-col min-w-72 max-w-72 mx-auto">
@@ -67,7 +68,7 @@ export default function SignUpForm({ searchParams }: SignUpFormProps) {
         </div>
 
         <a
-          href={buildLineLoginHref()}
+          href={lineLoginHref}
           aria-disabled={!isTermsAgreed || isLoading}
           onClick={(e) => {
             if (!isTermsAgreed) {
