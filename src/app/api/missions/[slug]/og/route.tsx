@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 import { getMissionPageData } from "@/features/mission-detail/services/mission-detail";
 import { readTokenColor } from "@/lib/design/color-tokens";
-import { formatTitleWithLineBreaks, isVotingMission } from "./og-helpers";
+import { formatTitleWithLineBreaks } from "./og-helpers";
 
 // キャッシュ用Mapを定義（メモリキャッシュ）- completeタイプのみキャッシュ
 // キーはslugベースで管理
@@ -15,6 +15,11 @@ const size = {
   width: 1200,
   height: 630,
 };
+
+/** OGPの背景。トップのヒーローと同じ背景イラストを使う */
+const BACKGROUND_SVG_PATH = "public/img/hero-background.svg";
+
+const BRAND_LABEL = "浜通りクエスト";
 
 async function loadGoogleFont(font: string, text: string) {
   try {
@@ -60,8 +65,6 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   const type = searchParams.get("type");
 
-  const votingMission = isVotingMission(pageData?.mission.slug || "");
-
   // キャッシュキーはslugベースで統一
   const cacheKey = pageData.mission.slug;
 
@@ -79,201 +82,118 @@ export async function GET(
     }
   }
 
-  let baseImageBase64 = "";
+  let backgroundImage = "";
 
   try {
-    // ベース画像を読み込み
-    let baseImageFileName = "";
-    if (votingMission) {
-      baseImageFileName = "public/img/ogp_mission_vote.png";
-    } else if (type === "complete") {
-      baseImageFileName = "public/img/ogp_mission_complete_base.png";
-    } else {
-      baseImageFileName = "public/img/ogp_mission_base.png";
-    }
-    const baseImagePath = join(process.cwd(), baseImageFileName);
-    const baseImageBuffer = await readFile(baseImagePath);
-    baseImageBase64 = `data:image/png;base64,${baseImageBuffer.toString("base64")}`;
+    const backgroundBuffer = await readFile(
+      join(process.cwd(), BACKGROUND_SVG_PATH),
+    );
+    backgroundImage = `data:image/svg+xml;base64,${backgroundBuffer.toString("base64")}`;
   } catch (error) {
-    console.error("Base image loading failed:", error);
-    return new Response("Base image not found", { status: 500 });
+    console.error("Background image loading failed:", error);
+    return new Response("Background image not found", { status: 500 });
   }
 
   const title = pageData?.mission.title ?? "クエストが見つかりません";
-  const titleWithLineBreak = formatTitleWithLineBreaks(title);
+  const achievementCount = pageData?.totalAchievementCount ?? 0;
+  const isComplete = type === "complete";
+
+  const headline = isComplete
+    ? `「${title}」\nを達成しました！`
+    : formatTitleWithLineBreaks(title);
 
   const fontData = await loadGoogleFont(
     "Noto+Sans+JP",
-    `${pageData?.mission.title ?? ""} #テクノロジーで誰も取り残さない日本へ ${pageData?.totalAchievementCount ?? 0}件のアクションが達成されました！`,
+    `${BRAND_LABEL}${title}を達成しました！${achievementCount}件のアクションが達成されました！クエストが見つかりません「」`,
   );
 
-  let imageResponse: ImageResponse;
+  const brandColor = readTokenColor("--app-brand-deep");
 
-  if (votingMission) {
-    // 投票ミッションの場合は画像のみ表示（文字オーバーレイなし）
-    imageResponse = new ImageResponse(
+  const imageResponse = new ImageResponse(
+    <div
+      style={{
+        fontFamily: "Noto Sans JP",
+        width: "100%",
+        height: "100%",
+        padding: "96px 80px",
+        display: "flex",
+        flexDirection: "column",
+        // 背景イラストの街並みは下辺に寄っているので、文字は上寄せにして重ねない
+        justifyContent: "flex-start",
+        backgroundColor: "#ffffff",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          backgroundImage: `url(${baseImageBase64})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />,
-      { ...size },
-    );
-  } else if (type === "complete") {
-    imageResponse = new ImageResponse(
-      <div
-        style={{
-          fontFamily: "Noto Sans JP",
-          width: "100%",
-          height: "100%",
-          padding: "40px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          backgroundImage: `url(${baseImageBase64})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          fontSize: 28,
+          color: brandColor,
+          fontWeight: 700,
+          marginBottom: "20px",
         }}
       >
+        {BRAND_LABEL}
+      </div>
+      <div
+        style={{
+          fontSize: 52,
+          color: "#1f2937",
+          fontWeight: 700,
+          lineHeight: 1.25,
+          whiteSpace: "pre-wrap",
+          // 長いクエスト名が右端まで伸びて街並みに重ならないよう折り返す
+          maxWidth: "820px",
+        }}
+      >
+        {headline}
+      </div>
+      {!isComplete && (
         <div
           style={{
-            width: "90%",
+            marginTop: "24px",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "80px",
+            alignItems: "baseline",
           }}
         >
           <div
             style={{
-              fontSize: 36,
-              color: "black",
-              fontWeight: "700",
-              marginBottom: "8px",
-              whiteSpace: "pre-wrap",
-              textAlign: "center",
+              fontSize: 58,
+              color: brandColor,
+              fontWeight: 700,
+              lineHeight: 1,
             }}
           >
-            {`「${title}」\nを達成しました！`}
+            {achievementCount.toLocaleString()}
+          </div>
+          <div
+            style={{
+              marginLeft: "8px",
+              fontSize: 24,
+              color: brandColor,
+              fontWeight: 700,
+            }}
+          >
+            件のアクションが達成されました！
           </div>
         </div>
-      </div>,
-      {
-        ...size,
-        fonts: fontData
-          ? [
-              {
-                name: "Noto Sans JP",
-                data: fontData,
-                weight: 700,
-                style: "normal",
-              },
-            ]
-          : [],
-      },
-    );
-  } else {
-    imageResponse = new ImageResponse(
-      <div
-        style={{
-          fontFamily: "Noto Sans JP",
-          width: "100%",
-          height: "100%",
-          padding: "40px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          justifyContent: "center",
-          backgroundImage: `url(${baseImageBase64})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div
-          style={{
-            width: "62%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 40,
-              color: "black",
-              fontWeight: "700",
-              marginBottom: "8px",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {titleWithLineBreak}
-          </div>
-          <div
-            style={{
-              fontFamily: "Noto Sans JP",
-              fontSize: 28,
-              color: "black",
-              fontWeight: "700",
-              marginBottom: "24px",
-            }}
-          >
-            #テクノロジーで誰も取り残さない日本へ
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              alignItems: "baseline",
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "Noto Sans JP",
-                fontSize: "58px",
-                color: readTokenColor("--app-brand-deep"),
-                textAlign: "center",
-                lineHeight: "1",
-              }}
-            >
-              {(pageData?.totalAchievementCount ?? 0).toLocaleString()}
-            </div>
-            <div
-              style={{
-                marginLeft: "8px",
-                fontFamily: "Noto Sans JP",
-                fontSize: "24px",
-                color: readTokenColor("--app-brand-deep"),
-                textAlign: "center",
-              }}
-            >
-              件のアクションが達成されました！
-            </div>
-          </div>
-        </div>
-      </div>,
-      {
-        ...size,
-        fonts: fontData
-          ? [
-              {
-                name: "Noto Sans JP",
-                data: fontData,
-                weight: 700,
-                style: "normal",
-              },
-            ]
-          : [],
-      },
-    );
-  }
+      )}
+    </div>,
+    {
+      ...size,
+      fonts: fontData
+        ? [
+            {
+              name: "Noto Sans JP",
+              data: fontData,
+              weight: 700,
+              style: "normal",
+            },
+          ]
+        : [],
+    },
+  );
 
   // ImageResponseからArrayBufferを取得
   const buf = await imageResponse.arrayBuffer();

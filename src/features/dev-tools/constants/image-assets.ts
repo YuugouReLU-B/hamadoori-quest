@@ -95,29 +95,6 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     usedIn: ["SNSでURLを共有したときのサムネイル（全ページ共通）"],
     note: "1200×630。派生元のまま。X・LINEに貼ったときに最初に見られる画像なので優先度が高い。",
   },
-  {
-    path: "/img/ogp_mission_base.png",
-    label: "OGP画像（クエスト用の下地）",
-    group: "brand",
-    status: "replace",
-    usedIn: ["クエスト詳細のOGPを動的生成するときの背景"],
-    note: "この上にクエスト名を重ねて描画している。",
-  },
-  {
-    path: "/img/ogp_mission_complete_base.png",
-    label: "OGP画像（達成報告の下地）",
-    group: "brand",
-    status: "replace",
-    usedIn: ["クエスト達成をシェアしたときのOGP"],
-  },
-  {
-    path: "/img/ogp_mission_vote.png",
-    label: "OGP画像（投票クエスト用）",
-    group: "brand",
-    status: "undecided",
-    usedIn: ["投票系クエストのOGP"],
-    note: "投票系クエストは現在すべて非表示。使うかどうかから決める。",
-  },
 
   // ── トップページ ──────────────────────────────────────
   {
@@ -130,11 +107,11 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
   },
   {
     path: "/img/hero-background.svg",
-    label: "ヒーローの街並み（旧）",
-    group: "top",
-    status: "replace",
-    usedIn: [],
-    note: "青緑 #30bca7 が72箇所に焼き込まれた派生元のイラスト。hero.webp に置き換えたため未使用。",
+    label: "街並みのイラスト（OGPの背景）",
+    group: "brand",
+    status: "keep",
+    usedIn: ["クエスト詳細・達成報告のOGPを動的生成するときの背景"],
+    note: "トップのヒーローは hero.webp に置き換わったが、OGPの背景として使っている。青緑 #30bca7 が72箇所に焼き込まれた派生元のイラスト。",
   },
   {
     path: "/img/hero-people.svg",
