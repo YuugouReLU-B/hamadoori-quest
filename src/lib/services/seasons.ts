@@ -1,10 +1,17 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import type { Database } from "@/lib/types/supabase";
 
 type Season = Database["public"]["Tables"]["seasons"]["Row"];
 export type { Season };
 
-export async function getCurrentSeason(): Promise<Season | null> {
+/**
+ * アクティブなシーズンを取得する。
+ *
+ * 1リクエスト中に複数箇所から呼ばれる（レベル取得・ランキング等）。
+ * シーズンはリクエスト中に変わらないので `cache()` で往復を1回に畳む。
+ */
+export const getCurrentSeason = cache(async (): Promise<Season | null> => {
   const supabase = await createAdminClient();
 
   const { data, error } = await supabase
@@ -19,7 +26,7 @@ export async function getCurrentSeason(): Promise<Season | null> {
   }
 
   return data;
-}
+});
 
 export async function getAllSeasons(): Promise<Season[]> {
   const supabase = await createAdminClient();

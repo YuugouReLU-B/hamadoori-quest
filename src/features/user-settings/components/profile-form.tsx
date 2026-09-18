@@ -43,8 +43,8 @@ export default function ProfileForm({
   const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
-    // 新規登録時は、プロフィール保存後にそのまま最初のミッションへ送る。
-    // 以前はトップに戻していたが、次に何をすればよいか分からない導線だった
+    // 新規登録時の遷移は基本サーバーアクション側のリダイレクトで行う。
+    // ここはそれが効かなかった場合のフォールバック
     if (state?.success && isNew && nextUrlAfterSignup) {
       setIsNavigating(true);
       router.push(nextUrlAfterSignup);
@@ -68,6 +68,11 @@ export default function ProfileForm({
         </div>
       )}
       <form action={formAction}>
+        {/* 新規登録時の遷移先。サーバーアクション側でそのままリダイレクトする
+            （クライアントに戻ってから router.push すると往復が1回増える）*/}
+        {isNew && nextUrlAfterSignup && (
+          <input type="hidden" name="nextUrl" value={nextUrlAfterSignup} />
+        )}
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">ニックネーム</Label>
