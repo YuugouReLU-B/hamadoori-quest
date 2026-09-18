@@ -91,9 +91,9 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     path: "/img/ogp-default.png",
     label: "OGP画像（既定）",
     group: "brand",
-    status: "replace",
+    status: "keep",
     usedIn: ["SNSでURLを共有したときのサムネイル（全ページ共通）"],
-    note: "1200×630。派生元のまま。X・LINEに貼ったときに最初に見られる画像なので優先度が高い。",
+    note: "1200×630。浜通りクエストの風景イラストに差し替え済み。",
   },
 
   // ── トップページ ──────────────────────────────────────
@@ -112,14 +112,6 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     status: "keep",
     usedIn: ["クエスト詳細・達成報告のOGPを動的生成するときの背景"],
     note: "トップのヒーローは hero.webp に置き換わったが、OGPの背景として使っている。青緑 #30bca7 が72箇所に焼き込まれた派生元のイラスト。",
-  },
-  {
-    path: "/img/hero-people.svg",
-    label: "ヒーローの人物イラスト（旧）",
-    group: "top",
-    status: "replace",
-    usedIn: [],
-    note: "#30bca7 / #0f8472 / #bcecd3 が焼き込まれている。hero.webp に置き換えたため未使用。",
   },
 
   // ── オンボーディング ──────────────────────────────────

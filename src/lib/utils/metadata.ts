@@ -16,7 +16,7 @@ export const config = {
   title: "浜通りクエスト",
   description:
     "政治活動をもっと身近に。楽しく政治参加に取り組める、浜通りクエスト。",
-  defaultImage: "/img/ogp-default.png?v=20250714",
+  defaultImage: "/img/ogp-default.png?v=20260919",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
