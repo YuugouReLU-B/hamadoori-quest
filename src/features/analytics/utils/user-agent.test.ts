@@ -72,4 +72,10 @@ describe("isBotUserAgent", () => {
     expect(isBotUserAgent(IPHONE_SAFARI)).toBe(false);
     expect(isBotUserAgent(MAC_CHROME)).toBe(false);
   });
+
+  it("LINEアプリ内ブラウザをボットにしない", () => {
+    // このサービスの主要な流入経路なので、誤ってボット扱いすると
+    // ダッシュボードから実トラフィックの大半が消える
+    expect(isBotUserAgent(LINE_APP)).toBe(false);
+  });
 });
