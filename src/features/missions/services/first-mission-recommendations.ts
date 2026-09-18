@@ -21,14 +21,22 @@ const RECOMMENDATION_LIMIT = 3;
 export async function getFirstMissionRecommendations(
   supabase: SupabaseClient<Database>,
   userId: string,
+  /** 取得済みなら渡す。呼び出し側と二重に引かないため */
+  achievedMissionIds?: Iterable<string>,
 ): Promise<FirstMissionRecommendations> {
-  const { data: achievements } = await supabase
-    .from("achievements")
-    .select("mission_id")
-    .eq("user_id", userId);
-  const achievedIds = new Set(
-    (achievements ?? []).flatMap((a) => (a.mission_id ? [a.mission_id] : [])),
-  );
+  let achievedIds: Set<string>;
+
+  if (achievedMissionIds) {
+    achievedIds = new Set(achievedMissionIds);
+  } else {
+    const { data: achievements } = await supabase
+      .from("achievements")
+      .select("mission_id")
+      .eq("user_id", userId);
+    achievedIds = new Set(
+      (achievements ?? []).flatMap((a) => (a.mission_id ? [a.mission_id] : [])),
+    );
+  }
 
   const today = new Date().toISOString().slice(0, 10);
 
