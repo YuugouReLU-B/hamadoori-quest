@@ -1,6 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import { LINE_LOGIN_COOKIE } from "@/features/auth/constants/line-login";
+import { buildLineLoginHref } from "@/features/auth/client/line-auth";
+import {
+  LINE_LOGIN_COOKIE,
+  LINE_STATE_PREFIX,
+} from "@/features/auth/constants/line-login";
 import { LineApiClientImpl } from "@/features/auth/services/line-api-client";
 import { grantLineFriendMission } from "@/features/auth/use-cases/grant-line-friend-mission";
 import { lineLogin } from "@/features/auth/use-cases/line-login";
@@ -45,7 +49,31 @@ async function clearFlowCookies() {
   await Promise.all([
     deleteCookie(LINE_LOGIN_COOKIE.state),
     deleteCookie(LINE_LOGIN_COOKIE.returnUrl),
+    deleteCookie(LINE_LOGIN_COOKIE.autoLoginRetry),
   ]);
+}
+
+/**
+ * 自動ログイン（LINEアプリを起動して無操作でログインを完了させる機能）が失敗したとき、
+ * LINEは「無効なcode」と「認可リクエスト時と一致しないstate」を付けてここへ戻してくる。
+ * そのため state 不一致はCSRFだけでなく自動ログイン失敗でも起きる。
+ *
+ * LINE公式の案内どおり、自動ログインを無効にした認可URLへ黙って送り直して救済する。
+ * 救済は1フローにつき1回だけ（cookieで印を付ける）にして、リダイレクトループを防ぐ。
+ * 参照: https://developers.line.biz/ja/docs/line-login/how-to-handle-auto-login-failure/
+ */
+async function retryWithAutoLoginDisabled() {
+  const returnUrl = validateReturnUrl(
+    decodeReturnUrl(await getCookie(LINE_LOGIN_COOKIE.returnUrl)),
+  );
+  // state は使い切り。returnUrl は再試行でも引き継ぎたいので残す
+  await deleteCookie(LINE_LOGIN_COOKIE.state);
+  return NextResponse.redirect(
+    new URL(
+      buildLineLoginHref(returnUrl ?? undefined, { disableAutoLogin: true }),
+      APP_ORIGIN,
+    ),
+  );
 }
 
 /**
@@ -75,8 +103,16 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get("state");
     const storedState = await getCookie(LINE_LOGIN_COOKIE.state);
 
-    // CSRF対策: state の照合はここ（サーバー側）で行う
+    // CSRF対策: state の照合はここ（サーバー側）で行う。
+    // ただし自動ログイン失敗でも state は一致しないので、
+    // まだフォールバックしていなければ自動ログインを切って一度だけやり直す
     if (!state || !storedState || !safeEquals(state, storedState)) {
+      const alreadyRetried =
+        state?.startsWith(LINE_STATE_PREFIX.autoLoginRetry) ||
+        Boolean(await getCookie(LINE_LOGIN_COOKIE.autoLoginRetry));
+      if (!alreadyRetried && state && code) {
+        return retryWithAutoLoginDisabled();
+      }
       await clearFlowCookies();
       return signInRedirect(
         "セキュリティエラー: 認証状態が無効です。最初からやり直してください。",
