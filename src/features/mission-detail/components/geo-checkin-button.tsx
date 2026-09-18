@@ -4,6 +4,10 @@ import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState, useTransition } from "react";
+import {
+  setAnalyticsGps,
+  trackEvent,
+} from "@/features/analytics/utils/tracker";
 import { geoCheckinAction } from "@/features/geo-checkin/actions/geo-checkin-actions";
 import { QuestClearPanel } from "@/features/mission-detail/components/quest-clear-panel";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
@@ -76,6 +80,13 @@ export function GeoCheckinButton({
       let position: GeolocationPosition;
       try {
         position = await getCurrentPosition();
+        // この操作自体が位置情報の利用に同意したうえでのものなので、
+        // 以降の計測イベントにも座標を添えてよい
+        setAnalyticsGps({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracyMeters: position.coords.accuracy,
+        });
       } catch {
         setState("error");
         setMessage(
@@ -89,6 +100,13 @@ export function GeoCheckinButton({
         position.coords.latitude,
         position.coords.longitude,
       );
+
+      // 「どこで何を獲得したか」を経路のなかに残す。
+      // 座標は setAnalyticsGps 済みなのでイベント側に自動で付く
+      trackEvent("geo_checkin", {
+        props: { missionId, status: result.status },
+        immediate: true,
+      });
 
       switch (result.status) {
         case "granted":

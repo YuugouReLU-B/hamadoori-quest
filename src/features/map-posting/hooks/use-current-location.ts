@@ -2,6 +2,10 @@
 
 import type { CircleMarker, Map as LeafletMap } from "leaflet";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  clearAnalyticsGps,
+  setAnalyticsGps,
+} from "@/features/analytics/utils/tracker";
 import { readTokenColor } from "@/lib/design/color-tokens";
 import type { LeafletWindow } from "../types/posting-types";
 
@@ -30,6 +34,13 @@ export function useCurrentLocation(
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setCurrentPos([pos.coords.latitude, pos.coords.longitude]);
+        // 現在地の利用にすでに同意を得ているこの画面に限り、計測イベントにも座標を添える。
+        // トラッカー側から navigator.geolocation を呼ぶことはしない
+        setAnalyticsGps({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracyMeters: pos.coords.accuracy,
+        });
       },
       () => {
         // 位置情報の取得に失敗した場合は静かに処理
@@ -38,6 +49,8 @@ export function useCurrentLocation(
     );
     return () => {
       navigator.geolocation.clearWatch(watchId);
+      // 地図から離れたら以降のイベントへの座標添付をやめる
+      clearAnalyticsGps();
     };
   }, []);
 

@@ -55,6 +55,7 @@ export default async function AdminLayout({
             <Link href="/admin/missions">クエスト</Link>
             <Link href="/admin/points">ポイント調整</Link>
             <Link href="/admin/lottery">抽選応募設定</Link>
+            <Link href="/admin/analytics">アクセス解析</Link>
             <Link href="/admin/users">ユーザー</Link>
           </nav>
         </header>

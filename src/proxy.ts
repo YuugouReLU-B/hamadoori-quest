@@ -47,6 +47,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // 計測ビーコンではセッションリフレッシュを走らせない。
+  // このエンドポイントは操作のたびに、しかも並行して叩かれるため、ここで
+  // updateSession を通すと上と同じ refresh_token のローテーション競合を招く。
+  // 収集側は認証cookieを読み取るだけでリフレッシュを必要としない
+  // （features/analytics/utils/auth-cookie.ts 参照）
+  if (request.nextUrl.pathname.startsWith("/api/analytics/")) {
+    return NextResponse.next();
+  }
+
   return await updateSession(request);
 }
 

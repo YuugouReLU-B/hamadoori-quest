@@ -9,6 +9,10 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "../styles/poster-map.css";
 import "../styles/poster-map-filter.css";
 import { Expand, Minimize } from "lucide-react";
+import {
+  clearAnalyticsGps,
+  setAnalyticsGps,
+} from "@/features/analytics/utils/tracker";
 import { MAX_ZOOM } from "@/lib/constants/mission-config";
 import { readTokenColor } from "@/lib/design/color-tokens";
 import type { Database } from "@/lib/types/supabase";
@@ -424,6 +428,13 @@ export default function PosterMapWithCluster({
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setCurrentPos([pos.coords.latitude, pos.coords.longitude]);
+        // 現在地の利用にすでに同意を得ているこの画面に限り、計測イベントにも座標を添える。
+        // トラッカー側から navigator.geolocation を呼ぶことはしない
+        setAnalyticsGps({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracyMeters: pos.coords.accuracy,
+        });
       },
       () => {
         // 位置情報の取得に失敗した場合は静かに処理
@@ -432,6 +443,8 @@ export default function PosterMapWithCluster({
     );
     return () => {
       navigator.geolocation.clearWatch(watchId);
+      // 地図から離れたら以降のイベントへの座標添付をやめる
+      clearAnalyticsGps();
     };
   }, []);
 

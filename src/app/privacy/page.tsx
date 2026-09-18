@@ -41,6 +41,11 @@ export default function PrivacyPolicy() {
               クエスト成果物（写真・動画のURL、SNS投稿リンク、位置情報等）
             </li>
             <li>アクセスログ（IPアドレス、ブラウザ情報、Cookie情報等）</li>
+            <li>
+              サービス内の利用状況（閲覧したページ、閲覧の順序、ページごとの滞在時間、
+              ページ内で表示した範囲、ボタンやリンクの操作、流入元のURL、
+              IPアドレスから推定される市区町村までの地域）
+            </li>
           </ul>
         </section>
 
@@ -72,6 +77,17 @@ export default function PrivacyPolicy() {
             当団体は、ユーザーの利便性向上および本サービスの運営に必要な範囲でCookie等の技術を使用します。また、Google
             LLCが提供するGoogle
             Analyticsを利用し、アクセス状況を解析する場合があります。Googleによる情報の取扱いについてはGoogleプライバシーポリシーをご参照ください。
+          </p>
+          <p className="text-sm-custom font-normal text-black text-justify mt-3">
+            あわせて当団体は、本サービスの改善のために、当団体自身のサーバー上でサービス内の利用状況を記録しています。
+            この記録には、同一のブラウザからの再訪を判別するためのCookieを使用します。この記録は当団体のサーバー内で保管し、
+            第三者へ送信することはありません。ブラウザの設定でCookieを削除または拒否した場合、この記録は行われません
+            （本サービスの利用自体は引き続き可能です）。
+          </p>
+          <p className="text-sm-custom font-normal text-black text-justify mt-3">
+            端末のGPSによる正確な位置情報は、地図の表示や現地での達成確認など、
+            ユーザーが位置情報の利用に同意したうえで操作した機能の中でのみ取得します。
+            それ以外の画面で、端末の位置情報を継続的に取得することはありません。
           </p>
         </section>
 
