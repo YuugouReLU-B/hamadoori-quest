@@ -1,3 +1,5 @@
+import { LINE_START_DISABLE_AUTO_LOGIN_PARAM } from "@/features/auth/constants/line-login";
+
 /**
  * LINEログイン開始リンクの組み立て。
  *
@@ -12,10 +14,22 @@
  * クライアントはそこへの素の `<a href>` を組み立てるだけにして、
  * クリックからそのルートへの遷移までを一つの連続したブラウザ遷移にする。
  */
-export function buildLineLoginHref(returnUrl?: string): string {
+export function buildLineLoginHref(
+  returnUrl?: string,
+  options?: {
+    /**
+     * LINEの自動ログイン（LINEアプリを起動して無操作でログインを完了させる機能）を
+     * 無効にする。自動ログインに失敗したあとの再試行でのみ使う。
+     */
+    disableAutoLogin?: boolean;
+  },
+): string {
   const params = new URLSearchParams();
   if (returnUrl) {
     params.set("returnUrl", returnUrl);
+  }
+  if (options?.disableAutoLogin) {
+    params.set(LINE_START_DISABLE_AUTO_LOGIN_PARAM, "1");
   }
   const query = params.toString();
   return query ? `/api/auth/line-start?${query}` : "/api/auth/line-start";
