@@ -406,6 +406,7 @@ export type Database = {
       };
       missions: {
         Row: {
+          address: string | null;
           artifact_label: string | null;
           content: string | null;
           created_at: string;
@@ -415,6 +416,7 @@ export type Database = {
           event_end_date: string | null;
           event_type: string | null;
           featured_importance: number | null;
+          google_map_url: string | null;
           icon_url: string | null;
           id: string;
           is_featured: boolean;
@@ -425,8 +427,6 @@ export type Database = {
           ogp_image_url: string | null;
           points: number;
           quest_category: Database["public"]["Enums"]["quest_category"];
-          address: string | null;
-          google_map_url: string | null;
           radius_meters: number | null;
           region: Database["public"]["Enums"]["mission_region"] | null;
           required_artifact_type: string;
@@ -439,6 +439,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          address?: string | null;
           artifact_label?: string | null;
           content?: string | null;
           created_at?: string;
@@ -448,6 +449,7 @@ export type Database = {
           event_end_date?: string | null;
           event_type?: string | null;
           featured_importance?: number | null;
+          google_map_url?: string | null;
           icon_url?: string | null;
           id: string;
           is_featured?: boolean;
@@ -458,8 +460,6 @@ export type Database = {
           ogp_image_url?: string | null;
           points?: number;
           quest_category?: Database["public"]["Enums"]["quest_category"];
-          address?: string | null;
-          google_map_url?: string | null;
           radius_meters?: number | null;
           region?: Database["public"]["Enums"]["mission_region"] | null;
           required_artifact_type?: string;
@@ -472,6 +472,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          address?: string | null;
           artifact_label?: string | null;
           content?: string | null;
           created_at?: string;
@@ -481,6 +482,7 @@ export type Database = {
           event_end_date?: string | null;
           event_type?: string | null;
           featured_importance?: number | null;
+          google_map_url?: string | null;
           icon_url?: string | null;
           id?: string;
           is_featured?: boolean;
@@ -491,8 +493,6 @@ export type Database = {
           ogp_image_url?: string | null;
           points?: number;
           quest_category?: Database["public"]["Enums"]["quest_category"];
-          address?: string | null;
-          google_map_url?: string | null;
           radius_meters?: number | null;
           region?: Database["public"]["Enums"]["mission_region"] | null;
           required_artifact_type?: string;
@@ -1934,6 +1934,7 @@ export type Database = {
       };
       mission_category_view: {
         Row: {
+          address: string | null;
           artifact_label: string | null;
           category_id: string | null;
           category_kbn: string | null;
@@ -1946,6 +1947,7 @@ export type Database = {
           event_date: string | null;
           event_end_date: string | null;
           event_type: string | null;
+          google_map_url: string | null;
           icon_url: string | null;
           is_featured: boolean | null;
           is_hidden: boolean | null;
@@ -1957,8 +1959,6 @@ export type Database = {
           ogp_image_url: string | null;
           points: number | null;
           quest_category: Database["public"]["Enums"]["quest_category"] | null;
-          address: string | null;
-          google_map_url: string | null;
           radius_meters: number | null;
           region: Database["public"]["Enums"]["mission_region"] | null;
           required_artifact_type: string | null;
@@ -2478,6 +2478,22 @@ export type Database = {
     };
     Enums: {
       event_category: "SPOT" | "SPORTS" | "ART" | "FOOD" | "MIXED";
+      mission_region:
+        | "IWAKI"
+        | "HIRONO"
+        | "NARAHA"
+        | "TOMIOKA"
+        | "OKUMA"
+        | "FUTABA"
+        | "NAMIE"
+        | "KATSURAO"
+        | "KAWAUCHI"
+        | "MINAMISOMA"
+        | "IITATE"
+        | "SHINCHI"
+        | "SOMA"
+        | "TOKYO"
+        | "WIDE";
       poster_board_status:
         | "not_yet"
         | "reserved"
@@ -2507,22 +2523,6 @@ export type Database = {
         | "SPECIAL_HAMADORI"
         | "SPECIAL_TOKYO"
         | "SNS";
-      mission_region:
-        | "IWAKI"
-        | "HIRONO"
-        | "NARAHA"
-        | "TOMIOKA"
-        | "OKUMA"
-        | "FUTABA"
-        | "NAMIE"
-        | "KATSURAO"
-        | "KAWAUCHI"
-        | "MINAMISOMA"
-        | "IITATE"
-        | "SHINCHI"
-        | "SOMA"
-        | "TOKYO"
-        | "WIDE";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -2657,6 +2657,23 @@ export const Constants = {
   public: {
     Enums: {
       event_category: ["SPOT", "SPORTS", "ART", "FOOD", "MIXED"],
+      mission_region: [
+        "IWAKI",
+        "HIRONO",
+        "NARAHA",
+        "TOMIOKA",
+        "OKUMA",
+        "FUTABA",
+        "NAMIE",
+        "KATSURAO",
+        "KAWAUCHI",
+        "MINAMISOMA",
+        "IITATE",
+        "SHINCHI",
+        "SOMA",
+        "TOKYO",
+        "WIDE",
+      ],
       poster_board_status: [
         "not_yet",
         "reserved",
@@ -2684,23 +2701,6 @@ export const Constants = {
       ],
       posting_shape_status: ["planned", "completed", "unavailable", "other"],
       quest_category: ["PERMANENT", "SPECIAL_HAMADORI", "SPECIAL_TOKYO", "SNS"],
-      mission_region: [
-        "IWAKI",
-        "HIRONO",
-        "NARAHA",
-        "TOMIOKA",
-        "OKUMA",
-        "FUTABA",
-        "NAMIE",
-        "KATSURAO",
-        "KAWAUCHI",
-        "MINAMISOMA",
-        "IITATE",
-        "SHINCHI",
-        "SOMA",
-        "TOKYO",
-        "WIDE",
-      ],
     },
   },
 } as const;
