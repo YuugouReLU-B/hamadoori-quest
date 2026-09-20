@@ -127,9 +127,31 @@ test.describe("認証フロー (トップページに一本化)", () => {
     expect(localStorageState).toBeNull();
   });
 
-  test("stateが一致しないコールバックは拒否される", async ({ page }) => {
-    // cookie を持たない状態で直接コールバックを叩く
+  test("state不一致は自動ログインを切って一度だけやり直す", async ({
+    page,
+  }) => {
+    // LINEは自動ログイン失敗時にも state 不一致で戻してくるので、
+    // 1回目は拒否ではなく disable_auto_login=true の認可URLへ送り直す
+    // https://developers.line.biz/ja/docs/line-login/how-to-handle-auto-login-failure/
+    // LINE への実通信は行わず、遷移先URLだけを検証する
+    await page.route("https://access.line.me/**", (route) =>
+      route.fulfill({ status: 200, body: "stub" }),
+    );
+
+    // callback → /api/auth/line-start?noAutoLogin=1 → authorize の2ホップ
     await page.goto("/api/auth/line-callback?code=dummy&state=forged");
+
+    await expect(page).toHaveURL(/access\.line\.me\/oauth2\/v2\.1\/authorize/);
+    const params = new URL(page.url()).searchParams;
+    expect(params.get("disable_auto_login")).toBe("true");
+    // 再試行であることが state の接頭辞にも残る（cookieが使えない環境向け）
+    expect(params.get("state")).toMatch(/^r\./);
+  });
+
+  test("やり直し済みのstate不一致は拒否される", async ({ page }) => {
+    // state の "r." 接頭辞が「自動ログインを切った再試行」の印。
+    // これで戻ってきてなお不一致なら、救済せずエラーにする
+    await page.goto("/api/auth/line-callback?code=dummy&state=r.forged");
 
     await expect(page).toHaveURL(/\/\?error=/);
     await expect(page.getByText(/認証状態が無効です/)).toBeVisible();
