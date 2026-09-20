@@ -1,12 +1,15 @@
 import { assertAuthState, expect, test } from "../e2e-test-helpers";
 
+/** supabase/seed.sql の成果物不要ミッション。達成・取消の往復に使う */
+const SEED_MISSION_SLUG = "seed-cleanup";
+
 test.describe("アクションボード（Web版）のe2eテスト", () => {
   test("ログイン済み状態からトップページ確認", async ({ signedInPage }) => {
     await assertAuthState(signedInPage, true);
 
     // 自身のステータス表示を確認（レベル表示は廃止し、ポイント数のみ表示）
     await expect(
-      signedInPage.locator("section").getByText("現在 0 ポイント"),
+      signedInPage.locator("section").getByText(/現在\s*0\s*P/),
     ).toBeVisible({ timeout: 10000 });
     await expect(
       signedInPage.getByRole("link", {
@@ -106,17 +109,15 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
     await expect(signedInPage.getByText("佐藤太郎").first()).toBeVisible();
   });
 
-  test("クエストページ遷移 → クエスト完了 → クエスト取消が正常に動作する", async ({
+  test("クエストページ遷移 → クエスト完了が正常に動作する", async ({
     signedInPage,
   }) => {
     await assertAuthState(signedInPage, true);
 
-    // ミッションページに遷移（ゴミ拾いミッションをクリック）
-    await signedInPage
-      .getByRole("article")
-      .filter({ hasText: "(seed) ゴミ拾いをしよう (成果物不要)" })
-      .getByRole("button", { name: "400P獲得" })
-      .click();
+    // ミッションページに遷移。
+    // seedのゴミ拾いミッションはカテゴリに紐付いておらずトップの一覧に出ないので、
+    // slugで直接開く（トップの一覧表示は別のテストで担保している）
+    await signedInPage.goto(`/missions/${SEED_MISSION_SLUG}`);
     await expect(signedInPage).toHaveURL(/\/missions\/[^/]+$/, {
       timeout: 10000,
     });
@@ -144,54 +145,29 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
       signedInPage.getByText("このクエストは何度でもチャレンジできます。"),
     ).toBeVisible();
     // ポイント2倍の仕組みは廃止したので、pointsそのまま(400)が付与される
-    await expect(signedInPage.getByText("400ポイント獲得しました")).toBeVisible(
-      { timeout: 10000 },
-    );
+    await expect(signedInPage.getByText("400P獲得しました")).toBeVisible({
+      timeout: 10000,
+    });
 
     // ミッション完了後のポイントの変動を確認（レベル表示は廃止し、ポイント数のみ表示）
     await signedInPage.goto("/");
     await expect(
-      signedInPage.locator("section").getByText("現在 400 ポイント"),
+      signedInPage.locator("section").getByText(/現在\s*400\s*P/),
     ).toBeVisible({ timeout: 10000 });
 
     await signedInPage.goto("/ranking");
     await signedInPage.getByRole("button", { name: "全期間" }).click();
     await expect(signedInPage.getByText("あなたのランク")).toBeVisible();
-    // ランキング一覧では都道府県を表示しなくなった
+    // ランキング一覧では都道府県とレベルを表示しなくなり、単位も P になった
     await expect(
-      signedInPage
-        .getByRole("link", {
-          name: "テストユーザー Lv.6 400pt",
-        })
-        .first(),
+      signedInPage.getByRole("link", { name: /テストユーザー\s*400P/ }).first(),
     ).toBeVisible({ timeout: 10000 });
 
-    // ミッション取消後のポイントの変動を確認
-    await signedInPage.goto("/");
-    await signedInPage
-      .getByRole("button", { name: "もう一回400P獲得" })
-      .first()
-      .click();
-    await expect(signedInPage).toHaveURL(/\/missions\/[^/]+$/, {
-      timeout: 10000,
-    });
-
-    await expect(signedInPage.getByText("あなたの達成履歴")).toBeVisible({
-      timeout: 10000,
-    });
-    await signedInPage.getByRole("button", { name: "取り消す" }).click();
-
-    await expect(
-      signedInPage.getByText("達成履歴を削除しますか？"),
-    ).toBeVisible({ timeout: 10000 });
-    await signedInPage.getByRole("button", { name: "削除する" }).click();
-
-    await signedInPage.waitForTimeout(2000);
-
-    await signedInPage.goto("/");
-    await expect(
-      signedInPage.locator("section").getByText("現在 0 ポイント"),
-    ).toBeVisible({ timeout: 10000 });
+    // 達成の取り消しはここでは検証しない。
+    // face9e1e「初回クエストクリア画面と達成演出の統一」でミッション詳細から
+    // 達成履歴（と「取り消す」ボタン）の表示が外れており、UIとして存在しない。
+    // SubmissionHistoryWrapper / submission-item / cancel-submission-dialog は
+    // どこからも参照されていない。取消を再びUIに戻すならここに検証を足す
   });
 
   test("TOP100ランキング - 全タブ遷移が正常に動作する", async ({
