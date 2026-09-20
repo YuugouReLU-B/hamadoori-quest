@@ -28,7 +28,7 @@ export function DevUserRow({ user, isCurrentUser }: DevUserRowProps) {
         return;
       }
       // 自分を消した場合はセッションが宙に浮くのでサインアウトさせる
-      router.push(isCurrentUser ? "/sign-in" : "/dev/users");
+      router.push(isCurrentUser ? "/" : "/dev/users");
       router.refresh();
     });
   };

@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  // ログインと新規登録の入り口をトップに一本化した。外部に共有された
+  // 旧URLやブックマークを拾うためのリダイレクト（returnUrl 等のクエリは
+  // Next.js が自動で引き継ぐ）
+  async redirects() {
+    return [
+      { source: "/sign-in", destination: "/", permanent: true },
+      { source: "/sign-up", destination: "/", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

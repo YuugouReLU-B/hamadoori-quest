@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { Message } from "@/components/common/form-message";
 import Hero from "@/components/top/hero";
 import { HowToParticipateSection } from "@/components/top/how-to-participate-section";
 import { syncPointMilestoneAudience } from "@/features/line-notification/use-cases/sync-point-milestone-audience";
@@ -14,17 +15,47 @@ import {
 import { getCurrentSeasonId } from "@/lib/loaders/seasons-loaders";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { generateRootMetadata } from "@/lib/utils/metadata";
+import { validateReturnUrl } from "@/lib/validation/url";
 
 // メタデータ生成を外部関数に委譲
 export const generateMetadata = generateRootMetadata;
 
+/**
+ * ヒーローのLINEボタンの上に出すメッセージを組み立てる。
+ *
+ * ログイン導線を `/sign-in` からトップに移したので、認証エラーや
+ * 「ログインが必要」の理由をここで受け取って表示する必要がある。
+ */
+function buildAuthMessage(params: {
+  returnUrl?: string;
+  error?: string;
+  success?: string;
+  message?: string;
+}): Message | undefined {
+  if (params.error) return { error: params.error };
+  if (params.success) return { success: params.success };
+  if (params.message) return { message: params.message };
+  if (params.returnUrl) {
+    return { message: "ログインすると続きから遊べます。" };
+  }
+  return undefined;
+}
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ ref?: string }>;
+  searchParams: Promise<{
+    ref?: string;
+    returnUrl?: string;
+    error?: string;
+    success?: string;
+    message?: string;
+  }>;
 }) {
   const params = await searchParams;
   const _referralCode = params.ref;
+  const returnUrl = validateReturnUrl(params.returnUrl) ?? undefined;
+  const authMessage = buildAuthMessage({ ...params, returnUrl });
 
   const user = await getUser();
 
@@ -65,7 +96,7 @@ export default async function Home({
 
       {/* ヒーローセクション */}
       <section className="relative">
-        <Hero />
+        <Hero returnUrl={returnUrl} message={authMessage} />
       </section>
 
       {/* 参加方法の案内図（活動状況・タイムライン・ランキングの代わりに表示）。

@@ -219,22 +219,13 @@ export default async function MissionPage({ params, searchParams }: Props) {
             </CardHeader>
             <CardContent className="text-center">
               <Link
-                href={`/sign-in?returnUrl=${encodeURIComponent(`/missions/${slug}`)}`}
+                href={`/?returnUrl=${encodeURIComponent(`/missions/${slug}`)}`}
               >
                 <Button className="w-full sm:w-auto">
                   <LogIn className="mr-2 h-4 w-4" />
-                  ログインする
+                  LINEで登録/ログイン
                 </Button>
               </Link>
-              <p className="mt-4 text-sm text-muted-foreground">
-                アカウントをお持ちでない方は{" "}
-                <Link
-                  href="/sign-up"
-                  className="text-brand-ink hover:underline"
-                >
-                  こちらから登録
-                </Link>
-              </p>
             </CardContent>
           </Card>
         )}
