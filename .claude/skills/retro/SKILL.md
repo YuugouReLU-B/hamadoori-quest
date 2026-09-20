@@ -26,13 +26,13 @@ $ARGUMENTS
 以下のコマンドでPRコメントを取得する:
 
 ```bash
-# CodeRabbit・人間レビュアーのインラインコメント（botを除外）
+# レビュアーのインラインコメント（botを除外）
 # 注意: jqで != を使うとBashツールが \! にエスケープするため、代替構文を使用
-gh api repos/team-mirai-volunteer/action-board/pulls/{PR}/comments \
+gh api repos/YuugouReLU-B/hamadoori-quest/pulls/{PR}/comments \
   --jq '[.[] | select(.user.login | test("vercel|codecov") | not) | {user: .user.login, path: .path, body: .body}]'
 
 # レビューサマリー
-gh api repos/team-mirai-volunteer/action-board/pulls/{PR}/reviews \
+gh api repos/YuugouReLU-B/hamadoori-quest/pulls/{PR}/reviews \
   --jq '[.[] | select(.body | length > 0) | {user: .user.login, state: .state, body: .body}]'
 ```
 
@@ -47,12 +47,6 @@ gh pr list --state merged --limit 10 --json number,title,mergedAt
 2. **原因**: なぜ問題か（フレームワーク制約、設計原則等）
 3. **対処**: どう解決したか（または解決策の提案）
 4. **ルール化候補**: 今後のルール案
-
-CodeRabbitコメントのフィルタリング:
-- `_⚠️ Potential issue_` + `_🔴 Critical_` or `_🟠 Major_` → 必ず分析
-- `_🟡 Minor_` → 内容を見て判断
-- `nitpick` → スキップ
-- botのboilerplate（analysis chain、prompt for AI agents等）→ スキップし本文のみ分析
 
 #### パターンB: セッション振り返り（`session` 指定時）
 
