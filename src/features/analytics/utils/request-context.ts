@@ -55,6 +55,23 @@ function parseCoordinate(value: string | null): number | null {
 }
 
 /**
+ * IPアドレスとして保存できる形かどうか。
+ *
+ * analytics_sessions.ip_address は INET 型なので、"unknown" や
+ * ポート付きの値をそのまま渡すとキャスト失敗でINSERT全体が落ちる。
+ * プロキシの実装次第でそうした値が来るため、保存前に必ずここを通す。
+ * 厳密な妥当性検証ではなく、INETに入らない形を弾くのが目的。
+ */
+export function isStorableIp(value: string): boolean {
+  // IPv4: 0-255 を4つ
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) {
+    return value.split(".").every((part) => Number.parseInt(part, 10) <= 255);
+  }
+  // IPv6: 16進とコロン（短縮形・IPv4混在表記を含む）。ゾーンIDは INET が受け付けない
+  return /^[0-9a-f:]+(\.\d{1,3}){0,3}$/i.test(value) && value.includes(":");
+}
+
+/**
  * クライアントIPを取り出す。
  *
  * x-forwarded-for は "client, proxy1, proxy2" の順に積まれるので先頭を採用する。
@@ -63,12 +80,16 @@ function parseCoordinate(value: string | null): number | null {
  * 認可の判断には使わない。
  */
 export function resolveClientIp(headers: Headers): string | null {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
+  const candidates = [
+    headers.get("x-forwarded-for")?.split(",")[0],
+    headers.get("x-real-ip"),
+  ];
+
+  for (const candidate of candidates) {
+    const value = candidate?.trim();
+    if (value && isStorableIp(value)) return value;
   }
-  return headers.get("x-real-ip")?.trim() || null;
+  return null;
 }
 
 export function resolveRequestContext(

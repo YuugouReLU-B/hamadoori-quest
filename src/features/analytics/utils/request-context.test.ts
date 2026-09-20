@@ -1,4 +1,8 @@
-import { resolveClientIp, resolveRequestContext } from "./request-context";
+import {
+  isStorableIp,
+  resolveClientIp,
+  resolveRequestContext,
+} from "./request-context";
 
 const CHROME_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -19,6 +23,55 @@ describe("resolveClientIp", () => {
 
   it("どちらも無ければ null", () => {
     expect(resolveClientIp(new Headers())).toBeNull();
+  });
+
+  it("INETに入らない値は採用しない", () => {
+    // これを通すとINSERT全体がキャスト失敗で落ち、イベントがまとめて失われる
+    expect(
+      resolveClientIp(new Headers({ "x-forwarded-for": "unknown" })),
+    ).toBeNull();
+    expect(
+      resolveClientIp(new Headers({ "x-forwarded-for": "203.0.113.5:443" })),
+    ).toBeNull();
+    expect(
+      resolveClientIp(new Headers({ "x-forwarded-for": "999.1.1.1" })),
+    ).toBeNull();
+  });
+
+  it("壊れた x-forwarded-for でも x-real-ip に退避する", () => {
+    expect(
+      resolveClientIp(
+        new Headers({
+          "x-forwarded-for": "unknown",
+          "x-real-ip": "198.51.100.7",
+        }),
+      ),
+    ).toBe("198.51.100.7");
+  });
+});
+
+describe("isStorableIp", () => {
+  it("IPv4を受け付ける", () => {
+    expect(isStorableIp("203.0.113.5")).toBe(true);
+    expect(isStorableIp("0.0.0.0")).toBe(true);
+    expect(isStorableIp("255.255.255.255")).toBe(true);
+  });
+
+  it("IPv6を受け付ける", () => {
+    expect(isStorableIp("2001:db8::1")).toBe(true);
+    expect(isStorableIp("::1")).toBe(true);
+    expect(isStorableIp("::ffff:203.0.113.5")).toBe(true);
+  });
+
+  it("IPv6のゾーンIDは受け付けない（INETが解釈できない）", () => {
+    expect(isStorableIp("fe80::1%eth0")).toBe(false);
+  });
+
+  it("IPでない文字列を弾く", () => {
+    expect(isStorableIp("unknown")).toBe(false);
+    expect(isStorableIp("")).toBe(false);
+    expect(isStorableIp("203.0.113")).toBe(false);
+    expect(isStorableIp("256.0.0.1")).toBe(false);
   });
 });
 
