@@ -47,6 +47,12 @@ export type QuestTransitionRow =
   Fn["analytics_quest_transitions"]["Returns"][number];
 export type QuestJourneyRow =
   Fn["analytics_user_quest_journey"]["Returns"][number];
+export type FilterUsageRow = Fn["analytics_filter_usage"]["Returns"][number];
+export type MapUsageRow = Fn["analytics_map_usage"]["Returns"][number];
+export type MapSpotExposureRow =
+  Fn["analytics_map_spot_exposure"]["Returns"][number];
+export type CalendarUsageRow =
+  Fn["analytics_calendar_usage"]["Returns"][number];
 
 export interface AnalyticsPeriod {
   from: Date;
@@ -96,6 +102,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     questProgression,
     questTransitions,
     questJourneys,
+    filterUsage,
+    mapUsage,
+    mapSpotExposure,
+    calendarUsage,
   ] = await Promise.all([
     supabase.rpc("analytics_overview", args),
     supabase.rpc("analytics_by_channel", args),
@@ -124,6 +134,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     supabase.rpc("analytics_quest_progression", { ...args, max_step: 10 }),
     supabase.rpc("analytics_quest_transitions", { ...args, row_limit: 40 }),
     supabase.rpc("analytics_user_quest_journey", { ...args, row_limit: 60 }),
+    supabase.rpc("analytics_filter_usage", { ...args, row_limit: 40 }),
+    supabase.rpc("analytics_map_usage", args),
+    supabase.rpc("analytics_map_spot_exposure", { ...args, row_limit: 60 }),
+    supabase.rpc("analytics_calendar_usage", { ...args, row_limit: 36 }),
   ]);
 
   const failed = [
@@ -147,6 +161,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     questProgression,
     questTransitions,
     questJourneys,
+    filterUsage,
+    mapUsage,
+    mapSpotExposure,
+    calendarUsage,
   ].find((result) => result.error);
 
   if (failed?.error) {
@@ -176,6 +194,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     questProgression: questProgression.data ?? [],
     questTransitions: questTransitions.data ?? [],
     questJourneys: questJourneys.data ?? [],
+    filterUsage: filterUsage.data ?? [],
+    mapUsage: mapUsage.data ?? [],
+    mapSpotExposure: mapSpotExposure.data ?? [],
+    calendarUsage: calendarUsage.data ?? [],
   };
 }
 

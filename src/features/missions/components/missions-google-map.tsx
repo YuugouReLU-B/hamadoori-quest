@@ -3,6 +3,10 @@
 import { LocateFixed } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  createMapTracker,
+  type MapTracker,
+} from "@/features/analytics/utils/map-tracking";
 import { loadGoogleMaps } from "@/features/missions/utils/load-google-maps";
 import type { MapSpot } from "@/features/spot-map/services/spot-map";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
@@ -77,6 +81,10 @@ export function MissionsGoogleMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
+  const trackerRef = useRef<MapTracker | null>(null);
+  // マーカーは張り替えるので、可視判定のために最新のスポットを ref で持つ
+  const spotsRef = useRef(spots);
+  spotsRef.current = spots;
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const currentPosMarkerRef = useRef<google.maps.Marker | null>(null);
   const [ready, setReady] = useState(false);
@@ -117,6 +125,45 @@ export function MissionsGoogleMap({
     // mapRef.currentのガードにより地図の生成は初回のみ実行される
   }, [ready, spots[0]]);
 
+  // 地図の操作の計測。
+  // 上の地図生成effectに同居させないのは、あちらが mapRef.current のガードで
+  // 初回しか本体を実行しないため。依存が変わって再実行されるとクリーンアップだけが走り、
+  // 購読が外れたまま元に戻らなくなる
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready || !map) return;
+
+    // 中心座標は残さず、ズームと画面内のスポットだけ記録する
+    const tracker = createMapTracker({
+      mapId: "missions-map",
+      getZoom: () => map.getZoom() ?? null,
+      getVisibleSpotIds: () => {
+        const viewBounds = map.getBounds();
+        if (!viewBounds) return [];
+        return spotsRef.current
+          .filter((spot) =>
+            viewBounds.contains(
+              new google.maps.LatLng(spot.latitude, spot.longitude),
+            ),
+          )
+          .map((spot) => spot.id);
+      },
+    });
+    trackerRef.current = tracker;
+
+    // dragend と zoom_changed だけを見る。idle は fitBounds などの自動移動でも発火する
+    const listeners = [
+      map.addListener("dragend", () => tracker.reportMove()),
+      map.addListener("zoom_changed", () => tracker.reportMove()),
+    ];
+
+    return () => {
+      for (const listener of listeners) listener.remove();
+      tracker.dispose();
+      trackerRef.current = null;
+    };
+  }, [ready]);
+
   // マーカーの張り替え
   useEffect(() => {
     const map = mapRef.current;
@@ -138,6 +185,10 @@ export function MissionsGoogleMap({
         zIndex: isSelected ? 999 : undefined,
       });
       marker.addListener("click", () => {
+        trackerRef.current?.reportMarkerClick({
+          id: spot.id,
+          title: spot.title,
+        });
         onSelectSpot(spot.id);
         infoWindowRef.current?.setContent(createInfoWindowContent(spot));
         infoWindowRef.current?.open({ map, anchor: marker });

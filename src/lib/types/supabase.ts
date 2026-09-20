@@ -2425,6 +2425,16 @@ export type Database = {
           visitors: number;
         }[];
       };
+      analytics_calendar_usage: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          event_count: number;
+          jumped_to_next: number;
+          month: string;
+          views: number;
+          visitors: number;
+        }[];
+      };
       analytics_click_targets: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {
@@ -2454,6 +2464,42 @@ export type Database = {
           impressions: number;
           page_path: string;
           total_seconds: number;
+          visitors: number;
+        }[];
+      };
+      analytics_filter_usage: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          avg_result_count: number;
+          kinds: string;
+          quest_type: string;
+          regions: string;
+          selections: number;
+          visitors: number;
+          zero_result_rate: number;
+        }[];
+      };
+      analytics_map_spot_exposure: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          click_rate: number;
+          clicks: number;
+          map_id: string;
+          spot_id: string;
+          spot_title: string;
+          times_in_view: number;
+          viewers: number;
+        }[];
+      };
+      analytics_map_usage: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          avg_visible_spots: number;
+          avg_zoom: number;
+          map_id: string;
+          marker_clicks: number;
+          max_zoom: number;
+          moves: number;
           visitors: number;
         }[];
       };

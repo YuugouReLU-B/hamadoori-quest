@@ -39,29 +39,51 @@ let queue: CollectEventInput[] = [];
 let queuedSession: CollectSessionInput | null = null;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * 送信。
+ *
+ * 全体を try/catch で囲っているのは、解析の失敗が絶対に画面の操作を
+ * 壊してはいけないため。fetch が存在しない実行環境（テストの jsdom など）では
+ * 呼び出しが同期的に ReferenceError を投げ、.catch() では拾えずに
+ * クリックハンドラごと落ちる。
+ */
 function send(payload: string, preferBeacon: boolean): void {
-  if (preferBeacon && typeof navigator.sendBeacon === "function") {
-    // Blob に type を付けないと Content-Type が text/plain になり、
-    // route handler 側の req.json() が通らない
-    const blob = new Blob([payload], { type: "application/json" });
-    if (navigator.sendBeacon(ENDPOINT, blob)) {
-      return;
+  try {
+    if (preferBeacon && typeof navigator.sendBeacon === "function") {
+      // Blob に type を付けないと Content-Type が text/plain になり、
+      // route handler 側の req.json() が通らない
+      const blob = new Blob([payload], { type: "application/json" });
+      if (navigator.sendBeacon(ENDPOINT, blob)) {
+        return;
+      }
     }
-  }
 
-  void fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: payload,
-    // 離脱中でも送り切らせる
-    keepalive: true,
-    credentials: "same-origin",
-  }).catch(() => {
-    // 解析データの取りこぼしでユーザー体験を壊さない。失敗は黙って捨てる
-  });
+    if (typeof fetch !== "function") return;
+
+    void fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      // 離脱中でも送り切らせる
+      keepalive: true,
+      credentials: "same-origin",
+    }).catch(() => {
+      // 解析データの取りこぼしでユーザー体験を壊さない。失敗は黙って捨てる
+    });
+  } catch {
+    // 同上。送れなければ諦める
+  }
 }
 
 export function flushAnalytics(preferBeacon = false): void {
+  try {
+    flushQueue(preferBeacon);
+  } catch {
+    // 解析の失敗で呼び出し元の処理を止めない
+  }
+}
+
+function flushQueue(preferBeacon: boolean): void {
   if (flushTimer) {
     clearTimeout(flushTimer);
     flushTimer = null;
@@ -112,6 +134,18 @@ export interface TrackOptions {
 export function trackEvent(
   eventName: AnalyticsEventName,
   options: TrackOptions = {},
+): void {
+  try {
+    queueEvent(eventName, options);
+  } catch {
+    // 計測は画面の付帯機能でしかない。ここで投げると
+    // 呼び出し元のクリックハンドラごと壊れてしまう
+  }
+}
+
+function queueEvent(
+  eventName: AnalyticsEventName,
+  options: TrackOptions,
 ): void {
   if (typeof window === "undefined") return;
 

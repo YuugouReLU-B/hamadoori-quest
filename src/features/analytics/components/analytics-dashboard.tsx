@@ -29,6 +29,12 @@ import {
 } from "./analytics-extra-sections";
 import { AnalyticsTable, PercentBar } from "./analytics-table";
 import {
+  CalendarUsageTable,
+  FilterUsageTable,
+  MapSpotExposureTable,
+  MapUsageTable,
+} from "./discovery-sections";
+import {
   QuestJourneyTable,
   QuestProgressionCard,
   QuestSequenceTable,
@@ -319,6 +325,12 @@ export function AnalyticsDashboard({
 
       {/* 押されたボタン */}
       <ClickTargetsTable rows={data.clicks} />
+
+      {/* クエストをどう探しているか */}
+      <FilterUsageTable rows={data.filterUsage} />
+      <MapUsageTable rows={data.mapUsage} />
+      <MapSpotExposureTable rows={data.mapSpotExposure} />
+      <CalendarUsageTable rows={data.calendarUsage} />
 
       {/* 回遊経路 */}
       <AnalyticsTable<AnalyticsFlowRow>
