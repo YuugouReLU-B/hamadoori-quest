@@ -101,35 +101,6 @@ describe("normalizeCollectRequest", () => {
     expect(result?.events[0].occurredAt).toBe(new Date(NOW).toISOString());
   });
 
-  it("範囲外の座標は採用しない", () => {
-    const result = normalizeCollectRequest(
-      body({
-        events: [event({ gps: { latitude: 120, longitude: 140 } })],
-      }),
-      NOW,
-    );
-    expect(result?.events[0].gps).toBeNull();
-  });
-
-  it("正しい座標は採用する", () => {
-    const result = normalizeCollectRequest(
-      body({
-        events: [
-          event({
-            gps: { latitude: 37.05, longitude: 140.89, accuracyMeters: 12.5 },
-          }),
-        ],
-      }),
-      NOW,
-    );
-    expect(result?.events[0].gps).toEqual({
-      latitude: 37.05,
-      longitude: 140.89,
-      accuracyMeters: 12.5,
-      capturedAt: NOW,
-    });
-  });
-
   it("領域滞在の帯を必ず10個に揃える", () => {
     // サーバー側で REGION_BAND_COUNT が読めていないと空配列になり、
     // 「ページのどこを見ていたか」が丸ごと失われる（実際に踏んだ不具合）

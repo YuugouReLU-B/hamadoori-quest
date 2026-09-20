@@ -204,14 +204,6 @@ export function normalizeEvent(
   const eventName = str(raw.eventName, MAX_EVENT_NAME_LENGTH);
   if (!eventName) return null;
 
-  const gpsRaw = raw.gps as Record<string, unknown> | null | undefined;
-  const latitude = gpsRaw
-    ? float(gpsRaw.latitude, { min: -90, max: 90 })
-    : null;
-  const longitude = gpsRaw
-    ? float(gpsRaw.longitude, { min: -180, max: 180 })
-    : null;
-
   return {
     eventId: raw.eventId,
     tabId: raw.tabId,
@@ -230,18 +222,6 @@ export function normalizeEvent(
     maxScrollPct: int(raw.maxScrollPct, { min: 0, max: 100 }),
     scrollDepthPx: int(raw.scrollDepthPx, { min: 0, max: 10_000_000 }),
     pageHeightPx: int(raw.pageHeightPx, { min: 0, max: 10_000_000 }),
-    gps:
-      latitude !== null && longitude !== null
-        ? {
-            latitude,
-            longitude,
-            accuracyMeters: float(gpsRaw?.accuracyMeters, {
-              min: 0,
-              max: 1_000_000,
-            }),
-            capturedAt: now,
-          }
-        : null,
     regionDwell: regionDwell(raw.regionDwell),
     props: props(raw.props),
   };

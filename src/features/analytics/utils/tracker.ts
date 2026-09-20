@@ -2,7 +2,6 @@
 
 import type {
   AnalyticsEventName,
-  AnalyticsGeoPoint,
   CollectEventInput,
   CollectSessionInput,
   RegionDwellPayload,
@@ -30,8 +29,6 @@ const FLUSH_DEBOUNCE_MS = 1500;
 const MAX_BATCH_SIZE = 20;
 /** 送信できずに溜まり続けた場合の上限。これを超えたら古いものから捨てる */
 const MAX_QUEUE_SIZE = 200;
-/** GPS座標をイベントに添付してよい鮮度 */
-const GPS_MAX_AGE_MS = 5 * 60 * 1000;
 
 let queue: CollectEventInput[] = [];
 /**
@@ -41,36 +38,6 @@ let queue: CollectEventInput[] = [];
  */
 let queuedSession: CollectSessionInput | null = null;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
-let latestGps: AnalyticsGeoPoint | null = null;
-
-/**
- * 地図・ジオチェックインなど、すでに位置情報の利用に同意を得ている画面から
- * 現在地を渡してもらう。ここで渡された座標だけがイベントに添付される。
- * トラッカー側から navigator.geolocation を呼ぶことは一切しない。
- */
-export function setAnalyticsGps(
-  position: Pick<AnalyticsGeoPoint, "latitude" | "longitude"> & {
-    accuracyMeters?: number | null;
-  },
-): void {
-  latestGps = {
-    latitude: position.latitude,
-    longitude: position.longitude,
-    accuracyMeters: position.accuracyMeters ?? null,
-    capturedAt: Date.now(),
-  };
-}
-
-/** 位置情報の利用をやめた画面から呼ぶ（地図から離れたとき等） */
-export function clearAnalyticsGps(): void {
-  latestGps = null;
-}
-
-function freshGps(): AnalyticsGeoPoint | null {
-  if (!latestGps) return null;
-  if (Date.now() - latestGps.capturedAt > GPS_MAX_AGE_MS) return null;
-  return latestGps;
-}
 
 function send(payload: string, preferBeacon: boolean): void {
   if (preferBeacon && typeof navigator.sendBeacon === "function") {
@@ -178,7 +145,6 @@ export function trackEvent(
     maxScrollPct: rest.maxScrollPct ?? null,
     scrollDepthPx: rest.scrollDepthPx ?? null,
     pageHeightPx: rest.pageHeightPx ?? null,
-    gps: freshGps(),
     regionDwell: rest.regionDwell ?? null,
     props: rest.props ?? null,
   };

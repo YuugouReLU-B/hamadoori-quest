@@ -124,11 +124,6 @@ CREATE TABLE IF NOT EXISTS public.analytics_events (
   scroll_depth_px INTEGER,
   page_height_px INTEGER,
 
-  -- 位置情報（GPS を既に取得している画面でのみ入る。それ以外は NULL）
-  gps_latitude DOUBLE PRECISION,
-  gps_longitude DOUBLE PRECISION,
-  gps_accuracy_m DOUBLE PRECISION,
-
   -- ページ内のどこに何ミリ秒いたか。page_engagement にのみ入る。
   --   bands    : ページを高さで10等分した各帯が画面に映っていた時間（先頭が最上部）
   --   sections : <section> や data-analytics-section 単位の滞在時間と見出し
@@ -151,8 +146,6 @@ CREATE INDEX IF NOT EXISTS idx_analytics_events_path_received ON public.analytic
 CREATE INDEX IF NOT EXISTS idx_analytics_events_visitor ON public.analytics_events(visitor_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_events_user ON public.analytics_events(user_id) WHERE user_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_analytics_events_props ON public.analytics_events USING GIN (props);
--- 地図系の分析用。GPS が入っている行だけ
-CREATE INDEX IF NOT EXISTS idx_analytics_events_gps ON public.analytics_events(gps_latitude, gps_longitude) WHERE gps_latitude IS NOT NULL;
 
 -- ============================================
 -- 3. RLS: 読み書きとも service_role のみ

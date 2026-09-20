@@ -28,6 +28,13 @@ import {
   VisitorActivityTable,
 } from "./analytics-extra-sections";
 import { AnalyticsTable, PercentBar } from "./analytics-table";
+import {
+  QuestJourneyTable,
+  QuestProgressionCard,
+  QuestSequenceTable,
+  QuestTimingCard,
+  QuestTransitionsTable,
+} from "./quest-journey-sections";
 
 /** 期間切り替えの選択肢 */
 const PERIOD_OPTIONS = [
@@ -352,6 +359,26 @@ export function AnalyticsDashboard({
           },
         ]}
       />
+
+      {/* クエスト達成の順番と期間。
+          achievements から直接出しているので、行動計測を入れる前の期間でも見られる */}
+      <div className="pt-2">
+        <h2 className="text-xl font-bold">クエスト達成の流れ</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          この期間に<strong>登録した人</strong>
+          が対象です。行動計測とは独立していて、
+          計測を入れる前に登録した人の分も見られます
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <QuestProgressionCard rows={data.questProgression} />
+        <QuestTimingCard rows={data.questTiming} />
+      </div>
+
+      <QuestSequenceTable rows={data.questSequence} />
+      <QuestTransitionsTable rows={data.questTransitions} />
+      <QuestJourneyTable rows={data.questJourneys} />
 
       {/* 獲得 */}
       <AnalyticsTable<AnalyticsAcquisitionRow>

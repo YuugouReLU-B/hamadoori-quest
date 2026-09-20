@@ -42,15 +42,6 @@ export type AnalyticsEventName =
   | "lottery_entry"
   | (string & {});
 
-/** 端末で取得できた位置情報（GPSを既に利用している画面でのみ入る） */
-export interface AnalyticsGeoPoint {
-  latitude: number;
-  longitude: number;
-  accuracyMeters?: number | null;
-  /** 取得時刻(epoch ms)。古すぎる座標を使い回さないための鮮度判定に使う */
-  capturedAt: number;
-}
-
 /**
  * セッションの属性。セッション内で不変の値だけを置く。
  * リクエストごとに送られるが、サーバー側では初回のみ確定させ以降は上書きしない。
@@ -100,8 +91,6 @@ export interface CollectEventInput {
   maxScrollPct?: number | null;
   scrollDepthPx?: number | null;
   pageHeightPx?: number | null;
-
-  gps?: AnalyticsGeoPoint | null;
 
   /** ページ内のどこに何ミリ秒いたか。page_engagement にのみ入る */
   regionDwell?: RegionDwellPayload | null;

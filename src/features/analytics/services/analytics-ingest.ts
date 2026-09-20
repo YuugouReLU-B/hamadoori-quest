@@ -133,9 +133,6 @@ export async function ingestAnalytics({
     max_scroll_pct: event.maxScrollPct ?? null,
     scroll_depth_px: event.scrollDepthPx ?? null,
     page_height_px: event.pageHeightPx ?? null,
-    gps_latitude: event.gps?.latitude ?? null,
-    gps_longitude: event.gps?.longitude ?? null,
-    gps_accuracy_m: event.gps?.accuracyMeters ?? null,
     region_dwell: (event.regionDwell ??
       null) as TablesInsert<"analytics_events">["region_dwell"],
     props: (event.props ?? {}) as TablesInsert<"analytics_events">["props"],

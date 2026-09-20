@@ -84,11 +84,6 @@ export default function PrivacyPolicy() {
             第三者へ送信することはありません。ブラウザの設定でCookieを削除または拒否した場合、この記録は行われません
             （本サービスの利用自体は引き続き可能です）。
           </p>
-          <p className="text-sm-custom font-normal text-black text-justify mt-3">
-            端末のGPSによる正確な位置情報は、地図の表示や現地での達成確認など、
-            ユーザーが位置情報の利用に同意したうえで操作した機能の中でのみ取得します。
-            それ以外の画面で、端末の位置情報を継続的に取得することはありません。
-          </p>
         </section>
 
         <section>

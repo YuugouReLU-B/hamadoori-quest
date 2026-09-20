@@ -37,6 +37,16 @@ export type AnalyticsSectionRow =
   Fn["analytics_page_sections"]["Returns"][number];
 export type AnalyticsContentRow =
   Fn["analytics_content_dwell"]["Returns"][number];
+export type QuestSequenceRow =
+  Fn["analytics_quest_sequence"]["Returns"][number];
+export type QuestTimingRow =
+  Fn["analytics_quest_step_timing"]["Returns"][number];
+export type QuestProgressionRow =
+  Fn["analytics_quest_progression"]["Returns"][number];
+export type QuestTransitionRow =
+  Fn["analytics_quest_transitions"]["Returns"][number];
+export type QuestJourneyRow =
+  Fn["analytics_user_quest_journey"]["Returns"][number];
 
 export interface AnalyticsPeriod {
   from: Date;
@@ -81,6 +91,11 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     bands,
     sections,
     contents,
+    questSequence,
+    questTiming,
+    questProgression,
+    questTransitions,
+    questJourneys,
   ] = await Promise.all([
     supabase.rpc("analytics_overview", args),
     supabase.rpc("analytics_by_channel", args),
@@ -98,6 +113,17 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     supabase.rpc("analytics_page_bands", { ...args, target_path: undefined }),
     supabase.rpc("analytics_page_sections", { ...args, row_limit: 60 }),
     supabase.rpc("analytics_content_dwell", { ...args, row_limit: 80 }),
+    // クエスト達成の順番・期間は achievements だけで出るので、
+    // 行動計測を入れる前の過去データにもそのまま効く
+    supabase.rpc("analytics_quest_sequence", {
+      ...args,
+      max_step: 5,
+      row_limit: 60,
+    }),
+    supabase.rpc("analytics_quest_step_timing", { ...args, max_step: 10 }),
+    supabase.rpc("analytics_quest_progression", { ...args, max_step: 10 }),
+    supabase.rpc("analytics_quest_transitions", { ...args, row_limit: 40 }),
+    supabase.rpc("analytics_user_quest_journey", { ...args, row_limit: 60 }),
   ]);
 
   const failed = [
@@ -116,6 +142,11 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     bands,
     sections,
     contents,
+    questSequence,
+    questTiming,
+    questProgression,
+    questTransitions,
+    questJourneys,
   ].find((result) => result.error);
 
   if (failed?.error) {
@@ -140,6 +171,11 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     bands: bands.data ?? [],
     sections: sections.data ?? [],
     contents: contents.data ?? [],
+    questSequence: questSequence.data ?? [],
+    questTiming: questTiming.data ?? [],
+    questProgression: questProgression.data ?? [],
+    questTransitions: questTransitions.data ?? [],
+    questJourneys: questJourneys.data ?? [],
   };
 }
 

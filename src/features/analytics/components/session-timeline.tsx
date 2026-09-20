@@ -104,14 +104,6 @@ export function SessionTimeline({
                     {detail}
                   </p>
                 )}
-
-                {event.gps_latitude !== null &&
-                  event.gps_longitude !== null && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      位置: {event.gps_latitude.toFixed(5)},{" "}
-                      {event.gps_longitude.toFixed(5)}
-                    </p>
-                  )}
               </div>
             </li>
           );

@@ -92,9 +92,6 @@ export type Database = {
           engaged_ms: number | null;
           event_id: string;
           event_name: string;
-          gps_accuracy_m: number | null;
-          gps_latitude: number | null;
-          gps_longitude: number | null;
           id: number;
           max_scroll_pct: number | null;
           ms_since_page_view: number | null;
@@ -121,9 +118,6 @@ export type Database = {
           engaged_ms?: number | null;
           event_id: string;
           event_name: string;
-          gps_accuracy_m?: number | null;
-          gps_latitude?: number | null;
-          gps_longitude?: number | null;
           id?: number;
           max_scroll_pct?: number | null;
           ms_since_page_view?: number | null;
@@ -150,9 +144,6 @@ export type Database = {
           engaged_ms?: number | null;
           event_id?: string;
           event_name?: string;
-          gps_accuracy_m?: number | null;
-          gps_latitude?: number | null;
-          gps_longitude?: number | null;
           id?: number;
           max_scroll_pct?: number | null;
           ms_since_page_view?: number | null;
@@ -2317,6 +2308,37 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_first_quest_achievements: {
+        Row: {
+          achieved_at: string | null;
+          mission_id: string | null;
+          step_index: number | null;
+          user_id: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_achievement_count_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_category_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "missions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       user_ranking_view: {
         Row: {
           address_prefecture: string | null;
@@ -2476,6 +2498,52 @@ export type Database = {
           total_seconds: number;
         }[];
       };
+      analytics_quest_progression: {
+        Args: { from_ts: string; max_step?: number; to_ts: string };
+        Returns: {
+          continued_from_previous_pct: number;
+          share_of_cohort_pct: number;
+          step_index: number;
+          users_reached: number;
+        }[];
+      };
+      analytics_quest_sequence: {
+        Args: {
+          from_ts: string;
+          max_step?: number;
+          row_limit?: number;
+          to_ts: string;
+        };
+        Returns: {
+          mission_id: string;
+          mission_slug: string;
+          mission_title: string;
+          share_pct: number;
+          step_index: number;
+          users: number;
+        }[];
+      };
+      analytics_quest_step_timing: {
+        Args: { from_ts: string; max_step?: number; to_ts: string };
+        Returns: {
+          avg_hours: number;
+          median_hours: number;
+          p25_hours: number;
+          p75_hours: number;
+          step_index: number;
+          users: number;
+        }[];
+      };
+      analytics_quest_transitions: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          from_title: string;
+          median_hours: number;
+          step_index: number;
+          to_title: string;
+          users: number;
+        }[];
+      };
       analytics_recent_sessions: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {
@@ -2501,8 +2569,6 @@ export type Database = {
         Returns: {
           engaged_ms: number;
           event_name: string;
-          gps_latitude: number;
-          gps_longitude: number;
           max_scroll_pct: number;
           ms_since_page_view: number;
           occurred_at: string;
@@ -2511,6 +2577,20 @@ export type Database = {
           props: Json;
           scroll_pct: number;
           seq: number;
+        }[];
+      };
+      analytics_user_quest_journey: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          days_span: number;
+          first_achieved_at: string;
+          hours_to_first: number;
+          last_achieved_at: string;
+          quest_count: number;
+          quest_titles: string;
+          registered_at: string;
+          user_id: string;
+          user_name: string;
         }[];
       };
       analytics_visit_frequency: {

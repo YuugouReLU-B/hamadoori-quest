@@ -501,8 +501,6 @@ RETURNS TABLE (
   max_scroll_pct SMALLINT,
   scroll_pct SMALLINT,
   ms_since_page_view INTEGER,
-  gps_latitude DOUBLE PRECISION,
-  gps_longitude DOUBLE PRECISION,
   props JSONB
 )
 LANGUAGE sql
@@ -520,8 +518,6 @@ AS $$
     e.max_scroll_pct,
     e.scroll_pct,
     e.ms_since_page_view,
-    e.gps_latitude,
-    e.gps_longitude,
     e.props
   FROM public.analytics_events e
   WHERE e.session_id = target_session_id
