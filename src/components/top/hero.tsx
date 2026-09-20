@@ -1,13 +1,20 @@
 import Image from "next/image";
-import Link from "next/link";
+import { FormMessage, type Message } from "@/components/common/form-message";
 import { HeroBackdrop } from "@/components/top/hero-backdrop";
 import { HowToPlayModal } from "@/components/top/how-to-play-modal";
-import { Button } from "@/components/ui/button";
+import LineLoginButton from "@/features/auth/components/line-login-button";
 import { LotteryProgressBar } from "@/features/lottery/components/lottery-progress-bar";
 import Levels from "@/features/user-level/components/levels";
 import { getUser } from "@/features/user-profile/services/profile";
 
-export default async function Hero() {
+interface HeroProps {
+  /** 未認証リダイレクトから引き継いだ戻り先 */
+  returnUrl?: string;
+  /** LINE認証の失敗など、旧 /sign-in が表示していたメッセージ */
+  message?: Message;
+}
+
+export default async function Hero({ returnUrl, message }: HeroProps = {}) {
   const user = await getUser();
 
   if (user) {
@@ -67,22 +74,11 @@ export default async function Hero() {
 
           {!user && (
             <div className="flex flex-col items-center gap-4">
-              <Link href="/sign-up" data-analytics-id="hero-sign-up">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-gray-800 border border-black font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl hover:opacity-90 transform hover:-translate-y-0.5 transition-all duration-200 text-base whitespace-nowrap min-w-fit"
-                >
-                  浜通りクエストに登録する
-                </Button>
-              </Link>
-              <Link
-                href="/sign-in"
-                data-analytics-id="hero-sign-in"
-                className="text-sm font-bold text-white underline underline-offset-2 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)] hover:text-white"
-              >
-                ログインはこちら
-              </Link>
+              {/* 認証エラーや、ログインが必要で飛ばされてきた旨を伝える。
+                  専用のログイン画面を廃してここに集約したので、理由を
+                  出さないと「なぜトップに戻されたのか」が分からなくなる */}
+              {message && <FormMessage className="mb-2" message={message} />}
+              <LineLoginButton returnUrl={returnUrl} onPhoto />
             </div>
           )}
         </div>

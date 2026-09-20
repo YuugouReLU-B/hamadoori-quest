@@ -43,16 +43,13 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-function buildMissionMetadata(
-  missionTitle: string,
-  slug: string,
-  searchParamsResolved: { [key: string]: string | string[] | undefined },
-): Metadata {
-  let ogpImageUrl = `${defaultUrl}/api/missions/${slug}/og`;
-  ogpImageUrl =
-    searchParamsResolved.type === "complete"
-      ? `${ogpImageUrl}?type=complete`
-      : ogpImageUrl;
+/**
+ * OGPはクエストごとに動的生成せず、共通の1枚（ogp-default.png）を使う。
+ * クエスト名入りの画像をリクエストのたびに作っていたが、
+ * 見た目を1枚に統一する方針にしたのでルートごと廃止した。
+ */
+function buildMissionMetadata(missionTitle: string): Metadata {
+  const ogpImageUrl = `${defaultUrl}${config.defaultImage}`;
 
   return {
     title: `${missionTitle} | ${config.title}`,
@@ -75,10 +72,7 @@ function buildMissionMetadata(
   };
 }
 
-export async function generateMetadata({
-  searchParams,
-  params,
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   // UUIDの場合はslugを取得してリダイレクト用のメタデータを返す
@@ -89,12 +83,7 @@ export async function generateMetadata({
       if (!mission || mission.is_hidden) {
         return createDefaultMetadata();
       }
-      const searchParamsResolved = await searchParams;
-      return buildMissionMetadata(
-        mission.title,
-        missionSlug,
-        searchParamsResolved,
-      );
+      return buildMissionMetadata(mission.title);
     }
     return createDefaultMetadata();
   }
@@ -104,8 +93,7 @@ export async function generateMetadata({
   if (!mission || mission.is_hidden) {
     return createDefaultMetadata();
   }
-  const searchParamsResolved = await searchParams;
-  return buildMissionMetadata(mission.title, slug, searchParamsResolved);
+  return buildMissionMetadata(mission.title);
 }
 
 export default async function MissionPage({ params, searchParams }: Props) {
@@ -231,22 +219,13 @@ export default async function MissionPage({ params, searchParams }: Props) {
             </CardHeader>
             <CardContent className="text-center">
               <Link
-                href={`/sign-in?returnUrl=${encodeURIComponent(`/missions/${slug}`)}`}
+                href={`/?returnUrl=${encodeURIComponent(`/missions/${slug}`)}`}
               >
                 <Button className="w-full sm:w-auto">
                   <LogIn className="mr-2 h-4 w-4" />
-                  ログインする
+                  LINEで登録/ログイン
                 </Button>
               </Link>
-              <p className="mt-4 text-sm text-muted-foreground">
-                アカウントをお持ちでない方は{" "}
-                <Link
-                  href="/sign-up"
-                  className="text-brand-ink hover:underline"
-                >
-                  こちらから登録
-                </Link>
-              </p>
             </CardContent>
           </Card>
         )}

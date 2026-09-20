@@ -63,11 +63,14 @@ export default async function AuthButton() {
     </DropdownMenu>
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant="outline">
-        <Link href="/sign-in">ログイン</Link>
-      </Button>
-      <Button asChild size="sm" variant="default">
-        <Link href="/sign-up">新規登録</Link>
+      {/* 登録とログインは同じLINE認証なので入り口を分けない。
+          本体のボタンはトップのヒーローにあり、ここは下層ページからの導線 */}
+      <Button
+        asChild
+        size="sm"
+        className="bg-[var(--app-vendor-line-green)] hover:bg-[var(--app-vendor-line-green-hover)] text-white"
+      >
+        <Link href="/">LINEで登録/ログイン</Link>
       </Button>
     </div>
   );

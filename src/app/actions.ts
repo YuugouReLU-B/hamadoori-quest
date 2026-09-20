@@ -196,7 +196,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     );
   }
 
-  encodedRedirect("success", "/sign-in", "パスワードを更新しました");
+  encodedRedirect("success", "/", "パスワードを更新しました");
 };
 
 /**
@@ -223,5 +223,5 @@ export const signOutAction = async () => {
     }
   }
 
-  redirect("/sign-in");
+  redirect("/");
 };

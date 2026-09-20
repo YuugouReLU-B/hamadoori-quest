@@ -794,12 +794,10 @@ export default function DetailedPosterMapClient({
                     prefectureName.toLowerCase().replace(/[^a-z0-9]/g, "-")
                   : JP_TO_EN_PREFECTURE[prefectureName];
                 const returnUrl = `/map/poster/${key}`;
-                router.push(
-                  `/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`,
-                );
+                router.push(`/?returnUrl=${encodeURIComponent(returnUrl)}`);
               }}
             >
-              ログインページへ
+              LINEで登録/ログイン
             </Button>
           </DialogFooter>
         </DialogContent>

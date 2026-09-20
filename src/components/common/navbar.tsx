@@ -78,13 +78,8 @@ export default async function Navbar() {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/sign-in" data-analytics-id="nav-sign-in">
-                      ログイン
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/sign-up" data-analytics-id="nav-sign-up">
-                      新規登録
+                    <Link href="/" data-analytics-id="nav-line-login">
+                      LINEで登録/ログイン
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

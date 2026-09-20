@@ -91,32 +91,9 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     path: "/img/ogp-default.png",
     label: "OGP画像（既定）",
     group: "brand",
-    status: "replace",
+    status: "keep",
     usedIn: ["SNSでURLを共有したときのサムネイル（全ページ共通）"],
-    note: "1200×630。派生元のまま。X・LINEに貼ったときに最初に見られる画像なので優先度が高い。",
-  },
-  {
-    path: "/img/ogp_mission_base.png",
-    label: "OGP画像（クエスト用の下地）",
-    group: "brand",
-    status: "replace",
-    usedIn: ["クエスト詳細のOGPを動的生成するときの背景"],
-    note: "この上にクエスト名を重ねて描画している。",
-  },
-  {
-    path: "/img/ogp_mission_complete_base.png",
-    label: "OGP画像（達成報告の下地）",
-    group: "brand",
-    status: "replace",
-    usedIn: ["クエスト達成をシェアしたときのOGP"],
-  },
-  {
-    path: "/img/ogp_mission_vote.png",
-    label: "OGP画像（投票クエスト用）",
-    group: "brand",
-    status: "undecided",
-    usedIn: ["投票系クエストのOGP"],
-    note: "投票系クエストは現在すべて非表示。使うかどうかから決める。",
+    note: "1200×630。浜通りクエストの風景イラストに差し替え済み。",
   },
 
   // ── トップページ ──────────────────────────────────────
@@ -127,22 +104,6 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     status: "keep",
     usedIn: ["トップページ（未ログイン）", "フッター上部"],
     note: "浜通りの海・国道・道の駅を描いた低ポリ調の1枚（1742×903）。object-cover で敷いているので、狭い画面では左右が切れる。人物も描き込まれているため人物レイヤーは廃止。",
-  },
-  {
-    path: "/img/hero-background.svg",
-    label: "ヒーローの街並み（旧）",
-    group: "top",
-    status: "replace",
-    usedIn: [],
-    note: "青緑 #30bca7 が72箇所に焼き込まれた派生元のイラスト。hero.webp に置き換えたため未使用。",
-  },
-  {
-    path: "/img/hero-people.svg",
-    label: "ヒーローの人物イラスト（旧）",
-    group: "top",
-    status: "replace",
-    usedIn: [],
-    note: "#30bca7 / #0f8472 / #bcecd3 が焼き込まれている。hero.webp に置き換えたため未使用。",
   },
 
   // ── オンボーディング ──────────────────────────────────

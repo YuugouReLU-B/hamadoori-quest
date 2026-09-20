@@ -21,7 +21,7 @@ export default async function ProfileSettingsPage({
   const user = await getUser();
 
   if (!user) {
-    return redirect("/sign-in");
+    return redirect("/");
   }
 
   const isNew = Boolean(params?.new);

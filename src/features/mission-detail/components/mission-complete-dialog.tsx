@@ -61,13 +61,10 @@ export function MissionCompleteDialog({ isOpen, onClose, mission }: Props) {
           <DialogDescription className="text-center">
             {message}
           </DialogDescription>
-          {/* OG画像はAPIルートで動的生成されるため、Next.js Image Optimizationを使わない */}
+          {/* クエスト個別の画像があればそれを、無ければ共通のOGP画像を出す。
+              Supabase Storage等の外部URLが来るため Image Optimization は使わない */}
           <img
-            src={
-              mission.ogp_image_url
-                ? mission.ogp_image_url
-                : `/api/missions/${mission.slug}/og?type=complete`
-            }
+            src={mission.ogp_image_url || "/img/ogp-default.png"}
             alt="クエストクリア"
             width={400}
             height={210}

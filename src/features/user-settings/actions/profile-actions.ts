@@ -10,6 +10,7 @@ import {
 import { sendWelcomeMail } from "@/lib/services/mail";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createClient } from "@/lib/supabase/client";
+import { validateReturnUrl } from "@/lib/validation/url";
 import type { MailClient } from "../types/mail-client";
 import { updateProfile as updateProfileUseCase } from "../use-cases/update-profile";
 
@@ -42,23 +43,14 @@ export async function updateProfile(
 
   if (!user) {
     console.error("User not found");
-    return redirect("/sign-in");
+    return redirect("/");
   }
 
   // フォームデータの取得
   const name = formData.get("name")?.toString() ?? "";
 
-  // アバター処理（Storage操作はアクション層で行う）
-  let avatar_path = formData.get("avatar_path") as string | null;
-
-  const { data: publicProfile } = await supabaseServiceClient
-    .from("public_user_profiles")
-    .select("avatar_url")
-    .eq("id", user.id)
-    .single();
-
-  const previousAvatarUrl = publicProfile?.avatar_url || null;
   const avatar_file = formData.get("avatar") as File | null;
+  const hasNewAvatarFile = !!(avatar_file && avatar_file.size > 0);
 
   const avatarValidation = validateAvatarFile(avatar_file);
   if (!avatarValidation.valid) {
@@ -68,51 +60,68 @@ export async function updateProfile(
     };
   }
 
-  const needsDeleteOldAvatar = shouldDeleteOldAvatar(
-    previousAvatarUrl,
-    avatar_path,
-    !!(avatar_file && avatar_file.size > 0),
-  );
+  // アバターに触らないフォーム（ニックネームだけの登録・編集）では、
+  // 旧アバターの取得も削除もしない。以前は無条件に public_user_profiles を
+  // 1件SELECTしていて、そのぶんDBとの往復が増えていた。
+  // また、avatar_path を送らないフォームからの更新で
+  // 既存のアバターが消える状態にもなっていた
+  const touchesAvatar = hasNewAvatarFile || formData.has("avatar_path");
 
-  if (needsDeleteOldAvatar) {
-    try {
-      const filePath = previousAvatarUrl
-        ? extractAvatarPathFromUrl(previousAvatarUrl)
-        : null;
+  let avatar_path: string | null | undefined;
 
-      if (filePath) {
-        const { error: deleteError } = await supabaseServiceClient.storage
-          .from("avatars")
-          .remove([filePath]);
+  if (touchesAvatar) {
+    avatar_path = (formData.get("avatar_path") as string | null) ?? null;
 
-        if (deleteError) {
-          console.error("Error deleting old avatar:", deleteError);
+    const { data: publicProfile } = await supabaseServiceClient
+      .from("public_user_profiles")
+      .select("avatar_url")
+      .eq("id", user.id)
+      .single();
+
+    const previousAvatarUrl = publicProfile?.avatar_url || null;
+
+    if (
+      shouldDeleteOldAvatar(previousAvatarUrl, avatar_path, hasNewAvatarFile)
+    ) {
+      try {
+        const filePath = previousAvatarUrl
+          ? extractAvatarPathFromUrl(previousAvatarUrl)
+          : null;
+
+        if (filePath) {
+          const { error: deleteError } = await supabaseServiceClient.storage
+            .from("avatars")
+            .remove([filePath]);
+
+          if (deleteError) {
+            console.error("Error deleting old avatar:", deleteError);
+          }
         }
+      } catch (error) {
+        console.error("Error deleting old avatar:", error);
       }
-    } catch (error) {
-      console.error("Error deleting old avatar:", error);
     }
-  }
 
-  if (avatar_file && avatar_file.size > 0) {
-    try {
-      const fileExt = avatar_file.name.split(".").pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      const fileBuffer = await avatar_file.arrayBuffer();
+    if (avatar_file && hasNewAvatarFile) {
+      try {
+        const fileExt = avatar_file.name.split(".").pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        const fileBuffer = await avatar_file.arrayBuffer();
 
-      const { error } = await supabaseServiceClient.storage
-        .from("avatars")
-        .upload(fileName, fileBuffer, {
-          contentType: avatar_file.type,
-          upsert: true,
-        });
+        const { error } = await supabaseServiceClient.storage
+          .from("avatars")
+          .upload(fileName, fileBuffer, {
+            contentType: avatar_file.type,
+            upsert: true,
+          });
 
-      if (error) {
-        console.error("Upload error:", error);
+        if (error) {
+          console.error("Upload error:", error);
+        }
+        avatar_path = fileName;
+      } catch (error) {
+        console.error("Avatar upload error during profile update:", error);
       }
-      avatar_path = fileName;
-    } catch (error) {
-      console.error("Avatar upload error during profile update:", error);
     }
   }
 
@@ -130,10 +139,18 @@ export async function updateProfile(
     },
   );
 
-  if (result.success) {
-    revalidatePath("/settings/profile");
-    revalidatePath("/");
-    revalidatePath(`/users/${user.id}`);
+  if (!result.success) {
+    return result;
+  }
+
+  revalidatePath("/settings/profile");
+  revalidatePath(`/users/${user.id}`);
+
+  // 新規登録時は、クライアントに戻してから router.push するのではなく
+  // ここで遷移させる。往復が1回減るぶん、登録完了から次の画面までが速い
+  const nextUrl = validateReturnUrl(formData.get("nextUrl")?.toString());
+  if (nextUrl) {
+    redirect(nextUrl);
   }
 
   return result;

@@ -106,7 +106,7 @@ done
 ```
 
 ```bash
-# 全PRのコメントを確認（CodeRabbitやレビューアからのフィードバック）
+# 全PRのコメントを確認（レビューアからのフィードバック）
 for pr in {PR番号リスト}; do
   echo "=== PR #$pr comments ==="
   gh pr view $pr --comments
@@ -119,7 +119,7 @@ CI失敗時の対応:
 - **Biomeエラー**: worktreeで `pnpm run biome:check:write` して再push
 
 PRコメント対応:
-- **CodeRabbitの指摘**: 重要な指摘はworktreeで修正してpush
+- **重要な指摘**: worktreeで修正してpush
 - **軽微な指摘（nitpick等）**: マージ後に対応するか、必要に応じて対応
 
 ### Phase 5: クリーンアップ
@@ -149,7 +149,6 @@ TeamDelete
 ## 注意事項
 
 - エージェント数は4-5が実用的上限（APIレート制限、CI負荷）
-- CodeRabbitもレート制限にかかりやすい（9PR同時は避ける）
 - CIのBuild & Testsはflaky（特にRLSテスト）→失敗時はログ確認してから再実行
 - worktreeパスは `../action-board-{name}` 形式（CLAUDE.mdのルール）
 - `settings.local.json` のコピーは必須（権限設定のため）

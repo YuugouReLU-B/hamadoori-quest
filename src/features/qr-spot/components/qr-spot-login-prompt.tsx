@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
-import { buildLineLoginHref } from "@/features/auth/client/line-auth";
+import { useLineLoginHref } from "@/features/auth/hooks/use-line-login-href";
 import { cn } from "@/lib/utils/utils";
 
 type QrSpotLoginPromptProps = {
@@ -18,6 +18,7 @@ type QrSpotLoginPromptProps = {
  */
 export function QrSpotLoginPrompt({ returnUrl }: QrSpotLoginPromptProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const lineLoginHref = useLineLoginHref(returnUrl);
 
   return (
     <div className="space-y-4">
@@ -27,7 +28,7 @@ export function QrSpotLoginPrompt({ returnUrl }: QrSpotLoginPromptProps) {
       </p>
 
       <a
-        href={buildLineLoginHref(returnUrl)}
+        href={lineLoginHref}
         onClick={() => setIsRedirecting(true)}
         className={cn(
           buttonVariants({ size: "lg" }),

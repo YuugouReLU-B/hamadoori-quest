@@ -80,7 +80,7 @@ cp .env ../action-board-<branch-name>/
 ### 自己学習
 セッション中の発見やPRレビューのフィードバックを、プロジェクト設定に自動反映する仕組み。
 
-- **PRレビュー後**: `/retro {PR番号}` でCodeRabbit・レビュアーの指摘を分析し、CLAUDE.md・skills・agents・MEMORYに反映する
+- **PRレビュー後**: `/retro {PR番号}` でレビュアーの指摘を分析し、CLAUDE.md・skills・agents・MEMORYに反映する
 - **セッション終了時**: SessionEndフックがMEMORY.mdの差分を `.claude/tmp/learnings-staging.md` に自動キャプチャする
 - **次セッション開始時**: SessionStartフックが未処理の学びを通知する。`/retro` で反映する
 - **学びの分類先**:
@@ -116,7 +116,8 @@ cp .env ../action-board-<branch-name>/
   - 例: `Resolves #123`
   - 複数のissueをクローズする場合は、それぞれ別の行に記載する
     - 例: `Resolves #123`、`Resolves #456`
-- **PR作成後のCodeRabbitレビュー確認（必須）**: PR作成後、CodeRabbitのレビューが届くまで待ってからコメントを確認すること。レビューは通常2〜3分で届く。`gh api repos/{owner}/{repo}/pulls/{number}/comments` でコメントを取得し、空なら少し待って再取得する。重要な指摘（Major/Critical）があれば修正してpushすること。軽微な指摘（Minor）や既存コードとの一貫性を優先すべきものはスキップ可。
+- **PR作成後はCIの完了を確認する**: `gh pr checks {number}` で全チェックがパスすることを確認し、失敗があれば修正してpushすること。
+  - 自動レビューbotは導入していない。レビュー待ちで止まらないこと
 
 ## 開発コマンド
 
