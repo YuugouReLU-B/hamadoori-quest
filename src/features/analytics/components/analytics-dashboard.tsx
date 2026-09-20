@@ -21,6 +21,7 @@ import {
 import {
   AccessHeatmapCard,
   ClickTargetsTable,
+  ContentDwellTable,
   PageBandsCard,
   SectionDwellTable,
   VisitFrequencyCard,
@@ -297,6 +298,9 @@ export function AnalyticsDashboard({
           },
         ]}
       />
+
+      {/* どのコンテンツが見られたか */}
+      <ContentDwellTable rows={data.contents} />
 
       {/* ページ内のどこを見ていたか */}
       <div className="grid gap-6 lg:grid-cols-2">

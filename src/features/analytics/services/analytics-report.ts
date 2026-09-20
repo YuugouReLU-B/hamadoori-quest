@@ -35,6 +35,8 @@ export type AnalyticsClickRow =
 export type AnalyticsBandRow = Fn["analytics_page_bands"]["Returns"][number];
 export type AnalyticsSectionRow =
   Fn["analytics_page_sections"]["Returns"][number];
+export type AnalyticsContentRow =
+  Fn["analytics_content_dwell"]["Returns"][number];
 
 export interface AnalyticsPeriod {
   from: Date;
@@ -78,6 +80,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     clicks,
     bands,
     sections,
+    contents,
   ] = await Promise.all([
     supabase.rpc("analytics_overview", args),
     supabase.rpc("analytics_by_channel", args),
@@ -94,6 +97,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     // 帯はページをまたいで平均しても意味が保たれるので、既定は全ページ合算
     supabase.rpc("analytics_page_bands", { ...args, target_path: undefined }),
     supabase.rpc("analytics_page_sections", { ...args, row_limit: 60 }),
+    supabase.rpc("analytics_content_dwell", { ...args, row_limit: 80 }),
   ]);
 
   const failed = [
@@ -111,6 +115,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     clicks,
     bands,
     sections,
+    contents,
   ].find((result) => result.error);
 
   if (failed?.error) {
@@ -134,6 +139,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     clicks: clicks.data ?? [],
     bands: bands.data ?? [],
     sections: sections.data ?? [],
+    contents: contents.data ?? [],
   };
 }
 

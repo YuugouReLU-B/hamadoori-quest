@@ -135,10 +135,13 @@ function accumulate(state: PageViewState, now: number): void {
   if (!state.isVisible) return;
 
   state.visibleMs += delta;
-  // 画面に映っている帯・セクションにも同じ時間を配る
-  state.regions.accumulate(delta);
+
   if (now - state.lastInteractionAt <= INTERACTION_IDLE_MS) {
     state.engagedMs += delta;
+    // 領域ごとの滞在も滞在時間と同じ条件で積む。
+    // 可視なだけで数えると、開きっぱなしのタブが何時間も加算され、
+    // たまたま最後に表示していたクエストだけが突出して見える
+    state.regions.accumulate(delta);
   }
 }
 

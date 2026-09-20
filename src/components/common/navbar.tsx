@@ -19,7 +19,11 @@ export default async function Navbar() {
     <nav className="sticky top-4 z-50 w-full flex justify-center h-16 mt-4">
       <div className="px-4 w-full flex justify-between items-center text-sm bg-white border-b border-b-foreground/10 mx-4 rounded-2xl ">
         <div className="flex gap-5 items-center font-semibold min-w-[60px]">
-          <Link href="/" className="flex items-center gap-4">
+          <Link
+            href="/"
+            data-analytics-id="nav-logo"
+            className="flex items-center gap-4"
+          >
             <Image
               src="/img/logo.png"
               alt="浜通りクエスト"
@@ -34,14 +38,18 @@ export default async function Navbar() {
         {user ? (
           <div className="flex gap-6 items-center">
             <div className="font-semibold hidden sm:flex">
-              <Link href="/">ホーム</Link>
+              <Link href="/" data-analytics-id="nav-home">
+                ホーム
+              </Link>
             </div>
             <HeaderAuth />
           </div>
         ) : (
           <>
             <div className="gap-6 items-center font-semibold hidden sm:flex">
-              <Link href="/">ホーム</Link>
+              <Link href="/" data-analytics-id="nav-home">
+                ホーム
+              </Link>
               <HeaderAuth />
             </div>
             <div className="flex gap-6 items-center font-semibold sm:hidden">
@@ -63,15 +71,21 @@ export default async function Navbar() {
                 >
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link href="/">ホーム</Link>
+                      <Link href="/" data-analytics-id="nav-home">
+                        ホーム
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/sign-in">ログイン</Link>
+                    <Link href="/sign-in" data-analytics-id="nav-sign-in">
+                      ログイン
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/sign-up">新規登録</Link>
+                    <Link href="/sign-up" data-analytics-id="nav-sign-up">
+                      新規登録
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

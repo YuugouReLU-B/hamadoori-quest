@@ -109,15 +109,26 @@ export interface CollectEventInput {
   props?: Record<string, unknown> | null;
 }
 
-/** ページを高さで10等分した帯と、セクション単位の滞在時間 */
+/** ページ内のどこに何ミリ秒いたかの内訳 */
 export interface RegionDwellPayload {
-  /** 先頭が最上部。要素数は REGION_BAND_COUNT */
+  /** ページを高さで10等分した帯。先頭が最上部。要素数は REGION_BAND_COUNT */
   bands: number[];
+  /** <section> 単位。見出しが取れたものだけ */
   sections: {
     key: string;
     label: string | null;
     top: number;
     ms: number;
+  }[];
+  /** data-analytics-content を付けた個々のコンテンツ（クエストカード等） */
+  contents: {
+    type: string;
+    id: string | null;
+    label: string | null;
+    top: number;
+    ms: number;
+    /** 画面内に入った最大の割合(0-100) */
+    maxVisiblePct: number;
   }[];
 }
 

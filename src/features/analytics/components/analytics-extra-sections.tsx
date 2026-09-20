@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import type {
   AnalyticsBandRow,
   AnalyticsClickRow,
+  AnalyticsContentRow,
   AnalyticsHourRow,
   AnalyticsSectionRow,
   AnalyticsVisitFrequencyRow,
@@ -11,6 +12,7 @@ import {
   formatCount,
   formatDateTime,
   formatDuration,
+  formatPercent,
   orDash,
 } from "../utils/format";
 import { AnalyticsTable } from "./analytics-table";
@@ -18,6 +20,88 @@ import { AnalyticsTable } from "./analytics-table";
 const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 /** 0時から23時。map のインデックスを key に使わずに済むよう値の配列として持つ */
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+
+/** 計測対象の種別を日本語にする */
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  mission: "クエスト（一覧のカード）",
+  "mission-detail": "クエスト（詳細ページ）",
+};
+
+/**
+ * どのコンテンツがどれだけ見られたか。
+ * 「画面に映っていた時間」なので、クリックされなくても積まれる。
+ */
+export function ContentDwellTable({ rows }: { rows: AnalyticsContentRow[] }) {
+  return (
+    <AnalyticsTable<AnalyticsContentRow>
+      title="コンテンツ別の閲覧"
+      description="data-analytics-content を付けた要素が画面に映っていた時間。クリックされなくても積まれますが、無操作が30秒続いた後は数えません"
+      rows={rows}
+      rowKey={(row, index) =>
+        `${row.content_type_out}-${row.content_id}-${row.page_path}-${index}`
+      }
+      emptyMessage="まだありません。クエストのカードや詳細ページを開くと貯まります"
+      columns={[
+        {
+          key: "content",
+          header: "コンテンツ",
+          render: (row) => (
+            <div className="max-w-[22rem]">
+              <p className="text-sm">{orDash(row.content_label)}</p>
+              <p className="font-mono text-[10px] text-muted-foreground break-all">
+                {orDash(row.content_id)}
+              </p>
+            </div>
+          ),
+        },
+        {
+          key: "type",
+          header: "種別",
+          render: (row) =>
+            CONTENT_TYPE_LABELS[row.content_type_out ?? ""] ??
+            orDash(row.content_type_out),
+        },
+        {
+          key: "page_path",
+          header: "ページ",
+          render: (row) => (
+            <span className="font-mono text-xs break-all">{row.page_path}</span>
+          ),
+        },
+        {
+          key: "impressions",
+          header: "表示回数",
+          align: "right",
+          render: (row) => formatCount(row.impressions),
+        },
+        {
+          key: "visitors",
+          header: "人数",
+          align: "right",
+          render: (row) => formatCount(row.visitors),
+        },
+        {
+          key: "avg_seconds",
+          header: "平均表示",
+          align: "right",
+          render: (row) => formatDuration(row.avg_seconds),
+        },
+        {
+          key: "total_seconds",
+          header: "合計表示",
+          align: "right",
+          render: (row) => formatDuration(row.total_seconds),
+        },
+        {
+          key: "fully_seen_rate",
+          header: "全体が見えた率",
+          align: "right",
+          render: (row) => formatPercent(row.fully_seen_rate),
+        },
+      ]}
+    />
+  );
+}
 
 /**
  * ページ内のどの高さに何秒いたか。
@@ -29,9 +113,10 @@ export function PageBandsCard({ rows }: { rows: AnalyticsBandRow[] }) {
   return (
     <Card className="p-4 md:p-6">
       <div className="mb-4">
-        <h2 className="text-lg font-bold">ページ内のどこを見ていたか</h2>
+        <h2 className="text-lg font-bold">ページ内のどの高さを見ていたか</h2>
         <p className="text-xs text-muted-foreground mt-1">
-          ページを上から10等分した各帯が画面に映っていた平均時間（全ページ合算）
+          ページを上から10等分した各帯の平均表示時間（全ページ合算）。 まだ
+          data-analytics-content を付けていない画面向けの目安です
         </p>
       </div>
 

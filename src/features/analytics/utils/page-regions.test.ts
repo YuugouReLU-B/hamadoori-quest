@@ -29,6 +29,38 @@ function setupPage({
     value: scrollY,
     configurable: true,
   });
+  // 横方向の判定に使う。テストでは固定幅でよい
+  Object.defineProperty(window, "innerWidth", {
+    value: 1024,
+    configurable: true,
+  });
+}
+
+/**
+ * jsdom は getBoundingClientRect が常に0を返すので、要素ごとに差し替える。
+ * 値はビューポート基準（横スクロールした分は left に出る）。
+ */
+function stubRect(
+  element: Element,
+  {
+    top,
+    left,
+    width,
+    height,
+  }: { top: number; left: number; width: number; height: number },
+) {
+  element.getBoundingClientRect = () =>
+    ({
+      top,
+      left,
+      width,
+      height,
+      right: left + width,
+      bottom: top + height,
+      x: left,
+      y: top,
+      toJSON: () => ({}),
+    }) as DOMRect;
 }
 
 describe("PageRegionTracker", () => {
@@ -80,6 +112,84 @@ describe("PageRegionTracker", () => {
   it("滞在が無ければ snapshot は null", () => {
     setupPage({ pageHeight: 1000, viewportHeight: 200, scrollY: 0 });
     expect(new PageRegionTracker().snapshot()).toBeNull();
+  });
+
+  it("画面に半分以上入っているコンテンツだけを数える", () => {
+    document.body.innerHTML = `
+      <main>
+        <div data-analytics-content="mission" data-analytics-content-id="a" data-analytics-content-label="クエストA"></div>
+        <div data-analytics-content="mission" data-analytics-content-id="b" data-analytics-content-label="クエストB"></div>
+        <div data-analytics-content="mission" data-analytics-content-id="c" data-analytics-content-label="クエストC"></div>
+      </main>`;
+    setupPage({ pageHeight: 1000, viewportHeight: 400, scrollY: 0 });
+
+    const [a, b, c] = Array.from(
+      document.querySelectorAll("[data-analytics-content]"),
+    );
+    // A: 画面内に全部入っている
+    stubRect(a, { top: 0, left: 0, width: 300, height: 200 });
+    // B: 横スクロールのカルーセルで右へ流れ、1割しか見えていない
+    stubRect(b, { top: 0, left: 1000, width: 300, height: 200 });
+    // C: 縦に画面外
+    stubRect(c, { top: 900, left: 0, width: 300, height: 200 });
+
+    const tracker = new PageRegionTracker();
+    tracker.rescanSections();
+    tracker.accumulate(1000);
+
+    const contents = tracker.snapshot()?.contents ?? [];
+    expect(contents.map((item) => item.id)).toEqual(["a"]);
+    expect(contents[0].ms).toBe(1000);
+    expect(contents[0].label).toBe("クエストA");
+    expect(contents[0].maxVisiblePct).toBe(100);
+  });
+
+  it("画面より大きいコンテンツは半画面分が入っていれば数える", () => {
+    document.body.innerHTML = `
+      <main>
+        <div data-analytics-content="mission-detail" data-analytics-content-id="long" data-analytics-content-label="長いクエスト"></div>
+      </main>`;
+    setupPage({ pageHeight: 3000, viewportHeight: 400, scrollY: 0 });
+
+    const [element] = Array.from(
+      document.querySelectorAll("[data-analytics-content]"),
+    );
+    // 画面(400px)より高い要素。全体の25%しか映らないが、画面はほぼ埋まっている
+    stubRect(element, { top: 0, left: 0, width: 300, height: 1600 });
+
+    const tracker = new PageRegionTracker();
+    tracker.rescanSections();
+    tracker.accumulate(1000);
+
+    const contents = tracker.snapshot()?.contents ?? [];
+    expect(contents).toHaveLength(1);
+    expect(contents[0].ms).toBe(1000);
+  });
+
+  it("横スクロールで見えている枚数だけが積み上がる", () => {
+    document.body.innerHTML = `
+      <main>
+        <div data-analytics-content="mission" data-analytics-content-id="v1"></div>
+        <div data-analytics-content="mission" data-analytics-content-id="v2"></div>
+        <div data-analytics-content="mission" data-analytics-content-id="hidden"></div>
+      </main>`;
+    setupPage({ pageHeight: 1000, viewportHeight: 400, scrollY: 0 });
+
+    const [v1, v2, hidden] = Array.from(
+      document.querySelectorAll("[data-analytics-content]"),
+    );
+    stubRect(v1, { top: 0, left: 0, width: 300, height: 200 });
+    stubRect(v2, { top: 0, left: 320, width: 300, height: 200 });
+    // カルーセルの外に出ている
+    stubRect(hidden, { top: 0, left: 1500, width: 300, height: 200 });
+
+    const tracker = new PageRegionTracker();
+    tracker.rescanSections();
+    tracker.accumulate(1000);
+
+    expect((tracker.snapshot()?.contents ?? []).map((item) => item.id)).toEqual(
+      ["v1", "v2"],
+    );
   });
 
   it("セクションの見出しを鍵にする", () => {

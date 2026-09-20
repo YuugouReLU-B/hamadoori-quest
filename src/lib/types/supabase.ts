@@ -2415,6 +2415,26 @@ export type Database = {
           visitors: number;
         }[];
       };
+      analytics_content_dwell: {
+        Args: {
+          content_type?: string;
+          from_ts: string;
+          row_limit?: number;
+          to_ts: string;
+        };
+        Returns: {
+          avg_max_visible_pct: number;
+          avg_seconds: number;
+          content_id: string;
+          content_label: string;
+          content_type_out: string;
+          fully_seen_rate: number;
+          impressions: number;
+          page_path: string;
+          total_seconds: number;
+          visitors: number;
+        }[];
+      };
       analytics_overview: {
         Args: { from_ts: string; to_ts: string };
         Returns: {

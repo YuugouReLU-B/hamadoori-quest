@@ -182,6 +182,7 @@ export function GeoCheckinButton({
         <button
           type="button"
           onClick={handleClick}
+          data-analytics-id="mission-geo-checkin"
           disabled={state === "checking"}
           className="mt-1 flex h-14 w-64 max-w-full items-center justify-center gap-2 rounded-full border border-yellow-500 bg-primary text-base font-extrabold text-primary-foreground shadow-[0_4px_0_#eab308] transition-all duration-300 disabled:opacity-70"
         >

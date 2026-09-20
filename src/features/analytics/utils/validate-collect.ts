@@ -27,6 +27,10 @@ const MAX_DURATION_MS = 24 * 60 * 60 * 1000;
 /** 1ページ表示あたりのセクション数の上限 */
 const MAX_SECTIONS = 20;
 const MAX_SECTION_KEY_LENGTH = 120;
+/** 1ページ表示あたりのコンテンツ数の上限 */
+const MAX_CONTENTS = 60;
+const MAX_CONTENT_TYPE_LENGTH = 40;
+const MAX_CONTENT_ID_LENGTH = 120;
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -155,8 +159,37 @@ function regionDwell(value: unknown): RegionDwellPayload | null {
         section !== null,
     );
 
-  if (bands.every((ms) => ms === 0) && sections.length === 0) return null;
-  return { bands, sections };
+  const rawContents = Array.isArray(raw.contents) ? raw.contents : [];
+  const contents = rawContents
+    .slice(0, MAX_CONTENTS)
+    .map((content) => {
+      if (!content || typeof content !== "object") return null;
+      const item = content as Record<string, unknown>;
+      const type = str(item.type, MAX_CONTENT_TYPE_LENGTH);
+      const ms = int(item.ms, { min: 0, max: MAX_DURATION_MS });
+      if (!type || ms === null) return null;
+      return {
+        type,
+        id: str(item.id, MAX_CONTENT_ID_LENGTH),
+        label: str(item.label, MAX_SECTION_KEY_LENGTH),
+        top: int(item.top, { min: 0, max: 10_000_000 }) ?? 0,
+        ms,
+        maxVisiblePct: int(item.maxVisiblePct, { min: 0, max: 100 }) ?? 0,
+      };
+    })
+    .filter(
+      (content): content is RegionDwellPayload["contents"][number] =>
+        content !== null,
+    );
+
+  if (
+    bands.every((ms) => ms === 0) &&
+    sections.length === 0 &&
+    contents.length === 0
+  ) {
+    return null;
+  }
+  return { bands, sections, contents };
 }
 
 export function normalizeEvent(

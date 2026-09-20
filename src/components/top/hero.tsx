@@ -67,7 +67,7 @@ export default async function Hero() {
 
           {!user && (
             <div className="flex flex-col items-center gap-4">
-              <Link href="/sign-up">
+              <Link href="/sign-up" data-analytics-id="hero-sign-up">
                 <Button
                   size="lg"
                   variant="outline"
@@ -78,6 +78,7 @@ export default async function Hero() {
               </Link>
               <Link
                 href="/sign-in"
+                data-analytics-id="hero-sign-in"
                 className="text-sm font-bold text-white underline underline-offset-2 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)] hover:text-white"
               >
                 ログインはこちら

@@ -42,6 +42,7 @@ export function MissionsViewToggle({
                 className="rounded-full px-4"
                 onClick={() => setView("list")}
                 aria-pressed={view === "list"}
+                data-analytics-id="missions-view-list"
               >
                 <List className="mr-1 h-4 w-4" aria-hidden="true" />
                 一覧
@@ -54,6 +55,7 @@ export function MissionsViewToggle({
                   className="rounded-full px-4"
                   onClick={() => setView("map")}
                   aria-pressed={view === "map"}
+                  data-analytics-id="missions-view-map"
                 >
                   <MapIcon className="mr-1 h-4 w-4" aria-hidden="true" />
                   地図
@@ -67,6 +69,7 @@ export function MissionsViewToggle({
                   className="rounded-full px-4"
                   onClick={() => setView("calendar")}
                   aria-pressed={view === "calendar"}
+                  data-analytics-id="missions-view-calendar"
                 >
                   <CalendarIcon className="mr-1 h-4 w-4" aria-hidden="true" />
                   カレンダー

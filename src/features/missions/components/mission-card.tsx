@@ -50,8 +50,16 @@ export default function Mission({
     ? `${eventDate.getMonth() + 1}月${eventDate.getDate()}日（${["日", "月", "火", "水", "木", "金", "土"][eventDate.getDay()]}）開催`
     : null;
 
+  const missionKey = mission.slug || mission.id;
+
   return (
-    <article>
+    // data-analytics-* は計測用。どのクエストがどれだけ見られたかを
+    // 画面内の表示時間で測るために付けている（features/analytics）
+    <article
+      data-analytics-content="mission"
+      data-analytics-content-id={missionKey}
+      data-analytics-content-label={mission.title}
+    >
       <Card className="@container/card">
         <CardHeader className="relative pl-1">
           <div className="flex items-center gap-1">
@@ -109,7 +117,8 @@ export default function Mission({
             )}
           </div>
           <Link
-            href={`/missions/${mission.slug || mission.id}`}
+            href={`/missions/${missionKey}`}
+            data-analytics-id="mission-card-detail"
             className={cn(
               buttonVariants({ variant: "default" }),
               "w-full rounded-full py-6 text-base font-bold text-primary-foreground border-none transition-[color,background-color,transform] active:scale-95 motion-reduce:transform-none motion-reduce:transition-none",
