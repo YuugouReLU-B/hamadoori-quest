@@ -17,9 +17,10 @@ import { createClient } from "@/lib/supabase/client";
 import { deleteCookie, getCookie } from "@/lib/utils/server-cookies";
 import { validateReturnUrl } from "@/lib/validation/url";
 
+/** ログイン導線はトップに一本化したので、失敗もトップに表示する */
 function signInRedirect(error: string) {
   return NextResponse.redirect(
-    new URL(`/sign-in?error=${encodeURIComponent(error)}`, APP_ORIGIN),
+    new URL(`/?error=${encodeURIComponent(error)}`, APP_ORIGIN),
   );
 }
 

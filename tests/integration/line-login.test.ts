@@ -109,7 +109,7 @@ describe("lineLogin ユースケース", () => {
 
   test("生年月日なしでも新規ユーザーを作成できる", async () => {
     // 生年月日（公職選挙法の18歳以上確認）の取得をやめたため、
-    // /sign-in からの初回ログインでもそのまま登録できる
+    // ログイン導線からの初回ログインでもそのまま登録できる
     const lineUserId = `U_nodob_${Date.now()}`;
     const fakeClient = new FakeLineApiClient(lineUserId);
 

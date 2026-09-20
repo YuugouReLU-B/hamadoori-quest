@@ -16,23 +16,15 @@ describe("EnvVarWarning", () => {
 
       expect(screen.getByText("Sign in")).toBeInTheDocument();
     });
-
-    it("Sign upリンクが表示される", () => {
-      render(<EnvVarWarning />);
-
-      expect(screen.getByText("Sign up")).toBeInTheDocument();
-    });
   });
 
   describe("リンク", () => {
-    it("リンクが正しく設定される", () => {
+    it("ログイン導線を一本化したトップを指す", () => {
       render(<EnvVarWarning />);
 
       const signInLink = screen.getByRole("link", { name: "Sign in" });
-      const signUpLink = screen.getByRole("link", { name: "Sign up" });
 
-      expect(signInLink).toHaveAttribute("href", "/sign-in");
-      expect(signUpLink).toHaveAttribute("href", "/sign-up");
+      expect(signInLink).toHaveAttribute("href", "/");
     });
   });
 
@@ -41,10 +33,8 @@ describe("EnvVarWarning", () => {
       render(<EnvVarWarning />);
 
       const signInLink = screen.getByRole("link", { name: "Sign in" });
-      const signUpLink = screen.getByRole("link", { name: "Sign up" });
 
       expect(signInLink).toHaveAttribute("disabled");
-      expect(signUpLink).toHaveAttribute("disabled");
     });
   });
 });

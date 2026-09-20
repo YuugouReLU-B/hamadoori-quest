@@ -8,9 +8,9 @@ export default function DevLoginPage() {
       <h2 className="mb-4 text-lg font-bold">開発用ログイン</h2>
 
       <p className="mb-6 text-sm text-gray-600">
-        一般ユーザー向けの{" "}
-        <code className="rounded bg-gray-100 px-1.5 py-0.5">/sign-in</code> は
-        LINE ログインのみになったため、メールアドレス+パスワードでのログインは
+        一般ユーザー向けのログイン導線はトップ（
+        <code className="rounded bg-gray-100 px-1.5 py-0.5">/</code>）の LINE
+        ログインのみになったため、メールアドレス+パスワードでのログインは
         このページに分離しています。本番ビルドでは 404 になります。
       </p>
 

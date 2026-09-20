@@ -34,7 +34,7 @@ export default async function AdminLayout({
     const pathname = (await headers()).get(PATHNAME_HEADER);
     const returnUrl = validateReturnUrl(pathname) ?? "/admin/missions";
 
-    redirect(`/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
+    redirect(`/?returnUrl=${encodeURIComponent(returnUrl)}`);
   }
 
   if (!(await currentUserIsAdmin())) {

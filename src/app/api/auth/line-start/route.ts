@@ -24,10 +24,7 @@ export async function GET(request: NextRequest) {
 
   if (!result.ok) {
     return NextResponse.redirect(
-      new URL(
-        `/sign-in?error=${encodeURIComponent(result.error)}`,
-        request.url,
-      ),
+      new URL(`/?error=${encodeURIComponent(result.error)}`, request.url),
     );
   }
 

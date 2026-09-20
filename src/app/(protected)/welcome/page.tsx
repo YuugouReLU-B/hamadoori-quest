@@ -17,7 +17,7 @@ import { createAdminClient } from "@/lib/supabase/adminClient";
 export default async function WelcomePage() {
   const user = await getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const supabase = await createAdminClient();

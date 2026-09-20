@@ -43,7 +43,7 @@ export async function updateProfile(
 
   if (!user) {
     console.error("User not found");
-    return redirect("/sign-in");
+    return redirect("/");
   }
 
   // フォームデータの取得

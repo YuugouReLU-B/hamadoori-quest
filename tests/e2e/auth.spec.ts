@@ -1,6 +1,6 @@
 import { expect, test } from "../e2e-test-helpers";
 
-test.describe("新しい認証フロー (Two-Step Signup)", () => {
+test.describe("認証フロー (トップページに一本化)", () => {
   // 各テストの前に実行
   test.beforeEach(async ({ page }) => {
     // トップページに移動
@@ -9,48 +9,60 @@ test.describe("新しい認証フロー (Two-Step Signup)", () => {
     await page.waitForLoadState("networkidle");
   });
 
-  test("規約に同意するまで登録ボタンは押せない", async ({ page }) => {
-    await page.goto("/sign-up");
+  test("トップにLINEの登録/ログインボタンとみなし同意の表示がある", async ({
+    page,
+  }) => {
+    const loginButton = page.getByTestId("line-login-button");
 
-    const signUpButton = page.getByRole("button", {
-      name: "LINEでアカウント作成",
-    });
+    await expect(loginButton).toBeVisible();
+    await expect(loginButton).toHaveText("LINEで登録/ログイン");
 
-    await expect(signUpButton).toBeDisabled();
-
-    await page.locator("#terms").click();
-    await expect(signUpButton).toBeEnabled();
+    // 規約同意はチェックボックスからボタン直下のみなし同意に変えた。
+    // 組入要件としてリンクを辿れることが要るので href まで見る
+    await expect(
+      page.getByText("同意したものとみなします", { exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("link", { name: "利用規約" }),
+    ).toHaveAttribute("href", "/terms");
+    await expect(
+      page
+        .getByRole("main")
+        .getByRole("link", { name: "プライバシーポリシー" }),
+    ).toHaveAttribute("href", "/privacy");
   });
 
-  test("登録画面に生年月日の入力がない", async ({ page }) => {
-    // 生年月日（公職選挙法の18歳以上確認）の取得を廃止したため、
-    // 登録時に聞くのは規約同意だけになった
-    await page.goto("/sign-up");
-
-    await expect(
-      page.getByRole("heading", { name: "浜通りクエストに登録" }),
-    ).toBeVisible();
-    await expect(page.getByTestId("year_select")).toHaveCount(0);
-    await expect(page.getByText("18歳", { exact: false })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "次へ進む" })).toHaveCount(0);
-
-    await expect(page.getByRole("main").getByText("利用規約")).toBeVisible();
-    await expect(
-      page.getByRole("main").getByText("プライバシーポリシー"),
-    ).toBeVisible();
-  });
-
-  test("サインインページはLINEログインのみを表示する", async ({ page }) => {
-    // サインインページに移動
+  test("旧 /sign-in と /sign-up はトップへリダイレクトされる", async ({
+    page,
+  }) => {
     await page.goto("/sign-in");
+    await expect(page).toHaveURL(/\/$/);
 
-    // 1. LINEログインボタンのみが表示されていることを確認
-    await expect(page.getByRole("heading", { name: "ログイン" })).toBeVisible();
+    await page.goto("/sign-up");
+    await expect(page).toHaveURL(/\/$/);
+
+    // 外部に共有された旧URLを拾えるよう、クエリは引き継ぐ
+    await page.goto("/sign-in?returnUrl=%2Fmissions%2Ffoo");
+    await expect(page).toHaveURL(/returnUrl=%2Fmissions%2Ffoo/);
+  });
+
+  test("returnUrl 付きで来たときはログインが必要な理由を表示する", async ({
+    page,
+  }) => {
+    // 専用のログイン画面を廃したので、理由を出さないと
+    // 「なぜトップに戻されたのか」が分からなくなる
+    await page.goto("/?returnUrl=%2Fmissions%2Ffoo");
+
     await expect(
-      page.getByRole("button", { name: "LINEでログイン" }),
+      page.getByText("ログインすると続きから遊べます。"),
     ).toBeVisible();
+    await expect(page.getByTestId("line-login-button")).toBeVisible();
+  });
 
-    // 2. メールアドレス+パスワードのログインは /dev/login に分離済み
+  test("トップにメールアドレス+パスワードのログインは出さない", async ({
+    page,
+  }) => {
+    // メール+パスワードのログインは /dev/login に分離済み
     await expect(
       page.getByText("メールアドレス", { exact: true }),
     ).toBeHidden();
@@ -80,9 +92,7 @@ test.describe("新しい認証フロー (Two-Step Signup)", () => {
     await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 5000 });
   });
 
-  test("LINEサインアップボタンから正しいauthorize URLへ遷移する", async ({
-    page,
-  }) => {
+  test("LINEボタンから正しいauthorize URLへ遷移する", async ({ page }) => {
     // LINE への実通信は行わず、遷移先URLだけを検証する
     const captured: { url?: URL } = {};
     await page.route("https://access.line.me/**", async (route) => {
@@ -90,10 +100,7 @@ test.describe("新しい認証フロー (Two-Step Signup)", () => {
       await route.fulfill({ status: 200, body: "stub" });
     });
 
-    await page.goto("/sign-up");
-    await page.locator("#terms").click();
-
-    await page.getByRole("button", { name: "LINEでアカウント作成" }).click();
+    await page.getByTestId("line-login-button").click();
 
     await expect
       .poll(() => captured.url?.pathname, { timeout: 15000 })
@@ -124,7 +131,7 @@ test.describe("新しい認証フロー (Two-Step Signup)", () => {
     // cookie を持たない状態で直接コールバックを叩く
     await page.goto("/api/auth/line-callback?code=dummy&state=forged");
 
-    await expect(page).toHaveURL(/\/sign-in\?error=/);
+    await expect(page).toHaveURL(/\/\?error=/);
     await expect(page.getByText(/認証状態が無効です/)).toBeVisible();
   });
 });
