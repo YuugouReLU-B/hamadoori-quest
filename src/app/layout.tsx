@@ -7,6 +7,7 @@ import Script from "next/script";
 import NextTopLoader from "nextjs-toploader";
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { AnalyticsTrackerWrapper } from "@/features/analytics/components/analytics-tracker-wrapper";
 import { CampaignCodeHandlerWrapper } from "@/features/campaign-attribution/components/campaign-code-handler-wrapper";
 import { DevColorOverridesScript } from "@/features/dev-tools/components/dev-color-overrides-script";
 import { ReferralCodeHandlerWrapper } from "@/features/referral/components/referral-code-handler-wrapper";
@@ -60,6 +61,8 @@ export default function RootLayout({
           showSpinner={false}
           color="var(--app-brand-primary-strong)"
         />
+        {/* 自前のアクセス解析。ページ表示・滞在・スクロール・クリックをサイト全体で記録する */}
+        <AnalyticsTrackerWrapper />
         {GA_ID && (
           <>
             <Script

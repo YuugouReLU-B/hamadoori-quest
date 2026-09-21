@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "@/features/analytics/utils/tracker";
 import { cn } from "@/lib/utils/utils";
 import Mission from "./mission-card";
 import type { TaggedMission } from "./missions-tags";
@@ -124,6 +125,41 @@ export function MissionsTagFilter({ missions }: { missions: TaggedMission[] }) {
     isSpecial,
     selectedKinds,
     selectedRegions,
+  ]);
+
+  // 絞り込みの操作を記録する。
+  // 個々のチップの onClick ではなく確定後の状態を見るのは、結果件数まで一緒に残したいため。
+  // 初回描画（何も選んでいない状態）は操作ではないので送らない
+  const lastTrackedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const snapshot = JSON.stringify({
+      questType: selectedQuestType,
+      kinds: Array.from(selectedKinds).sort(),
+      regions: Array.from(selectedRegions).sort(),
+    });
+    if (lastTrackedRef.current === null) {
+      lastTrackedRef.current = snapshot;
+      return;
+    }
+    if (lastTrackedRef.current === snapshot) return;
+    lastTrackedRef.current = snapshot;
+
+    trackEvent("filter_change", {
+      props: {
+        questType: selectedQuestType,
+        kinds: Array.from(selectedKinds).sort(),
+        regions: Array.from(selectedRegions).sort(),
+        // 絞り込んだ結果が0件なら、選択肢の組み合わせに無理がある
+        resultCount: filtered.length,
+        totalCount: missions.length,
+      },
+    });
+  }, [
+    selectedQuestType,
+    selectedKinds,
+    selectedRegions,
+    filtered.length,
+    missions.length,
   ]);
 
   return (

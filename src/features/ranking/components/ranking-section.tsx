@@ -14,8 +14,12 @@ export default async function RankingSection() {
           aria-label="ランキングの期間"
           className="grid w-full grid-cols-2"
         >
-          <TabsTrigger value="daily">今日</TabsTrigger>
-          <TabsTrigger value="all">全期間</TabsTrigger>
+          <TabsTrigger value="daily" data-analytics-id="ranking-tab-daily">
+            今日
+          </TabsTrigger>
+          <TabsTrigger value="all" data-analytics-id="ranking-tab-all">
+            全期間
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="daily" className="mt-4">
           <RankingTop limit={3} period="daily" title="今日のトップ3" />
@@ -27,6 +31,7 @@ export default async function RankingSection() {
       <div className="mt-6 flex justify-center">
         <Link
           href={"/ranking"}
+          data-analytics-id="ranking-see-top100"
           className="flex items-center hover:text-teal-700 self-center"
         >
           トップ100を見る

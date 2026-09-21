@@ -40,6 +40,7 @@ export default function LineLoginButton({
         href={lineLoginHref}
         onClick={() => setIsLineLoading(true)}
         data-testid="line-login-button"
+        data-analytics-id="line-login"
         className={cn(
           buttonVariants({ size: "lg" }),
           "w-full max-w-sm h-14 rounded-full text-base font-bold shadow-lg",

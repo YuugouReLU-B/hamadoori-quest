@@ -33,7 +33,14 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
   const hasPlaceInfo = Boolean(mission.address) || Boolean(mapHref);
 
   return (
-    <Card>
+    // 詳細ページ本体も計測上は1つのコンテンツとして扱う。
+    // 一覧のカードと同じ mission タイプにすることで、
+    // 「一覧で見られた時間」と「詳細で見られた時間」を同じクエストIDで突き合わせられる
+    <Card
+      data-analytics-content="mission-detail"
+      data-analytics-content-id={mission.slug || mission.id}
+      data-analytics-content-label={mission.title}
+    >
       <CardHeader>
         <div className="flex items-center gap-4">
           {mission.icon_url && (

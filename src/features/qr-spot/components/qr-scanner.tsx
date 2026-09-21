@@ -4,6 +4,7 @@ import jsQR from "jsqr";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/features/analytics/utils/tracker";
 import { QR_SCAN_PATH } from "@/features/qr-spot/constants/qr-scan";
 
 type ScanState =
@@ -93,9 +94,17 @@ export function QrScanner() {
           const path = toSpotPath(found.data);
           if (path) {
             stop();
+            // どのスポットのQRから入ったかを経路に残す。
+            // 遷移で画面が消えるので待たずに送る
+            trackEvent("qr_scan", {
+              props: { result: "matched", spotPath: path },
+              immediate: true,
+            });
             router.push(path);
             return;
           }
+          // 自サービス以外のQRを読んでしまったケース。掲示物の不備を見つける手がかりになる
+          trackEvent("qr_scan", { props: { result: "foreign" } });
           setState({ kind: "foreign" });
         }
 

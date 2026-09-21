@@ -16,6 +16,7 @@ import { ja } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/features/analytics/utils/tracker";
 import type { TaggedMission } from "@/features/missions/components/missions-tags";
 import { cn } from "@/lib/utils/utils";
 import Mission from "./mission-card";
@@ -85,6 +86,15 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
   function changeMonth(month: Date) {
     setVisibleMonth(month);
     setSelectedDate(null);
+
+    // 月の移動は「開催日でクエストを探す」操作なので絞り込みとして記録する。
+    // その月にイベントがあるかも一緒に残すと、空振りしている月が分かる
+    trackEvent("calendar_month_change", {
+      props: {
+        month: format(month, "yyyy-MM"),
+        eventCount: eventDays.filter((day) => isSameMonth(day, month)).length,
+      },
+    });
   }
 
   const weeks = useMemo(() => {
@@ -165,6 +175,7 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
               className="h-8 w-8 rounded-full"
               onClick={() => changeMonth(subMonths(visibleMonth, 1))}
               aria-label="前の月"
+              data-analytics-id="calendar-prev-month"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -175,6 +186,7 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
               className="h-8 w-8 rounded-full"
               onClick={() => changeMonth(addMonths(visibleMonth, 1))}
               aria-label="次の月"
+              data-analytics-id="calendar-next-month"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -195,7 +207,12 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
                 onClick={() => {
                   setVisibleMonth(startOfMonth(nextEventDate));
                   setSelectedDate(nextEventDate);
+                  // 「次の開催日へ」は、月送りとは別の探し方として区別する
+                  trackEvent("calendar_jump_to_next_event", {
+                    props: { month: format(nextEventDate, "yyyy-MM") },
+                  });
                 }}
+                data-analytics-id="calendar-jump-next-event"
               >
                 <span>次の開催日へ</span>
                 <span>

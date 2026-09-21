@@ -6,6 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
 import {
+  createMapTracker,
+  type MapTracker,
+} from "@/features/analytics/utils/map-tracking";
+import {
   DEFAULT_ZOOM,
   FIT_BOUNDS_PADDING,
   MAX_ZOOM,
@@ -96,6 +100,10 @@ function createPopupContent(spot: MapSpot): HTMLElement {
 export default function SpotMap({ spots }: SpotMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const trackerRef = useRef<MapTracker | null>(null);
+  // マーカーは張り替えるので、可視判定のために最新のスポットを ref で持つ
+  const spotsRef = useRef(spots);
+  spotsRef.current = spots;
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const { currentPos, handleLocate } = useCurrentLocation(mapInstance);
   // 初期表示の位置は最初のスポットから決める。あとでスポットが変わっても
@@ -128,9 +136,33 @@ export default function SpotMap({ spots }: SpotMapProps) {
       });
     }
 
+    // 地図の操作を計測する。中心座標は残さず、ズームと画面内のスポットだけ記録する
+    const tracker = createMapTracker({
+      mapId: "spot-map",
+      getZoom: () => map.getZoom(),
+      getVisibleSpotIds: () => {
+        const viewBounds = map.getBounds();
+        return spotsRef.current
+          .filter((spot) =>
+            viewBounds.contains(L.latLng(spot.latitude, spot.longitude)),
+          )
+          .map((spot) => spot.id);
+      },
+    });
+    trackerRef.current = tracker;
+
+    const handleMove = () => tracker.reportMove();
+    // dragend / zoomend だけを見る。moveend は自動移動でも発火してしまう
+    map.on("dragend", handleMove);
+    map.on("zoomend", handleMove);
+
     setMapInstance(map);
 
     return () => {
+      map.off("dragend", handleMove);
+      map.off("zoomend", handleMove);
+      tracker.dispose();
+      trackerRef.current = null;
       map.remove();
       mapRef.current = null;
       setMapInstance(null);
@@ -145,6 +177,12 @@ export default function SpotMap({ spots }: SpotMapProps) {
     const markers = spots.map((spot) =>
       L.marker([spot.latitude, spot.longitude], { icon: createPinIcon(spot) })
         .bindPopup(createPopupContent(spot))
+        .on("click", () =>
+          trackerRef.current?.reportMarkerClick({
+            id: spot.id,
+            title: spot.title,
+          }),
+        )
         .addTo(map),
     );
 

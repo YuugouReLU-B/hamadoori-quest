@@ -87,6 +87,212 @@ export type Database = {
           },
         ];
       };
+      analytics_events: {
+        Row: {
+          engaged_ms: number | null;
+          event_id: string;
+          event_name: string;
+          id: number;
+          max_scroll_pct: number | null;
+          ms_since_page_view: number | null;
+          occurred_at: string;
+          page_height_px: number | null;
+          page_path: string | null;
+          page_query: string | null;
+          page_referrer: string | null;
+          page_title: string | null;
+          page_view_id: string | null;
+          props: Json;
+          received_at: string;
+          region_dwell: Json | null;
+          scroll_depth_px: number | null;
+          scroll_pct: number | null;
+          seq: number;
+          session_id: string;
+          tab_id: string;
+          user_id: string | null;
+          visible_ms: number | null;
+          visitor_id: string;
+        };
+        Insert: {
+          engaged_ms?: number | null;
+          event_id: string;
+          event_name: string;
+          id?: number;
+          max_scroll_pct?: number | null;
+          ms_since_page_view?: number | null;
+          occurred_at: string;
+          page_height_px?: number | null;
+          page_path?: string | null;
+          page_query?: string | null;
+          page_referrer?: string | null;
+          page_title?: string | null;
+          page_view_id?: string | null;
+          props?: Json;
+          received_at?: string;
+          region_dwell?: Json | null;
+          scroll_depth_px?: number | null;
+          scroll_pct?: number | null;
+          seq: number;
+          session_id: string;
+          tab_id: string;
+          user_id?: string | null;
+          visible_ms?: number | null;
+          visitor_id: string;
+        };
+        Update: {
+          engaged_ms?: number | null;
+          event_id?: string;
+          event_name?: string;
+          id?: number;
+          max_scroll_pct?: number | null;
+          ms_since_page_view?: number | null;
+          occurred_at?: string;
+          page_height_px?: number | null;
+          page_path?: string | null;
+          page_query?: string | null;
+          page_referrer?: string | null;
+          page_title?: string | null;
+          page_view_id?: string | null;
+          props?: Json;
+          received_at?: string;
+          region_dwell?: Json | null;
+          scroll_depth_px?: number | null;
+          scroll_pct?: number | null;
+          seq?: number;
+          session_id?: string;
+          tab_id?: string;
+          user_id?: string | null;
+          visible_ms?: number | null;
+          visitor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "analytics_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      analytics_sessions: {
+        Row: {
+          browser: string | null;
+          campaign_code: string | null;
+          channel: string | null;
+          created_at: string;
+          device_type: string | null;
+          id: string;
+          ip_address: unknown;
+          ip_city: string | null;
+          ip_country: string | null;
+          ip_latitude: number | null;
+          ip_longitude: number | null;
+          ip_region: string | null;
+          is_bot: boolean;
+          landing_path: string | null;
+          landing_query: string | null;
+          language: string | null;
+          last_seen_at: string;
+          os: string | null;
+          referral_code: string | null;
+          referrer: string | null;
+          referrer_host: string | null;
+          screen_height: number | null;
+          screen_width: number | null;
+          started_at: string;
+          timezone: string | null;
+          updated_at: string;
+          user_agent: string | null;
+          user_id: string | null;
+          utm_campaign: string | null;
+          utm_content: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
+          utm_term: string | null;
+          viewport_height: number | null;
+          viewport_width: number | null;
+          visitor_id: string;
+        };
+        Insert: {
+          browser?: string | null;
+          campaign_code?: string | null;
+          channel?: string | null;
+          created_at?: string;
+          device_type?: string | null;
+          id: string;
+          ip_address?: unknown;
+          ip_city?: string | null;
+          ip_country?: string | null;
+          ip_latitude?: number | null;
+          ip_longitude?: number | null;
+          ip_region?: string | null;
+          is_bot?: boolean;
+          landing_path?: string | null;
+          landing_query?: string | null;
+          language?: string | null;
+          last_seen_at?: string;
+          os?: string | null;
+          referral_code?: string | null;
+          referrer?: string | null;
+          referrer_host?: string | null;
+          screen_height?: number | null;
+          screen_width?: number | null;
+          started_at?: string;
+          timezone?: string | null;
+          updated_at?: string;
+          user_agent?: string | null;
+          user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_content?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          utm_term?: string | null;
+          viewport_height?: number | null;
+          viewport_width?: number | null;
+          visitor_id: string;
+        };
+        Update: {
+          browser?: string | null;
+          campaign_code?: string | null;
+          channel?: string | null;
+          created_at?: string;
+          device_type?: string | null;
+          id?: string;
+          ip_address?: unknown;
+          ip_city?: string | null;
+          ip_country?: string | null;
+          ip_latitude?: number | null;
+          ip_longitude?: number | null;
+          ip_region?: string | null;
+          is_bot?: boolean;
+          landing_path?: string | null;
+          landing_query?: string | null;
+          language?: string | null;
+          last_seen_at?: string;
+          os?: string | null;
+          referral_code?: string | null;
+          referrer?: string | null;
+          referrer_host?: string | null;
+          screen_height?: number | null;
+          screen_width?: number | null;
+          started_at?: string;
+          timezone?: string | null;
+          updated_at?: string;
+          user_agent?: string | null;
+          user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_content?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          utm_term?: string | null;
+          viewport_height?: number | null;
+          viewport_width?: number | null;
+          visitor_id?: string;
+        };
+        Relationships: [];
+      };
       lottery_settings: {
         Row: {
           button_label: string;
@@ -2102,6 +2308,37 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_first_quest_achievements: {
+        Row: {
+          achieved_at: string | null;
+          mission_id: string | null;
+          step_index: number | null;
+          user_id: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_achievement_count_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_category_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "achievements_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "missions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       user_ranking_view: {
         Row: {
           address_prefecture: string | null;
@@ -2116,6 +2353,317 @@ export type Database = {
       };
     };
     Functions: {
+      analytics_acquisitions: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          achievements: number;
+          campaign_code: string;
+          channel: string;
+          mission_id: string;
+          mission_slug: string;
+          mission_title: string;
+          referrer_host: string;
+          users: number;
+        }[];
+      };
+      analytics_by_channel: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          achievements: number;
+          avg_engaged_seconds: number;
+          channel: string;
+          page_views: number;
+          sessions: number;
+          signups: number;
+          visitors: number;
+        }[];
+      };
+      analytics_by_hour: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          day_of_week: number;
+          hour_of_day: number;
+          sessions: number;
+          visitors: number;
+        }[];
+      };
+      analytics_by_location: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          ip_city: string;
+          ip_country: string;
+          ip_region: string;
+          sessions: number;
+          visitors: number;
+        }[];
+      };
+      analytics_by_page: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          avg_engaged_seconds: number;
+          avg_max_scroll_pct: number;
+          entries: number;
+          exits: number;
+          median_engaged_seconds: number;
+          page_path: string;
+          page_title: string;
+          page_views: number;
+          read_to_bottom_rate: number;
+          visitors: number;
+        }[];
+      };
+      analytics_by_referrer: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          campaign_code: string;
+          channel: string;
+          referrer_host: string;
+          sessions: number;
+          utm_campaign: string;
+          utm_medium: string;
+          utm_source: string;
+          visitors: number;
+        }[];
+      };
+      analytics_calendar_usage: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          event_count: number;
+          jumped_to_next: number;
+          month: string;
+          views: number;
+          visitors: number;
+        }[];
+      };
+      analytics_click_targets: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          clicks: number;
+          element_path: string;
+          href: string;
+          is_outbound: boolean;
+          label: string;
+          page_path: string;
+          visitors: number;
+        }[];
+      };
+      analytics_content_dwell: {
+        Args: {
+          content_type?: string;
+          from_ts: string;
+          row_limit?: number;
+          to_ts: string;
+        };
+        Returns: {
+          avg_max_visible_pct: number;
+          avg_seconds: number;
+          content_id: string;
+          content_label: string;
+          content_type_out: string;
+          fully_seen_rate: number;
+          impressions: number;
+          page_path: string;
+          total_seconds: number;
+          visitors: number;
+        }[];
+      };
+      analytics_filter_usage: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          avg_result_count: number;
+          kinds: string;
+          quest_type: string;
+          regions: string;
+          selections: number;
+          visitors: number;
+          zero_result_rate: number;
+        }[];
+      };
+      analytics_map_spot_exposure: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          click_rate: number;
+          clicks: number;
+          map_id: string;
+          spot_id: string;
+          spot_title: string;
+          times_in_view: number;
+          viewers: number;
+        }[];
+      };
+      analytics_map_usage: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          avg_visible_spots: number;
+          avg_zoom: number;
+          map_id: string;
+          marker_clicks: number;
+          max_zoom: number;
+          moves: number;
+          visitors: number;
+        }[];
+      };
+      analytics_overview: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          avg_engaged_seconds: number;
+          avg_max_scroll_pct: number;
+          bounce_rate: number;
+          logged_in_users: number;
+          page_views: number;
+          sessions: number;
+          visitors: number;
+        }[];
+      };
+      analytics_page_bands: {
+        Args: { from_ts: string; target_path?: string; to_ts: string };
+        Returns: {
+          avg_seconds: number;
+          band_index: number;
+          page_views: number;
+          total_seconds: number;
+        }[];
+      };
+      analytics_page_flow: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          from_path: string;
+          step_index: number;
+          to_path: string;
+          transitions: number;
+        }[];
+      };
+      analytics_page_sections: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          avg_seconds: number;
+          page_path: string;
+          page_views: number;
+          section_label: string;
+          section_top: number;
+          total_seconds: number;
+        }[];
+      };
+      analytics_quest_progression: {
+        Args: { from_ts: string; max_step?: number; to_ts: string };
+        Returns: {
+          continued_from_previous_pct: number;
+          share_of_cohort_pct: number;
+          step_index: number;
+          users_reached: number;
+        }[];
+      };
+      analytics_quest_sequence: {
+        Args: {
+          from_ts: string;
+          max_step?: number;
+          row_limit?: number;
+          to_ts: string;
+        };
+        Returns: {
+          mission_id: string;
+          mission_slug: string;
+          mission_title: string;
+          share_pct: number;
+          step_index: number;
+          users: number;
+        }[];
+      };
+      analytics_quest_step_timing: {
+        Args: { from_ts: string; max_step?: number; to_ts: string };
+        Returns: {
+          avg_hours: number;
+          median_hours: number;
+          p25_hours: number;
+          p75_hours: number;
+          step_index: number;
+          users: number;
+        }[];
+      };
+      analytics_quest_transitions: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          from_title: string;
+          median_hours: number;
+          step_index: number;
+          to_title: string;
+          users: number;
+        }[];
+      };
+      analytics_recent_sessions: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          achievements: number;
+          browser: string;
+          channel: string;
+          device_type: string;
+          engaged_seconds: number;
+          ip_city: string;
+          ip_region: string;
+          landing_path: string;
+          last_seen_at: string;
+          page_views: number;
+          referrer_host: string;
+          session_id: string;
+          started_at: string;
+          user_id: string;
+          visitor_id: string;
+        }[];
+      };
+      analytics_session_timeline: {
+        Args: { row_limit?: number; target_session_id: string };
+        Returns: {
+          engaged_ms: number;
+          event_name: string;
+          max_scroll_pct: number;
+          ms_since_page_view: number;
+          occurred_at: string;
+          page_path: string;
+          page_title: string;
+          props: Json;
+          scroll_pct: number;
+          seq: number;
+        }[];
+      };
+      analytics_user_quest_journey: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          days_span: number;
+          first_achieved_at: string;
+          hours_to_first: number;
+          last_achieved_at: string;
+          quest_count: number;
+          quest_titles: string;
+          registered_at: string;
+          user_id: string;
+          user_name: string;
+        }[];
+      };
+      analytics_visit_frequency: {
+        Args: { from_ts: string; to_ts: string };
+        Returns: {
+          logged_in_visitors: number;
+          visit_count: number;
+          visitors: number;
+        }[];
+      };
+      analytics_visitor_activity: {
+        Args: { from_ts: string; row_limit?: number; to_ts: string };
+        Returns: {
+          achievements: number;
+          channels: string;
+          devices: string;
+          engaged_seconds: number;
+          first_seen_at: string;
+          last_seen_at: string;
+          locations: string;
+          page_views: number;
+          user_id: string;
+          user_name: string;
+          visitor_id: string;
+          visits: number;
+        }[];
+      };
       delete_user_account: {
         Args: { target_user_id: string };
         Returns: undefined;
@@ -2474,7 +3022,12 @@ export type Database = {
         }[];
       };
       is_admin: { Args: never; Returns: boolean };
+      is_internal_analytics_path: { Args: { path: string }; Returns: boolean };
       is_posting_admin: { Args: never; Returns: boolean };
+      purge_analytics_older_than: {
+        Args: { retention_days?: number };
+        Returns: number;
+      };
     };
     Enums: {
       event_category: "SPOT" | "SPORTS" | "ART" | "FOOD" | "MIXED";

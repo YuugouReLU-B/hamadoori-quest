@@ -4,6 +4,7 @@ import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState, useTransition } from "react";
+import { trackEvent } from "@/features/analytics/utils/tracker";
 import { geoCheckinAction } from "@/features/geo-checkin/actions/geo-checkin-actions";
 import { QuestClearPanel } from "@/features/mission-detail/components/quest-clear-panel";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
@@ -90,6 +91,13 @@ export function GeoCheckinButton({
         position.coords.longitude,
       );
 
+      // 達成の流れのなかに「現地チェックインで取った」ことを残す。
+      // 座標そのものは計測しない
+      trackEvent("geo_checkin", {
+        props: { missionId, status: result.status },
+        immediate: true,
+      });
+
       switch (result.status) {
         case "granted":
           setEarnedPoints(result.xpGranted);
@@ -164,6 +172,7 @@ export function GeoCheckinButton({
         <button
           type="button"
           onClick={handleClick}
+          data-analytics-id="mission-geo-checkin"
           disabled={state === "checking"}
           className="mt-1 flex h-14 w-64 max-w-full items-center justify-center gap-2 rounded-full border border-yellow-500 bg-primary text-base font-extrabold text-primary-foreground shadow-[0_4px_0_#eab308] transition-all duration-300 disabled:opacity-70"
         >
