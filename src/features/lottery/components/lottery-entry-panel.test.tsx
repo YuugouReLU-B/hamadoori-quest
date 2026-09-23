@@ -15,6 +15,7 @@ const settings = {
   id: "default",
   threshold_points: 1000,
   eligible_display_from: null as string | null,
+  eligible_display_until: null as string | null,
   title: "プレゼント抽選応募",
   description: "抽選のご案内",
   button_label: "応募フォームを開く",
