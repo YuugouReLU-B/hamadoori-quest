@@ -92,7 +92,7 @@ describe("RankingSection", () => {
     await user.click(screen.getByRole("tab", { name: "今日" }));
     checkPanel("今日", daily);
     expect(
-      screen.getByRole("link", { name: "トップ100を見る" }),
+      screen.getByRole("link", { name: "トップ10を見る" }),
     ).toHaveAttribute("href", "/ranking");
     expect(getRanking).toHaveBeenCalledWith(3, "daily", undefined);
     expect(getRanking).toHaveBeenCalledWith(3, "all", undefined);
