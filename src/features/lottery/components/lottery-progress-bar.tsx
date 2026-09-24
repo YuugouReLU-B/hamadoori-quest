@@ -1,5 +1,5 @@
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
-import { hasLotteryStarted } from "@/features/lottery/utils/eligibility";
+import { isBeforeOpenDate } from "@/features/lottery/utils/eligibility";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
 
@@ -17,7 +17,7 @@ export async function LotteryProgressBar() {
 
   const settings = await getLotterySettings();
   if (!settings) return null;
-  if (!hasLotteryStarted(settings.eligible_display_from)) return null;
+  if (isBeforeOpenDate(settings.eligible_display_from)) return null;
 
   const userLevel = await getMyUserLevel();
   const points = userLevel?.xp ?? 0;

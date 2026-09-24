@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CopyTokenButton } from "@/features/lottery/components/copy-token-button";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { generateLotteryToken } from "@/features/lottery/services/lottery-token";
-import { hasLotteryStarted } from "@/features/lottery/utils/eligibility";
+import { isBeforeOpenDate } from "@/features/lottery/utils/eligibility";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
 
@@ -24,7 +24,7 @@ export async function LotteryEntryPanel() {
   const userLevel = await getMyUserLevel();
   const points = userLevel?.xp ?? 0;
   const hasEnoughPoints = points >= settings.threshold_points;
-  const hasStarted = hasLotteryStarted(settings.eligible_display_from);
+  const hasStarted = !isBeforeOpenDate(settings.eligible_display_from);
   const isEligible = hasEnoughPoints && hasStarted;
   const startDateLabel = settings.eligible_display_from
     ? new Date(
