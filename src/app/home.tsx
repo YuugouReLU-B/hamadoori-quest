@@ -3,7 +3,6 @@ import type { Message } from "@/components/common/form-message";
 import Hero from "@/components/top/hero";
 import { HowToParticipateSection } from "@/components/top/how-to-participate-section";
 import { syncPointMilestoneAudience } from "@/features/line-notification/use-cases/sync-point-milestone-audience";
-import { LotteryAnnouncementBanner } from "@/features/lottery/components/lottery-announcement-banner";
 import MissionsByCategory from "@/features/missions/components/missions-by-category";
 import RankingSection from "@/features/ranking/components/ranking-section";
 import { getUnnotifiedBadges } from "@/features/user-badges/services/get-unnotified-badges";
@@ -86,9 +85,6 @@ export default async function Home({
 
   return (
     <div className="flex flex-col min-h-screen w-full pt-2">
-      {/* 抽選応募対象になったことのお知らせ */}
-      <LotteryAnnouncementBanner />
-
       {/* バッジ通知 */}
       {badgeNotifications && (
         <BadgeNotificationCheck badgeData={badgeNotifications} />

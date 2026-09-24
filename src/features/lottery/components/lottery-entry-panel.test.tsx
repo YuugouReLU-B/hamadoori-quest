@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { generateLotteryToken } from "@/features/lottery/services/lottery-token";
 import { getMyUserLevel } from "@/features/user-level/services/level";
-import { LotteryAnnouncementBanner } from "./lottery-announcement-banner";
 import { LotteryEntryPanel } from "./lottery-entry-panel";
 
 jest.mock("@/features/lottery/services/lottery-settings");
@@ -50,7 +49,7 @@ it("日付未設定なら従来どおり閾値到達で応募できる", async (
   ).toHaveAttribute("href", settings.form_url);
 });
 
-it("開始直前はポイント達成済みでもトークンと応募バナーを表示しない", async () => {
+it("開始直前はポイント達成済みでもトークンを表示しない", async () => {
   jest.mocked(getLotterySettings).mockResolvedValue({
     ...settings,
     eligible_display_from: "2026-09-14",
@@ -62,7 +61,6 @@ it("開始直前はポイント達成済みでもトークンと応募バナー�
   expect(screen.queryByText(/Pで応募できます/)).not.toBeInTheDocument();
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
   expect(generateLotteryToken).not.toHaveBeenCalled();
-  expect(await LotteryAnnouncementBanner()).toBeNull();
 });
 
 it.each([
@@ -76,7 +74,6 @@ it.each([
   });
   render(await LotteryEntryPanel());
   expect(screen.getByText("TEST-TOKEN")).toBeInTheDocument();
-  expect(await LotteryAnnouncementBanner()).not.toBeNull();
 });
 
 it.each([
@@ -92,7 +89,6 @@ it.each([
   render(await LotteryEntryPanel());
   expect(screen.getByText(/500P/)).toBeInTheDocument();
   expect(generateLotteryToken).not.toHaveBeenCalled();
-  expect(await LotteryAnnouncementBanner()).toBeNull();
   if (startDate === "2026-09-14") {
     expect(screen.getByText(/まだ応募できません/)).toBeInTheDocument();
     expect(screen.queryByText(/Pで応募できます/)).not.toBeInTheDocument();
