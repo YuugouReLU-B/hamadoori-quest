@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { resolveBasicAuthResponse } from "@/lib/middleware/basic-auth";
+import { resolveBetaEndResponse } from "@/lib/middleware/beta-end";
 import { resolveMaintenanceResponse } from "@/lib/middleware/maintenance";
 import { updateSession } from "@/lib/supabase/middleware";
 
@@ -41,6 +42,14 @@ export async function proxy(request: NextRequest) {
 
   if (maintenanceResponse) {
     return maintenanceResponse;
+  }
+
+  // ベータ終了後は、除外パス以外をすべて終了ページへ集約する。
+  // メンテナンスが先に返るので、メンテナンス中はそちらが優先される
+  const betaEndResponse = resolveBetaEndResponse(request);
+
+  if (betaEndResponse) {
+    return betaEndResponse;
   }
 
   if (isPrefetchRequest(request)) {
