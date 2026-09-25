@@ -33,7 +33,10 @@ jobs:
           version: latest
 
       - name: Link Supabase project
-        run: supabase link --project-ref $SUPABASE_PROJECT_REF --password $SUPABASE_DB_PASSWORD
+        # クォートは必須。DBパスワードは記号や空白を含み得るため、素の $VAR だと
+        # 単語分割やグロブ展開で壊れた値が --password に渡り、しかも link は
+        # 成功したように見えることがある（実際の失敗は後続の db push で出る）。
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
 
       - name: Apply migrations
         timeout-minutes: 10
