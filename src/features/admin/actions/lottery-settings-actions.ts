@@ -25,6 +25,9 @@ export async function updateLotterySettings(
     eligible_display_from: String(
       formData.get("eligible_display_from") ?? "",
     ).trim(),
+    eligible_display_until: String(
+      formData.get("eligible_display_until") ?? "",
+    ).trim(),
     threshold_points: String(formData.get("threshold_points") ?? "").trim(),
     title: String(formData.get("title") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),

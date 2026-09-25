@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { CopyTokenButton } from "@/features/lottery/components/copy-token-button";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { generateLotteryToken } from "@/features/lottery/services/lottery-token";
-import { hasLotteryStarted } from "@/features/lottery/utils/eligibility";
+import {
+  getLotteryState,
+  isBeforeOpenDate,
+} from "@/features/lottery/utils/eligibility";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
 
@@ -10,6 +13,7 @@ import { getUser } from "@/features/user-profile/services/profile";
  * 抽選応募パネル。
  *
  * 開始日以降、累計ポイントがしきい値に達したユーザーに応募トークンを表示する。
+ * 応募期間の終了後は、ポイントの達成・未達成に関係なく終了メッセージのみを出す。
  * しきい値・文言・応募先URLは /admin/lottery から編集する（lottery_settings）。
  * 応募の受付・当選確認・景品発送は外部フォーム（プレゼント事務局側の運用）
  * に委ねるため、ここではトークンの発行と案内だけを行う。
@@ -24,8 +28,16 @@ export async function LotteryEntryPanel() {
   const userLevel = await getMyUserLevel();
   const points = userLevel?.xp ?? 0;
   const hasEnoughPoints = points >= settings.threshold_points;
-  const hasStarted = hasLotteryStarted(settings.eligible_display_from);
-  const isEligible = hasEnoughPoints && hasStarted;
+  const state = getLotteryState({
+    points,
+    thresholdPoints: settings.threshold_points,
+    eligibleDisplayFrom: settings.eligible_display_from,
+    eligibleDisplayUntil: settings.eligible_display_until,
+  });
+  const isClosed = state === "closed";
+  // 状態は closed を優先するため、日付側の条件は述語を併用して判定する
+  const isBeforeOpen = isBeforeOpenDate(settings.eligible_display_from);
+  const isEligible = state === "open";
   const startDateLabel = settings.eligible_display_from
     ? new Date(
         `${settings.eligible_display_from}T00:00:00+09:00`,
@@ -72,16 +84,22 @@ export async function LotteryEntryPanel() {
         </div>
       ) : (
         <div className="mt-4 space-y-2 text-sm text-gray-600">
-          {!hasStarted && (
-            <p>まだ応募できません（応募開始: {startDateLabel}〜）</p>
-          )}
-          {!hasEnoughPoints && (
-            <p>
-              あと{(settings.threshold_points - points).toLocaleString()}
-              {hasStarted
-                ? "Pで応募できます。"
-                : "Pでポイント条件を満たします。"}
-            </p>
+          {isClosed ? (
+            <p>応募期間は終了しました</p>
+          ) : (
+            <>
+              {isBeforeOpen && (
+                <p>まだ応募できません（応募開始: {startDateLabel}〜）</p>
+              )}
+              {!hasEnoughPoints && (
+                <p>
+                  あと{(settings.threshold_points - points).toLocaleString()}
+                  {isBeforeOpen
+                    ? "Pでポイント条件を満たします。"
+                    : "Pで応募できます。"}
+                </p>
+              )}
+            </>
           )}
         </div>
       )}
