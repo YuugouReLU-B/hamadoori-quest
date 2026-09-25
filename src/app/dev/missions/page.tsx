@@ -14,6 +14,7 @@ const ARTIFACT_TYPE_LABELS: Record<string, string> = {
   QUIZ: "クイズ",
   EMAIL: "メール",
   REFERRAL: "紹介",
+  REFERRED: "被紹介",
   POSTING: "ポスティング",
   POSTER: "ポスター",
   RESIDENTIAL_POSTER: "戸別ポスター",

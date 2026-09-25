@@ -35,6 +35,11 @@ export const ARTIFACT_TYPES = {
     displayName: "紹介クエスト",
     prompt: "このクエストでは紹介が完了すると自動で達成されます。",
   },
+  REFERRED: {
+    key: "REFERRED",
+    displayName: "紹介されて開始",
+    prompt: "紹介URLから登録すると自動で達成になります。",
+  },
   POSTING: {
     key: "POSTING",
     displayName: "ポスティング",
@@ -124,6 +129,7 @@ export type MissionRequiredArtifactType =
   | "IMAGE"
   | "IMAGE_WITH_GEOLOCATION"
   | "REFERRAL"
+  | "REFERRED"
   | "POSTING"
   | "POSTER"
   | "LINE_FRIEND"

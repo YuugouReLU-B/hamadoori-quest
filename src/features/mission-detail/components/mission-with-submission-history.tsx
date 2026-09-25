@@ -67,14 +67,15 @@ export function MissionWithSubmissionHistory({
     (typeof window !== "undefined" ? window.location.origin : "");
   const signupUrl = `${origin}/?ref=${referralCode}`;
 
-  // LINK,QUIZ,リファラルは視覚的導線を表示しない
+  // LINK,QUIZ,リファラル,被紹介は視覚的導線を表示しない
   const isNoGuidanceArrow =
     mission.required_artifact_type === ARTIFACT_TYPES.LINK_ACCESS.key ||
     mission.required_artifact_type === ARTIFACT_TYPES.QUIZ.key ||
     mission.required_artifact_type === ARTIFACT_TYPES.LINE_FRIEND.key ||
     mission.required_artifact_type === ARTIFACT_TYPES.QR.key ||
     mission.required_artifact_type === ARTIFACT_TYPES.GEO_CHECKIN.key ||
-    mission.required_artifact_type === ARTIFACT_TYPES.REFERRAL.key;
+    mission.required_artifact_type === ARTIFACT_TYPES.REFERRAL.key ||
+    mission.required_artifact_type === ARTIFACT_TYPES.REFERRED.key;
 
   // フォームが表示される条件と同じ
   const shouldShowGuidanceArrow =
