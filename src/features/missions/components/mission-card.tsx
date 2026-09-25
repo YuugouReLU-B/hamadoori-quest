@@ -56,11 +56,12 @@ export default function Mission({
     // data-analytics-* は計測用。どのクエストがどれだけ見られたかを
     // 画面内の表示時間で測るために付けている（features/analytics）
     <article
+      className="h-full"
       data-analytics-content="mission"
       data-analytics-content-id={missionKey}
       data-analytics-content-label={mission.title}
     >
-      <Card className="@container/card">
+      <Card className="@container/card h-full flex flex-col">
         <CardHeader className="relative pl-1">
           <div className="flex items-center gap-1">
             <div className="flex flex-col items-center justify-center shrink-0">
@@ -83,11 +84,18 @@ export default function Mission({
           </div>
         </CardHeader>
 
-        <CardFooter className="flex flex-col items-stretch gap-3">
+        <CardFooter className="mt-auto flex flex-col items-stretch gap-3">
           {(regionLabel || mission.tag2) && (
-            <div className="flex flex-wrap items-center gap-2">
+            // タグは折り返さず横スクロールさせる。overscroll-x-contain でホイール/タッチの
+            // スクロール連鎖を止め、mousedown をキャプチャ段階で止めることで
+            // HorizontalScrollContainer 側のドラッグスクロールが始まらないようにしている
+            <div
+              data-testid="mission-card-tags"
+              className="flex flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              onMouseDownCapture={(event) => event.stopPropagation()}
+            >
               {regionLabel && (
-                <Badge variant="outline" className="text-xs px-2">
+                <Badge variant="outline" className="shrink-0 text-xs px-2">
                   <MapPin size={14} className="mr-1" />
                   <span className="text-sm font-medium text-gray-700">
                     {regionLabel}
@@ -95,7 +103,7 @@ export default function Mission({
                 </Badge>
               )}
               {mission.tag2 && (
-                <Badge variant="outline" className="text-xs px-2">
+                <Badge variant="outline" className="shrink-0 text-xs px-2">
                   <span className="text-sm font-medium text-gray-700">
                     {mission.tag2}
                   </span>
