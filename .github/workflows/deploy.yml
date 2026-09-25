@@ -1,24 +1,21 @@
-name: Migrate DB then Deploy
+name: Migrate DB (production)
 
 on:
   push:
-    branches: [main, develop]
+    # Supabaseプロジェクトは hamadori-quest の1つだけで、staging用の別プロジェクトが無い。
+    # develop でも発火させると、develop へのマージが本番DBへマイグレーションを流してしまう。
+    # staging環境を用意するまでは main だけにする。
+    branches: [main]
   workflow_dispatch: {}
 
 jobs:
   migrate-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    environment: production
     env:
       # Config parsing env vars (needed for supabase config.toml)
       ENABLE_CONFIRMATIONS: ${{ vars.ENABLE_CONFIRMATIONS }}
-      SMTP_ENABLED: ${{ vars.SMTP_ENABLED }}
-      SMTP_HOST: ${{ vars.SMTP_HOST }}
-      SMTP_USER: ${{ vars.SMTP_USER }}
-      SMTP_PASS: ${{ secrets.SMTP_PASS }}
-      SMTP_ADMIN_EMAIL: ${{ vars.SMTP_ADMIN_EMAIL }}
-      SMTP_SENDER_NAME: ${{ vars.SMTP_SENDER_NAME }}
       SITE_URL: ${{ vars.SITE_URL }}
       ADDITIONAL_REDIRECT_URLS: ${{ vars.ADDITIONAL_REDIRECT_URLS }}
       # Supabase secrets
@@ -28,7 +25,6 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
     steps:
       - uses: actions/checkout@v5
 
@@ -68,5 +64,7 @@ jobs:
       - name: Load poster data
         run: pnpm run poster:load-csv
 
-      - name: Trigger Vercel deployment
-        run: curl -X POST "$VERCEL_DEPLOY_HOOK_URL"
+      # Vercelへのデプロイはこのワークフローでは行わない。
+      # vercel.json で main/develop の Git 連携を意図的に無効化しており、
+      # `npx vercel --prod --yes --scope relu-branch` を手で叩く運用になっている。
+      # 手順は docs/20260913_1618_本番デプロイ手順メモ.md を参照。

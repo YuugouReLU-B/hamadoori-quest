@@ -46,14 +46,18 @@ cp .env ../action-board-<branch-name>/
 > ⚠️ yamlに載っていないミッションは `mission:sync` が一切触れない。過去に初期マイグレーションで
 > 直接INSERTされたミッションが取りこぼされていた。DBのslug一覧とyamlを突き合わせて確認すること。
 
-> ⚠️ **このリポジトリ（フォーク）では上記のCI/CDデプロイが現状機能していない（2026-09-13時点で確認）。**
-> `deploy.yml`はupstreamから引き継いだものがそのまま存在し`develop`/`main`へのpushで実行はされるが、
-> `SUPABASE_ACCESS_TOKEN` / `SUPABASE_PROJECT_REF` / `SUPABASE_DB_PASSWORD` / `VERCEL_DEPLOY_HOOK_URL`
-> 等のSecrets・Variablesがrepoレベル・environment(`staging`/`production`)レベルのどちらにも一切設定されておらず、
-> 最初の「Link Supabase project」ステップで毎回失敗している（2026-08-08以降の全実行が失敗）。
-> つまり `develop`/`main` にマージしても、実際にはstaging/production環境へのデプロイもマイグレーション適用も
-> 走らない。この状態で「マージすれば自動デプロイされる」という前提で作業しないこと。実際にデプロイする場合は、
-> 対象のSupabase/Vercelプロジェクトを用意した上でこれらのSecrets/Variablesを設定するか、手動でデプロイする。
+> ⚠️ **`deploy.yml` は `main` へのpushでのみ動き、やるのはSupabaseのマイグレーション適用とyaml同期だけ。**
+> Vercelへのデプロイは含まれない（2026-09-25に整理）。
+>
+> - Supabaseプロジェクトは `hamadori-quest`（ref `kijylemmokeegoqxalny`）**1つだけ**。staging用の別プロジェクトは無い。
+>   そのため `develop` では発火させていない（発火させると develop へのマージが本番DBを触ってしまう）。
+> - 必要なSecretsはrepoレベルに設定済み。Variablesは `SITE_URL` / `ADDITIONAL_REDIRECT_URLS` /
+>   `ENABLE_CONFIRMATIONS` の3つで、いずれも**本番Supabaseの現設定と同じ値**にしてある。
+> - **Variablesの値を変えると `supabase config push` が本番の認証設定を書き換える。**
+>   変更前に必ず `supabase config diff` で差分を確認すること（`config.toml` に書いた値が
+>   そのまま本番に反映される。テンプレート既定値のまま放置すると本番設定を巻き戻す）。
+> - **Vercelは手動デプロイ**。`vercel.json` で main/develop のGit連携を意図的に切っている。
+>   手順は [本番デプロイ手順メモ](docs/20260913_1618_本番デプロイ手順メモ.md) を参照。
 
 ### Supabaseクライアントの使い分け
 - **`createClient()` / `getAuth()` / `getStorage()`**: 認証操作（`supabase.auth.*`）やStorage操作に使用

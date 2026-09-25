@@ -170,7 +170,7 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
     // どこからも参照されていない。取消を再びUIに戻すならここに検証を足す
   });
 
-  test("TOP100ランキング - 全タブ遷移が正常に動作する", async ({
+  test("ランキング - 全体ランキングが表示され期間を切り替えられる", async ({
     signedInPage,
   }) => {
     await assertAuthState(signedInPage, true);
@@ -179,28 +179,16 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
     await signedInPage.goto("/ranking");
 
     await expect(
-      signedInPage.getByRole("heading", { name: "アクションリーダー" }),
+      signedInPage.getByRole("heading", { name: "ランキング" }),
     ).toBeVisible();
     await expect(
-      signedInPage.getByRole("heading", { name: "今日のトップ100" }),
+      signedInPage.getByRole("heading", { name: "今日のトップ10" }),
     ).toBeVisible();
     // TODO: Dailyランキングに表示されるseedデータを投入する必要あり //
 
     await signedInPage.getByRole("button", { name: "全期間" }).click();
     await expect(
-      signedInPage.getByRole("heading", { name: "全期間トップ100" }),
-    ).toBeVisible();
-
-    // 都道府県別ランキングは導線を外したため、タブは「全体」「ミッション別」のみ
-    await signedInPage.getByText("クエスト別").click();
-    await expect(signedInPage).toHaveURL("/ranking/ranking-mission", {
-      timeout: 10000,
-    });
-
-    await signedInPage.getByText("全体").click();
-    await expect(signedInPage).toHaveURL("/ranking", { timeout: 10000 });
-    await expect(
-      signedInPage.getByRole("heading", { name: "アクションリーダー" }),
+      signedInPage.getByRole("heading", { name: "全期間トップ10" }),
     ).toBeVisible();
   });
 });

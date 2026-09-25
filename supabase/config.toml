@@ -28,7 +28,7 @@ port = 54322
 shadow_port = 54320
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
 # server_version;` on the remote database to check.
-major_version = 15
+major_version = 17
 
 [db.pooler]
 enabled = false
@@ -38,9 +38,9 @@ port = 54329
 # Configure one of the supported pooler modes: `transaction`, `session`.
 pool_mode = "transaction"
 # How many server connections to allow per user/database pair.
-default_pool_size = 20
+default_pool_size = 15
 # Maximum number of client connections allowed.
-max_client_conn = 100
+max_client_conn = 200
 
 [db.vault]
 bq_user_password = "env(BQ_USER_PASSWORD)"
@@ -164,15 +164,18 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
-[auth.email.smtp]
-enabled = "env(SMTP_ENABLED)"
-host = "env(SMTP_HOST)"
-port = 587
-user = "env(SMTP_USER)"
-pass = "env(SMTP_PASS)"
-admin_email = "env(SMTP_ADMIN_EMAIL)"
-sender_name = "env(SMTP_SENDER_NAME)"
+# 本番（Supabase hosted）では独自SMTPを使っておらず、Supabase標準の送信に任せている。
+# ここで宣言すると `supabase config push` が本番のSMTP設定を毎デプロイ上書きしてしまい、
+# かつGitHub Variablesは空文字を保存できないため、未使用の値を置くしかなくなる。
+# 独自SMTPを使うことになったら、このブロックを戻して値をVariables/Secretsに入れる。
+# [auth.email.smtp]
+# enabled = "env(SMTP_ENABLED)"
+# host = "env(SMTP_HOST)"
+# port = 587
+# user = "env(SMTP_USER)"
+# pass = "env(SMTP_PASS)"
+# admin_email = "env(SMTP_ADMIN_EMAIL)"
+# sender_name = "env(SMTP_SENDER_NAME)"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

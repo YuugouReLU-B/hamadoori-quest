@@ -17,7 +17,7 @@ export const BaseRanking: React.FC<BaseRankingProps> = ({
   children,
   detailsHref,
   showDetailedInfo = false,
-  detailsLinkText = "トップ100を見る",
+  detailsLinkText = "トップ10を見る",
   columns = 4,
 }) => {
   return (

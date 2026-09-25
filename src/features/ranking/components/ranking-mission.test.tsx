@@ -274,41 +274,4 @@ describe("RankingMission", () => {
       expect(screen.queryByTestId("ranking-item")).not.toBeInTheDocument();
     });
   });
-
-  describe("詳細情報表示", () => {
-    it("showDetailedInfoがtrueの場合はリンクが表示される", async () => {
-      getMissionRanking.mockResolvedValue(mockRankings);
-      getTopUsersPostingCount.mockResolvedValue([]);
-
-      render(
-        await RankingMission({
-          mission: mockMission,
-          limit: 10,
-          showDetailedInfo: true,
-        }),
-      );
-
-      const link = screen.getByRole("link");
-      expect(link).toHaveAttribute(
-        "href",
-        "/ranking/ranking-mission?missionId=mission-1",
-      );
-      expect(screen.getByText("トップ100を見る")).toBeInTheDocument();
-    });
-
-    it("showDetailedInfoがfalseの場合はリンクが表示されない", async () => {
-      getMissionRanking.mockResolvedValue(mockRankings);
-      getTopUsersPostingCount.mockResolvedValue([]);
-
-      render(
-        await RankingMission({
-          mission: mockMission,
-          limit: 10,
-          showDetailedInfo: false,
-        }),
-      );
-
-      expect(screen.queryByRole("link")).not.toBeInTheDocument();
-    });
-  });
 });

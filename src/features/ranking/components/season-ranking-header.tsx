@@ -7,13 +7,9 @@ type Season = Tables<"seasons">;
 
 interface SeasonRankingHeaderProps {
   season: Season;
-  currentRankingPath?: string;
 }
 
-export function SeasonRankingHeader({
-  season,
-  currentRankingPath = "/ranking",
-}: SeasonRankingHeaderProps) {
+export function SeasonRankingHeader({ season }: SeasonRankingHeaderProps) {
   return (
     <div className="w-full max-w-6xl mb-4 px-4">
       <Card className=" p-4 bg-emerald-50/80 border-emerald-200">
@@ -53,7 +49,7 @@ export function SeasonRankingHeader({
           </div>
           {season.is_active && (
             <Link
-              href={currentRankingPath}
+              href="/ranking"
               className="text-teal-600 hover:text-teal-700 hover:underline text-sm transition-colors"
             >
               現在のランキングを見る →

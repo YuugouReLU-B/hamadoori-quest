@@ -344,3 +344,28 @@ missions:
     event_date: 2026-11-07
     artifact_label: null
     ogp_image_url: null
+
+  # ── 紹介された側（被紹介者）の達成（50pt） ──
+  # 紹介URL（?ref=<code>）から登録が完了したときに自動で達成になるため、
+  # ユーザーが一覧から選んで挑戦するものではない。よって is_hidden: true。
+  #
+  # 紹介した側は slug: referral（required_artifact_type: REFERRAL）を使う。
+  # そちらは既にDBにある既存クエストなので、ここ（yaml）には追加しない。
+  #
+  # mission:sync は挿入のみなので既存環境には反映されない。
+  # 既存環境では管理画面（/admin/missions）またはSQLで設定すること。
+  - slug: referred-signup
+    title: 紹介されて浜通りクエストを始めよう
+    quest_category: SNS
+    event_category: null
+    icon_url: /img/mission_fallback.svg
+    content: |-
+      友だちの紹介URLから登録すると自動で達成になります。
+    difficulty: 1
+    required_artifact_type: REFERRED
+    points: 50
+    max_achievement_count: 1
+    is_featured: false
+    is_hidden: true
+    artifact_label: null
+    ogp_image_url: null

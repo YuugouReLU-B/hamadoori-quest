@@ -31,10 +31,10 @@ export default async function RankingSection() {
       <div className="mt-6 flex justify-center">
         <Link
           href={"/ranking"}
-          data-analytics-id="ranking-see-top100"
+          data-analytics-id="ranking-see-top10"
           className="flex items-center hover:text-teal-700 self-center"
         >
-          トップ100を見る
+          トップ10を見る
           <ChevronRight className="w-4 h-4 ml-1" />
         </Link>
       </div>

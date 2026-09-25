@@ -298,6 +298,7 @@ export type Database = {
           button_label: string;
           description: string;
           eligible_display_from: string | null;
+          eligible_display_until: string | null;
           form_url: string;
           id: string;
           threshold_points: number;
@@ -308,6 +309,7 @@ export type Database = {
           button_label?: string;
           description?: string;
           eligible_display_from?: string | null;
+          eligible_display_until?: string | null;
           form_url?: string;
           id?: string;
           threshold_points?: number;
@@ -318,6 +320,7 @@ export type Database = {
           button_label?: string;
           description?: string;
           eligible_display_from?: string | null;
+          eligible_display_until?: string | null;
           form_url?: string;
           id?: string;
           threshold_points?: number;
