@@ -107,19 +107,15 @@ describe("badge-types", () => {
         expect(getBadgeRankingUrl(badge)).toBe("/ranking?period=all");
       });
 
-      it("MISSION: mission_idがある場合はそのIDを含むURLを返す", () => {
-        const badge = createBadge({
+      it("MISSION: mission_id の有無に関わらず /ranking を返す", () => {
+        const badgeWithMissionId = createBadge({
           badge_type: "MISSION",
           mission_id: "mission-123",
         });
-        expect(getBadgeRankingUrl(badge)).toBe(
-          "/ranking/ranking-mission?missionId=mission-123",
-        );
-      });
+        expect(getBadgeRankingUrl(badgeWithMissionId)).toBe("/ranking");
 
-      it("MISSION: mission_idがない場合は汎用クエストURLを返す", () => {
-        const badge = createBadge({ badge_type: "MISSION" });
-        expect(getBadgeRankingUrl(badge)).toBe("/ranking/ranking-mission");
+        const badgeWithoutMissionId = createBadge({ badge_type: "MISSION" });
+        expect(getBadgeRankingUrl(badgeWithoutMissionId)).toBe("/ranking");
       });
     });
 

@@ -64,6 +64,20 @@ export const BadgeType = {
 
 /**
  * バッジタイプに応じたランキングページのURLを取得
+ *
+ * NOTE: バッジ機能は現在稼働していない。
+ * バッジを発行する calculate-badges ワークフロー
+ * (.github/workflows/calculate-badges-production.yml / -staging.yml) は
+ * production・staging とも `on:` が workflow_dispatch のみで、
+ * 「本プロジェクト用に Secrets と接続先を再設定するまで定期実行を停止している」
+ * という NOTE 付きで定期実行が止まっている（実行履歴もゼロ）。
+ * そのため user_badges テーブルに行が無く、バッジ獲得通知ダイアログも
+ * ヒーローのバッジ表示も実際には出ていない。
+ *
+ * MISSION の遷移先を（mission_id の有無に関わらず）"/ranking" にしているのは、
+ * クエスト別ランキングページ（旧 ranking-mission 配下のページ）を削除したため、
+ * 存在しないページを指さないようにする目的。バッジ機能が止まっている以上
+ * ユーザー影響は無い。
  */
 export function getBadgeRankingUrl(badge: UserBadge): string | null {
   switch (badge.badge_type) {
@@ -72,12 +86,7 @@ export function getBadgeRankingUrl(badge: UserBadge): string | null {
     case BadgeType.ALL:
       return "/ranking?period=all";
     case BadgeType.MISSION:
-      // ミッションIDがあればそれを使用
-      if (badge.mission_id) {
-        return `/ranking/ranking-mission?missionId=${badge.mission_id}`;
-      }
-      // mission_idがない場合は汎用ミッションページへ
-      return "/ranking/ranking-mission";
+      return "/ranking";
     default:
       return null;
   }

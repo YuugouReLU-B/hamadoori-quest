@@ -196,7 +196,6 @@ export default async function MissionPage({ params, searchParams }: Props) {
                 <div className="mt-6">
                   <RankingMission
                     limit={10}
-                    showDetailedInfo={true}
                     mission={mission}
                     isPostingMission={isPostingMission}
                   />

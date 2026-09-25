@@ -3,7 +3,6 @@ import {
   PeriodToggle,
   type RankingPeriod,
 } from "@/features/ranking/components/period-toggle";
-import { RankingTabs } from "@/features/ranking/components/ranking-tabs";
 import { RankingTop } from "@/features/ranking/components/ranking-top";
 import { getUserPeriodRanking } from "@/features/ranking/loaders/ranking-loaders";
 import { getCurrentSeasonId } from "@/lib/loaders/seasons-loaders";
@@ -28,27 +27,27 @@ export default async function RankingPage({ searchParams }: PageProps) {
 
   return (
     <div className="flex flex-col min-h-screen py-4 w-full">
-      <h2 className="text-2xl font-bold text-center mb-4">
-        アクションリーダー
-      </h2>
-      <RankingTabs>
-        {/* 期間選択トグル */}
-        <section className="py-4">
-          <PeriodToggle defaultPeriod={period} />
-        </section>
-
-        {/* ユーザーのランキングカード */}
-        {userRanking && (
+      <h2 className="text-2xl font-bold text-center mb-4">ランキング</h2>
+      <div className="w-full max-w-xl mx-auto px-4">
+        <section className="max-w-lg mx-auto">
+          {/* 期間選択トグル */}
           <section className="py-4">
-            <CurrentUserCard currentUser={userRanking} />
+            <PeriodToggle defaultPeriod={period} />
           </section>
-        )}
 
-        <section className="py-4">
-          {/* ランキング */}
-          <RankingTop limit={100} period={period} />
+          {/* ユーザーのランキングカード */}
+          {userRanking && (
+            <section className="py-4">
+              <CurrentUserCard currentUser={userRanking} />
+            </section>
+          )}
+
+          <section className="py-4">
+            {/* ランキング */}
+            <RankingTop limit={10} period={period} />
+          </section>
         </section>
-      </RankingTabs>
+      </div>
     </div>
   );
 }

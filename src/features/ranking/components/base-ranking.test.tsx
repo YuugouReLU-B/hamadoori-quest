@@ -87,7 +87,7 @@ describe("BaseRanking", () => {
       const link = screen.getByTestId("link");
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute("href", "/test-details");
-      expect(screen.getByText("トップ100を見る")).toBeInTheDocument();
+      expect(screen.getByText("トップ10を見る")).toBeInTheDocument();
       expect(screen.getByTestId("chevron-right")).toBeInTheDocument();
     });
 
@@ -104,7 +104,7 @@ describe("BaseRanking", () => {
       );
 
       expect(screen.queryByTestId("link")).not.toBeInTheDocument();
-      expect(screen.queryByText("トップ100を見る")).not.toBeInTheDocument();
+      expect(screen.queryByText("トップ10を見る")).not.toBeInTheDocument();
     });
 
     it("detailsHrefがない場合、showDetailedInfoがtrueでもリンクが表示されない", () => {
@@ -260,7 +260,7 @@ describe("BaseRanking", () => {
       );
 
       const link = screen.getByRole("link");
-      expect(link).toHaveTextContent("トップ100を見る");
+      expect(link).toHaveTextContent("トップ10を見る");
     });
   });
 });

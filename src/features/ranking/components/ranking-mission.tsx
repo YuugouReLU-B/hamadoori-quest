@@ -9,7 +9,6 @@ import { RankingItem } from "./ranking-item";
 
 interface RankingTopProps {
   limit?: number;
-  showDetailedInfo?: boolean; // 詳細情報を表示するかどうか
   mission?: Tables<"missions">;
   isPostingMission?: boolean;
   seasonId?: string; // シーズン指定
@@ -18,7 +17,6 @@ interface RankingTopProps {
 export async function RankingMission({
   mission,
   limit = 10,
-  showDetailedInfo = false,
   isPostingMission,
   seasonId,
 }: RankingTopProps) {
@@ -56,11 +54,7 @@ export async function RankingMission({
   const title = `「${mission.title}」トップ${limit}`;
 
   return (
-    <BaseRanking
-      title={title}
-      detailsHref={`/ranking/ranking-mission?missionId=${mission.id}`}
-      showDetailedInfo={showDetailedInfo}
-    >
+    <BaseRanking title={title}>
       {rankings.map((user) => (
         <RankingItem
           key={user.user_id}

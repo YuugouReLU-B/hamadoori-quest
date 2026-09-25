@@ -116,7 +116,7 @@ describe("RankingTop", () => {
       const link = screen.getByTestId("link");
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute("href", "/ranking");
-      expect(screen.getByText("トップ100を見る")).toBeInTheDocument();
+      expect(screen.getByText("トップ10を見る")).toBeInTheDocument();
       expect(screen.getByTestId("chevron-right")).toBeInTheDocument();
     });
 
@@ -126,7 +126,7 @@ describe("RankingTop", () => {
       render(await RankingTop({ showDetailedInfo: false }));
 
       expect(screen.queryByTestId("link")).not.toBeInTheDocument();
-      expect(screen.queryByText("トップ100を見る")).not.toBeInTheDocument();
+      expect(screen.queryByText("トップ10を見る")).not.toBeInTheDocument();
     });
 
     it("showDetailedInfoのデフォルト値はfalseである", async () => {
