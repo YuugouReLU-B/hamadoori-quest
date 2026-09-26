@@ -64,8 +64,12 @@ jobs:
       - name: Sync season data
         run: pnpm run season:sync
 
-      - name: Load poster data
-        run: pnpm run poster:load-csv
+      # ポスターCSVの取り込み（pnpm run poster:load-csv）はこのワークフローでは行わない。
+      # poster_data/load-csv.ts は COPY FROM を使うため直接のPostgres接続が必要で、
+      # SUPABASE_DB_PASSWORD を要求する（load-csv.ts:84）。このワークフローは
+      # 認証を SUPABASE_ACCESS_TOKEN に一本化してDBパスワードを渡さない方針なので、
+      # CSVを入れ替えたときだけ手元で実行する:
+      #   SUPABASE_DB_PASSWORD=<本番のDBパスワード> pnpm run poster:load-csv
 
       # Vercelへのデプロイはこのワークフローでは行わない。
       # vercel.json で main/develop の Git 連携を意図的に無効化しており、
