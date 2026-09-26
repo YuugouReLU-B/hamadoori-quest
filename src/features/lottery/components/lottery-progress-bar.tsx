@@ -7,6 +7,7 @@ import {
 } from "@/features/lottery/utils/format-lottery-date";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
+import { formatPoints, POINT_UNIT } from "@/lib/utils/format-points";
 
 /**
  * 景品応募の状態表示。
@@ -49,19 +50,23 @@ export async function LotteryProgressBar() {
     return (
       <div className="w-full rounded-xl border-2 bg-white p-4 text-left">
         <h2 className="text-sm font-bold text-gray-900">
-          期間中に{threshold.toLocaleString()}
-          pt集めると、浜通りの産品が当たる抽選に応募可能！
+          期間中に{formatPoints(threshold)}
+          集めると、浜通りの産品が当たる抽選に応募可能！
         </h2>
         <div className="mt-2 flex items-baseline justify-between text-sm">
           <span className="font-bold text-gray-900">
-            {progressValue.toLocaleString()}{" "}
+            {progressValue}
             <span className="text-xs font-normal text-gray-500">
-              / {threshold.toLocaleString()} pt
+              {" "}
+              / {formatPoints(threshold)}
             </span>
           </span>
           <span className="text-xs text-gray-500">
-            あと <b className="text-gray-900">{remaining.toLocaleString()}</b>{" "}
-            ポイント
+            あと{" "}
+            <b className="text-gray-900">
+              {remaining}
+              {POINT_UNIT}
+            </b>
           </span>
         </div>
         <progress

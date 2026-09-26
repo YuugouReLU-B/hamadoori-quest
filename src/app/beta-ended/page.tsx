@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function BetaEndedPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] w-full max-w-md flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-2xl font-extrabold">ベータ期間は終了しました</h1>
+      <h1 className="text-2xl font-bold">ベータ期間は終了しました</h1>
 
       <p className="mt-4 text-sm leading-relaxed text-gray-600">
         浜通りクエストのベータ公開は終了しました。次のシーズンをお待ちください。

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { Tables } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 import type { UserMissionRanking } from "../types/ranking-types";
 import { BaseCurrentUserCard } from "./base-current-user-card";
 
@@ -34,7 +35,7 @@ export const CurrentUserCardMission: React.FC<CurrentUserCardProps> = ({
           {badgeText}
         </Badge>
         <span className="font-bold text-lg">
-          {(currentUser.total_points ?? 0).toLocaleString()}P
+          {formatPoints(currentUser.total_points)}
         </span>
       </div>
     </BaseCurrentUserCard>

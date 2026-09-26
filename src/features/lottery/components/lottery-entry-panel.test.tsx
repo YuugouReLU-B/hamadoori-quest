@@ -85,7 +85,7 @@ it.each([
     eligible_display_from: startDate,
   });
   render(await LotteryEntryPanel());
-  expect(screen.getByText(/500P/)).toBeInTheDocument();
+  expect(screen.getByText(/500pt/)).toBeInTheDocument();
   expect(generateLotteryToken).not.toHaveBeenCalled();
   if (startDate === "2026-09-14") {
     expect(screen.getByText(/まだ応募できません/)).toBeInTheDocument();

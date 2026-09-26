@@ -10,6 +10,7 @@ import { grantXp } from "@/features/user-level/services/level";
 import { MAX_POSTER_COUNT } from "@/lib/constants/mission-config";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Database } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 import type { AchieveMissionFormData } from "./actions";
 
 // buildArtifactPayload の戻り値型
@@ -160,7 +161,7 @@ export async function grantActivityBonusXp(params: {
     totalPoints,
     "BONUS",
     achievementId,
-    `${descriptionLabel}（${count}枚=${totalPoints}ポイント）`,
+    `${descriptionLabel}（${count}枚=${formatPoints(totalPoints)}）`,
   );
 
   if (!bonusXpResult.success) {

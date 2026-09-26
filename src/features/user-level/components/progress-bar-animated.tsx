@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatPoints } from "@/lib/utils/format-points";
 import { cn } from "@/lib/utils/utils";
 
 interface ProgressBarAnimatedProps {
@@ -61,8 +62,7 @@ export function ProgressBarAnimated({
       {showText && (
         <div className="flex justify-end text-sm mb-2">
           <span className="font-bold">
-            {Math.round(animatedValue).toLocaleString()} /{" "}
-            {maxValue.toLocaleString()}P
+            {Math.round(animatedValue)} / {formatPoints(maxValue)}
           </span>
         </div>
       )}

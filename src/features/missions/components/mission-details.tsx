@@ -5,6 +5,7 @@ import { MissionIcon } from "@/features/missions/components/mission-icon";
 import { getMissionRegionLabel } from "@/features/missions/constants/mission-regions";
 import type { Tables } from "@/lib/types/supabase";
 import { dateFormatter } from "@/lib/utils/date-formatters";
+import { formatPoints } from "@/lib/utils/format-points";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
 
 type MissionDetailsProps = {
@@ -65,11 +66,11 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
       </CardHeader>
       <CardContent>
         <section aria-label="クエスト概要" className="space-y-4">
-          <h2 className="font-semibold">クエスト概要</h2>
+          <h2 className="font-bold">クエスト概要</h2>
           <dl className="space-y-4 text-sm leading-relaxed">
             {(mission.event_date || mission.event_end_date) && (
               <div className="flex flex-wrap items-baseline gap-1">
-                <dt className="font-semibold">日程：</dt>
+                <dt className="font-bold">日程：</dt>
                 <dd>
                   {mission.event_date && (
                     <time dateTime={mission.event_date}>
@@ -87,7 +88,7 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
             )}
             {hasPlaceInfo && (
               <div className="flex flex-wrap items-baseline gap-1">
-                <dt className="font-semibold">場所：</dt>
+                <dt className="font-bold">場所：</dt>
                 <dd>
                   {mission.address && mapHref ? (
                     <a
@@ -117,7 +118,7 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
             )}
             {mission.content?.trim() && (
               <div className="space-y-1">
-                <dt className="font-semibold">内容</dt>
+                <dt className="font-bold">内容</dt>
                 <dd>
                   {/* 営業時間や予約条件を含む本文を、推測・抽出せずそのまま表示する。 */}
                   <div
@@ -133,16 +134,16 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
             )}
             {mission.supplement?.trim() && (
               <div className="space-y-1">
-                <dt className="font-semibold">補足</dt>
+                <dt className="font-bold">補足</dt>
                 <dd className="whitespace-pre-wrap break-words">
                   {mission.supplement}
                 </dd>
               </div>
             )}
             <div className="space-y-1 border-t pt-4">
-              <dt className="font-semibold">獲得ポイント</dt>
+              <dt className="font-bold">獲得ポイント</dt>
               <dd className="font-bold text-brand-ink">
-                {mission.points.toLocaleString("ja-JP")} pt
+                {formatPoints(mission.points)}
               </dd>
             </div>
           </dl>

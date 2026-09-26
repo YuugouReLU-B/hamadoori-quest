@@ -35,7 +35,7 @@ export function AchievementMetric({
         </div>
         <div className="text-right">
           {/* 総アクション数（Supabaseから取得、失敗時は環境変数フォールバック） */}
-          <p className="text-2xl font-black text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             {formatNumber(achievementCount)}
             <span className="text-lg">件</span>
           </p>

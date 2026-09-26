@@ -11,6 +11,7 @@ import {
   ARTIFACT_TYPES_WITHOUT_SUBMISSION,
 } from "@/lib/types/artifact-types";
 import type { Database, TablesInsert } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 import type { AchieveMissionFormData } from "../actions/actions";
 import {
   buildArtifactPayload,
@@ -181,7 +182,7 @@ async function grantBonusXp(
     xpAmount: totalPoints,
     sourceType: "BONUS",
     sourceId: achievementId,
-    description: `${descriptionLabel}（${count}枚=${totalPoints}ポイント）`,
+    description: `${descriptionLabel}（${count}枚=${formatPoints(totalPoints)}）`,
   });
 
   if (!result.success) {

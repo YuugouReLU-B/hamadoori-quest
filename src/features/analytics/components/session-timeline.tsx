@@ -87,7 +87,7 @@ export function SessionTimeline({
                 <p
                   className={
                     emphasized
-                      ? "text-sm font-semibold"
+                      ? "text-sm font-bold"
                       : "text-sm text-muted-foreground"
                   }
                 >

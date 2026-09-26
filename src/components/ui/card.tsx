@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-xl border border-black bg-card text-card-foreground shadow",
+      "rounded-lg border border-gray-200 bg-card text-card-foreground",
       className,
     )}
     {...props}
@@ -36,7 +36,8 @@ const CardTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      // 日本語の見出しで複数行になるので leading-none/tracking-tight は使わない
+      "text-2xl font-bold leading-normal tracking-[0.02em] [font-feature-settings:'palt']",
       className,
     )}
     {...props}

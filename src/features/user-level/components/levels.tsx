@@ -3,6 +3,7 @@ import { UserName } from "@/components/common/user-name";
 import { UserTopBadge } from "@/features/user-badges/components/user-top-badge";
 import { getUserLevel } from "@/features/user-level/services/level";
 import { getProfile } from "@/features/user-profile/services/profile";
+import { POINT_UNIT } from "@/lib/utils/format-points";
 
 interface LevelsProps {
   userId: string;
@@ -43,9 +44,9 @@ export default async function Levels({
             className="text-6xl text-yellow-300"
             style={{ WebkitTextStroke: "1.5px black" }}
           >
-            {userLevel ? userLevel.xp.toLocaleString() : "0"}
+            {userLevel ? userLevel.xp : 0}
           </span>
-          P
+          {POINT_UNIT}
         </div>
       </div>
       {showName && (

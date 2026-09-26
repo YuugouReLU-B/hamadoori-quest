@@ -154,7 +154,7 @@ export default function PosterMapPageClientOptimized({
 
       {/* District List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">選挙区から選択</h2>
+        <h2 className="text-xl font-bold">選挙区から選択</h2>
         {sortedDistricts.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">

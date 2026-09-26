@@ -49,7 +49,7 @@ export default async function DevImagesPage() {
             <dt className="text-xs font-bold text-gray-600">
               {STATUS_LABEL[key]}
             </dt>
-            <dd className="text-2xl font-extrabold">{counts[key]}</dd>
+            <dd className="text-2xl font-bold">{counts[key]}</dd>
           </div>
         ))}
       </dl>

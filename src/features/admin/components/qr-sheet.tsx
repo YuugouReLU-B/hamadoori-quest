@@ -24,7 +24,7 @@ export function QrSheet({ title, points, qrUrl, slug }: QrSheetProps) {
         浜通りクエスト
       </p>
 
-      <h2 className="text-3xl font-extrabold leading-snug">{title}</h2>
+      <h2 className="text-3xl font-bold leading-snug">{title}</h2>
 
       <div className="rounded-2xl bg-white p-4">
         {/* 印刷後の紙面で読み取れるだけの大きさが要る */}

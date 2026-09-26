@@ -8,6 +8,7 @@ import {
 } from "@/features/lottery/utils/eligibility";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
+import { formatPoints } from "@/lib/utils/format-points";
 
 /**
  * 抽選応募パネル。
@@ -57,7 +58,7 @@ export async function LotteryEntryPanel() {
       <p className="text-lg font-bold">{settings.title}</p>
       <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">
         {settings.description}
-        （現在{points.toLocaleString()}P）
+        （現在{formatPoints(points)}）
       </p>
 
       {token ? (
@@ -93,10 +94,10 @@ export async function LotteryEntryPanel() {
               )}
               {!hasEnoughPoints && (
                 <p>
-                  あと{(settings.threshold_points - points).toLocaleString()}
+                  あと{formatPoints(settings.threshold_points - points)}
                   {isBeforeOpen
-                    ? "Pでポイント条件を満たします。"
-                    : "Pで応募できます。"}
+                    ? "でポイント条件を満たします。"
+                    : "で応募できます。"}
                 </p>
               )}
             </>

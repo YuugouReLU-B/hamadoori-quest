@@ -56,12 +56,12 @@ it("ポイント未達成なら固定文言と進捗バーを表示する", asyn
 
   expect(
     screen.getByText(
-      "期間中に1,000pt集めると、浜通りの産品が当たる抽選に応募可能！",
+      "期間中に1000pt集めると、浜通りの産品が当たる抽選に応募可能！",
     ),
   ).toBeInTheDocument();
-  expect(screen.getByText("/ 1,000 pt")).toBeInTheDocument();
+  expect(screen.getByText("/ 1000pt")).toBeInTheDocument();
   expect(screen.getByText(/あと/)).toBeInTheDocument();
-  expect(screen.getByText("900")).toBeInTheDocument();
+  expect(screen.getByText("900pt")).toBeInTheDocument();
   expect(container.querySelector("progress")).toBeInTheDocument();
 });
 
@@ -79,7 +79,7 @@ it("達成済みでフォーム未オープンなら日付入りの案内だけ�
     ),
   ).toBeInTheDocument();
   expect(container.querySelector("progress")).not.toBeInTheDocument();
-  expect(screen.queryByText(/1,000 pt/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/1000pt/)).not.toBeInTheDocument();
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
 });
 
@@ -97,7 +97,7 @@ it("応募受付中はマイページへのリンクと応募期間を表示す�
   ).toHaveAttribute("href", "/users/test-user-id");
   expect(screen.getByText("応募期間：2026/11/02~11/29")).toBeInTheDocument();
   expect(container.querySelector("progress")).not.toBeInTheDocument();
-  expect(screen.queryByText(/1,000 pt/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/1000pt/)).not.toBeInTheDocument();
 });
 
 it("応募受付中でも終了日が未設定なら応募期間を表示しない", async () => {
@@ -129,7 +129,7 @@ it.each([
   expect(container.querySelector("progress")).not.toBeInTheDocument();
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
   expect(screen.queryByText(/応募条件達成/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/1,000 pt/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/1000pt/)).not.toBeInTheDocument();
 });
 
 it("未ログインなら何も表示しない", async () => {

@@ -7,12 +7,8 @@ export function FeedbackSection() {
     <div className="bg-white mx-auto py-12">
       <div className="px-4 md:container md:mx-auto text-center">
         <h2 className="text-xl font-bold mb-2">ご意見箱</h2>
-        <p className="text-sm text-gray-600 mb-4 p-4">
-          浜通りクエストを より良いサービスにするため、
-          <br />
-          皆様のご意見・ご要望をお聞かせください。
-          <br />
-          いただいたフィードバックは 今後の改善に活用させていただきます。
+        <p className="text-sm leading-relaxed text-gray-600 mb-6">
+          使いにくいところや、あったらうれしい機能を教えてください。
         </p>
         <Button asChild variant="outline">
           <Link

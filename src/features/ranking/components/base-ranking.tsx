@@ -20,25 +20,31 @@ export const BaseRanking: React.FC<BaseRankingProps> = ({
   detailsLinkText = "トップ10を見る",
   columns = 4,
 }) => {
+  // 達成者がいないのに大きな枠を出すと「人がいないサイト」に見えるので、1行で済ませる
+  if (children.length === 0) {
+    return (
+      <div className="py-6 text-center">
+        <h2 className="text-base text-gray-900">{title}</h2>
+        <p className="mt-1 text-sm text-gray-500">まだ達成者がいません</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <Card className="rounded-xl transition-all duration-300 p-8">
+      <Card className="p-6 md:p-8">
         <h2 className="text-xl md:text-2xl text-gray-900 mb-4 text-center">
           {title}
         </h2>
-        {children.length > 0 ? (
-          <div
-            className={
-              columns === 3
-                ? "grid grid-cols-[auto_1fr_auto] gap-x-3"
-                : "grid grid-cols-[auto_1fr_auto_auto] gap-x-3"
-            }
-          >
-            {children}
-          </div>
-        ) : (
-          <div className="text-gray-500 text-center">まだ達成者がいません</div>
-        )}
+        <div
+          className={
+            columns === 3
+              ? "grid grid-cols-[auto_1fr_auto] gap-x-3"
+              : "grid grid-cols-[auto_1fr_auto_auto] gap-x-3"
+          }
+        >
+          {children}
+        </div>
       </Card>
 
       {showDetailedInfo && detailsHref && (

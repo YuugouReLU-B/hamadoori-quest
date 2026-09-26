@@ -22,6 +22,7 @@ import {
   computeSpotBounds,
 } from "@/features/spot-map/utils/spot-bounds";
 import { useCurrentLocation } from "@/lib/hooks/use-current-location";
+import { formatPoints } from "@/lib/utils/format-points";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
 
 type SpotMapProps = {
@@ -75,8 +76,8 @@ function createPopupContent(spot: MapSpot): HTMLElement {
   const points = document.createElement("p");
   points.className = "text-xs text-gray-600";
   points.textContent = spot.achieved
-    ? `獲得済み（${spot.points}P）`
-    : `${spot.points}P`;
+    ? `獲得済み（${formatPoints(spot.points)}）`
+    : formatPoints(spot.points);
   root.appendChild(points);
 
   const detail = document.createElement("a");
