@@ -3024,6 +3024,20 @@ export type Database = {
           id: string;
         }[];
       };
+      grant_referral_reward: {
+        Args: {
+          p_referred_email: string;
+          p_referred_mission_id: string;
+          p_referred_user_id: string;
+          p_referrer_mission_id: string;
+          p_referrer_user_id: string;
+          p_season_id: string;
+        };
+        Returns: {
+          referred_achievement_id: string;
+          referrer_achievement_id: string;
+        }[];
+      };
       is_admin: { Args: never; Returns: boolean };
       is_internal_analytics_path: { Args: { path: string }; Returns: boolean };
       is_posting_admin: { Args: never; Returns: boolean };

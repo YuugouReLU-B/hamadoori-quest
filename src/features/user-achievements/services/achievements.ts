@@ -75,6 +75,14 @@ export type AchievedMission = {
   count: number;
   /** 一番新しい達成日時 */
   achievedAt: string;
+  /**
+   * 非公開クエストかどうか。
+   *
+   * 非公開クエストの詳細ページは notFound() になる（app/missions/[slug]/page.tsx）。
+   * 紹介された側の達成（referred-signup）のように自動達成で is_hidden なものが
+   * ここに並ぶため、リンクを張るかどうかの判定に使う。
+   */
+  isHidden: boolean;
 };
 
 /**
@@ -98,7 +106,8 @@ export async function getUserAchievedMissions(
       missions!inner (
         id,
         slug,
-        title
+        title,
+        is_hidden
       )
     `)
     .eq("user_id", userId)
@@ -121,6 +130,7 @@ export async function getUserAchievedMissions(
       id: string;
       slug: string;
       title: string;
+      is_hidden: boolean | null;
     } | null;
     if (!mission) continue;
 
@@ -134,6 +144,7 @@ export async function getUserAchievedMissions(
       missionId: mission.id,
       slug: mission.slug,
       title: mission.title,
+      isHidden: mission.is_hidden ?? false,
       count: 1,
       achievedAt: row.created_at,
     });
