@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ScanPage() {
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8">
-      <h1 className="mb-2 text-xl font-extrabold">QRコードを読み取る</h1>
+      <h1 className="mb-2 text-xl font-bold">QRコードを読み取る</h1>
       <p className="mb-5 text-sm text-gray-600">
         スポットやイベント会場に掲示されているQRコードを読み取ると、
         ポイントを獲得できます。

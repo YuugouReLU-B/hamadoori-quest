@@ -69,6 +69,7 @@ const PosterMap = dynamic(() => import("./poster-map-with-cluster"), {
   ),
 });
 
+import { formatPoints } from "@/lib/utils/format-points";
 import {
   getBoardStatusHistoryAction,
   getPosterBoardStatsAction,
@@ -323,7 +324,7 @@ export default function DetailedPosterMapClient({
     const result = await achieveMissionAction(formData);
 
     if (result.success) {
-      toast.success(`クエスト達成！ +${result.xpGranted}P獲得`);
+      toast.success(`クエスト達成！ +${formatPoints(result.xpGranted)}獲得`);
     } else {
       toast.error(result.error || "クエスト達成に失敗しました");
     }
@@ -520,7 +521,7 @@ export default function DetailedPosterMapClient({
                   />
                   <span className="text-xs whitespace-nowrap">
                     {config.shortLabel || config.label}
-                    <span className="ml-0.5 font-semibold">{count}</span>
+                    <span className="ml-0.5 font-bold">{count}</span>
                   </span>
                 </div>
               );
@@ -697,7 +698,7 @@ export default function DetailedPosterMapClient({
           {/* History Section */}
           <div className="border-t pt-4 mt-4 max-h-48 overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold">更新履歴</h3>
+              <h3 className="font-bold">更新履歴</h3>
               {selectedBoard && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <span>ID: {selectedBoard.id}</span>
@@ -811,7 +812,7 @@ export default function DetailedPosterMapClient({
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <h4 className="font-semibold">地図の操作</h4>
+              <h4 className="font-bold">地図の操作</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                 <li>地図をドラッグして移動できます</li>
                 <li>ピンチ操作またはボタンでズームできます</li>
@@ -821,7 +822,7 @@ export default function DetailedPosterMapClient({
 
             {userId ? (
               <div className="space-y-2">
-                <h4 className="font-semibold">ポスターの状況報告</h4>
+                <h4 className="font-bold">ポスターの状況報告</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                   <li>地図上の掲示板マーカーをタップします</li>
                   <li>ポスターの状況を選択します</li>
@@ -831,7 +832,7 @@ export default function DetailedPosterMapClient({
               </div>
             ) : (
               <div className="space-y-2">
-                <h4 className="font-semibold">ポスターの状況を報告するには</h4>
+                <h4 className="font-bold">ポスターの状況を報告するには</h4>
                 <p className="text-sm text-muted-foreground">
                   ログインすると、掲示板をタップしてポスターの状況を報告できるようになります。
                 </p>
@@ -839,7 +840,7 @@ export default function DetailedPosterMapClient({
             )}
 
             <div className="space-y-2">
-              <h4 className="font-semibold">マーカーの色の意味</h4>
+              <h4 className="font-bold">マーカーの色の意味</h4>
               <div className="space-y-2 text-sm">
                 {Object.entries(statusConfig).map(([status, config]) => (
                   <div key={status} className="flex items-start gap-2">

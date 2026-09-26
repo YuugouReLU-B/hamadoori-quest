@@ -109,7 +109,7 @@ describe("RankingItem", () => {
       // 都道府県は表示しなくなった
       expect(screen.queryByText("東京都")).not.toBeInTheDocument();
       expect(screen.queryByText(/^Lv\./)).not.toBeInTheDocument();
-      expect(screen.getByText("1,500P")).toBeInTheDocument();
+      expect(screen.getByText("1500pt")).toBeInTheDocument();
       expect(mockUserName).toHaveBeenCalledWith(
         expect.objectContaining({
           name: "テストユーザー",
@@ -178,7 +178,7 @@ describe("RankingItem", () => {
         />,
       );
 
-      expect(screen.getByText("2,500P")).toBeInTheDocument();
+      expect(screen.getByText("2500pt")).toBeInTheDocument();
       expect(screen.getByText("5回達成")).toBeInTheDocument();
     });
 
@@ -207,7 +207,7 @@ describe("RankingItem", () => {
         />,
       );
 
-      expect(screen.getByText("0P")).toBeInTheDocument();
+      expect(screen.getByText("0pt")).toBeInTheDocument();
     });
   });
 
@@ -236,7 +236,7 @@ describe("RankingItem", () => {
       const user = { ...mockUserRanking, xp: null };
       render(<RankingItem user={user} />);
 
-      expect(screen.getByText("0P")).toBeInTheDocument();
+      expect(screen.getByText("0pt")).toBeInTheDocument();
     });
 
     it("レベルがnullでもレベルバッジを表示しない", () => {
@@ -254,7 +254,7 @@ describe("RankingItem", () => {
       render(<RankingItem user={mockUserRanking} />);
       const badge = screen.getByTestId("badge");
       expect(badge).toHaveClass("bg-emerald-100 text-emerald-700");
-      expect(screen.getByText("1,500P")).toBeInTheDocument();
+      expect(screen.getByText("1500pt")).toBeInTheDocument();
     });
 
     it("ミッションランキングではemeraldバッジでptが表示され回数はプレーンテキスト", () => {
@@ -268,7 +268,7 @@ describe("RankingItem", () => {
       );
       const badge = screen.getByTestId("badge");
       expect(badge).toHaveClass("bg-emerald-100 text-emerald-700");
-      expect(screen.getByText("2,500P")).toBeInTheDocument();
+      expect(screen.getByText("2500pt")).toBeInTheDocument();
       expect(screen.getByText("5回")).toBeInTheDocument();
     });
   });

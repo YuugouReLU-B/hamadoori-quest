@@ -73,7 +73,7 @@ export function FirstMissionCelebration({
 
       {(events.length > 0 || spots.length > 0) && (
         <section className="space-y-6">
-          <h2 className="text-lg font-extrabold text-gray-900">
+          <h2 className="text-lg font-bold text-gray-900">
             次は、どこに行ってみる？
           </h2>
           <RecommendationList title="開催が近いイベント" missions={events} />

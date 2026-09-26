@@ -154,7 +154,7 @@ export function PosterBoardFilter({
           <div className="space-y-3">
             {/* 基本ステータス */}
             <div>
-              <h3 className="text-xs font-semibold mb-2 text-gray-700">
+              <h3 className="text-xs font-bold mb-2 text-gray-700">
                 ステータス
               </h3>
               <div className="space-y-1.5">
@@ -203,9 +203,7 @@ export function PosterBoardFilter({
 
             {/* エラーステータス */}
             <div>
-              <h3 className="text-xs font-semibold mb-2 text-gray-700">
-                エラー
-              </h3>
+              <h3 className="text-xs font-bold mb-2 text-gray-700">エラー</h3>
               <div className="space-y-1.5">
                 {errorConfig.map(({ status, label, color }) => (
                   <div key={status} className="flex items-center space-x-2">

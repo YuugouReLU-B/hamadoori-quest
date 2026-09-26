@@ -67,7 +67,7 @@ describe("MissionDetails", () => {
     expect(summary.getByText("日程：")).toBeInTheDocument();
     expect(summary.getByText("2025年6月22日")).toBeInTheDocument();
     expect(summary.getByText("2025年6月24日")).toBeInTheDocument();
-    expect(summary.getByText("1,500 pt")).toBeInTheDocument();
+    expect(summary.getByText("1500pt")).toBeInTheDocument();
     expect(screen.queryByText("達成条件")).not.toBeInTheDocument();
     expect(
       summary.getByText("営業時間: 10時-19時（水曜定休）"),

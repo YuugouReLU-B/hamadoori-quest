@@ -19,6 +19,7 @@ import { ShareUrlButton } from "@/features/mission-detail/components/share-butto
 import { loadSuggestedEvent } from "@/features/mission-detail/loaders/suggested-events-loaders";
 import type { SuggestedEvent } from "@/features/mission-detail/services/suggested-events";
 import type { Tables } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 
 type Props = {
   isOpen: boolean;
@@ -116,7 +117,7 @@ export function MissionCompleteDialog({ isOpen, onClose, mission }: Props) {
                   {suggestedEvent.title}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {suggestedEvent.points}P
+                  {formatPoints(suggestedEvent.points)}
                 </p>
               </div>
             </Link>

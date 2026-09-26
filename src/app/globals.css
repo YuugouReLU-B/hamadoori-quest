@@ -105,13 +105,13 @@ body {
     --secondary: 48 20% 95%;
     --secondary-foreground: 13 25% 11%;
     --muted: 48 20% 95%;
-    --muted-foreground: 0 0% 40%;
+    --muted-foreground: 30 6% 38%;
     --accent: 55 100% 82%;
     --accent-foreground: 13 25% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 40 10% 89%;
+    --input: 40 10% 89%;
     --ring: 13 25% 11%;
     --radius: 0.625rem;
     --chart-1: 12 76% 61%;
@@ -259,6 +259,40 @@ body {
     --color-teal-600: #9d8200;
     --color-teal-700: #7d6900;
     --color-teal-800: #645400;
+
+    /* --- Tailwind の gray を暖色寄りのグレー（stone）へ写像 ---
+       gray は僅かに青みがあり、クリームの背景・茶色がかった
+       --foreground と並ぶと色温度がずれて見える。text-gray-* などの
+       直書きが約470箇所あるため、クラスは触らずここで値だけ差し替える。
+       明度は gray とほぼ同じなので、コントラスト比はほぼ変わらない。
+       値は Tailwind v4 の stone パレットそのもの。
+       -------------------------------------------------------- */
+    --color-gray-50: oklch(98.5% 0.001 106.423);
+    --color-gray-100: oklch(97% 0.001 106.424);
+    --color-gray-200: oklch(92.3% 0.003 48.717);
+    --color-gray-300: oklch(86.9% 0.005 56.366);
+    --color-gray-400: oklch(70.9% 0.01 56.259);
+    --color-gray-500: oklch(55.3% 0.013 58.071);
+    --color-gray-600: oklch(44.4% 0.011 73.639);
+    --color-gray-700: oklch(37.4% 0.01 67.558);
+    --color-gray-800: oklch(26.8% 0.007 34.298);
+    --color-gray-900: oklch(21.6% 0.006 56.043);
+    --color-gray-950: oklch(14.7% 0.004 49.25);
+
+    /* --- 文字サイズごとの行間を日本語向けにする ---------------
+       Tailwind の既定（text-sm で 1.43 倍など）は欧文向けで、
+       日本語の本文には詰まりすぎる。本文サイズは 1.7 前後、
+       見出しサイズは 1.4 前後にする。leading-* を明示した箇所は
+       そちらが優先される。
+       -------------------------------------------------------- */
+    --text-xs--line-height: 1.6;
+    --text-sm--line-height: 1.7;
+    --text-base--line-height: 1.75;
+    --text-lg--line-height: 1.6;
+    --text-xl--line-height: 1.5;
+    --text-2xl--line-height: 1.4;
+    --text-3xl--line-height: 1.35;
+    --text-4xl--line-height: 1.3;
   }
 
   .dark-unused {
@@ -298,6 +332,7 @@ body {
     font-family:
       var(--font-noto-sans-jp), -apple-system, BlinkMacSystemFont,
       "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    line-height: 1.75;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -308,7 +343,13 @@ body {
   h4,
   h5,
   h6 {
-    @apply font-extrabold;
+    @apply font-bold;
+    /* 単語の途中で折り返さない（「サミ/ット」のような改行を防ぐ） */
+    word-break: auto-phrase;
+    /* 見出しは仮名を詰め（palt）、その分だけ字間を少し開けて整える。
+       本文に palt を掛けると読みにくくなるので見出しだけにする */
+    font-feature-settings: "palt";
+    letter-spacing: 0.04em;
   }
 }
 

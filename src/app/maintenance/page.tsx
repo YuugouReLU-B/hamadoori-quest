@@ -17,7 +17,7 @@ export default function MaintenancePage() {
   return (
     <div className="mx-auto flex min-h-[70vh] w-full max-w-md flex-col items-center justify-center px-4 text-center">
       {/* ヘッダーがすでにサービス名を出しているので、ここでは繰り返さない */}
-      <h1 className="text-2xl font-extrabold">ただいまメンテナンス中です</h1>
+      <h1 className="text-2xl font-bold">ただいまメンテナンス中です</h1>
 
       <p className="mt-4 text-sm leading-relaxed text-gray-600">
         システムの点検のため、一時的にご利用いただけません。

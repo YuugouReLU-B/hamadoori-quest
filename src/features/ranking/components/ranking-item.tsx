@@ -2,7 +2,7 @@ import Link from "next/link";
 // TOPページ用のランキングコンポーネント
 import { UserName } from "@/components/common/user-name";
 import { Badge } from "@/components/ui/badge";
-import { formatNumberJa } from "@/lib/utils/format-number-ja";
+import { formatPoints } from "@/lib/utils/format-points";
 import type { UserMissionRanking, UserRanking } from "../types/ranking-types";
 import { getRankIcon } from "./ranking-icon";
 
@@ -45,12 +45,12 @@ export function RankingItem({
             {badgeText}
           </span>
           <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full w-fit justify-self-end font-bold">
-            {(userWithMission?.total_points ?? 0).toLocaleString()}P
+            {formatPoints(userWithMission?.total_points)}
           </Badge>
         </>
       ) : (
         <Badge className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full w-fit justify-self-end font-bold">
-          {formatNumberJa(user.xp ?? 0)}P
+          {formatPoints(user.xp)}
         </Badge>
       )}
     </Link>

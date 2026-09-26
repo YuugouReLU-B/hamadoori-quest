@@ -51,11 +51,11 @@ describe("XpProgressToastContent", () => {
       />,
     );
 
-    expect(screen.getByText("50P獲得しました！")).toBeInTheDocument();
-    expect(screen.getByText("合計 350P")).toBeInTheDocument();
+    expect(screen.getByText("50pt獲得しました！")).toBeInTheDocument();
+    expect(screen.getByText("合計 350pt")).toBeInTheDocument();
   });
 
-  it("合計は3桁区切りで出す", () => {
+  it("合計は桁区切りなしの pt で出す", () => {
     render(
       <XpProgressToastContent
         initialXp={1200}
@@ -65,7 +65,7 @@ describe("XpProgressToastContent", () => {
       />,
     );
 
-    expect(screen.getByText("合計 1,500P")).toBeInTheDocument();
+    expect(screen.getByText("合計 1500pt")).toBeInTheDocument();
   });
 
   it("レベルや応募可否の案内は出さない", () => {

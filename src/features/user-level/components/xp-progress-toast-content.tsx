@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProgressBarAnimated } from "@/features/user-level/components/progress-bar-animated";
+import { formatPoints } from "@/lib/utils/format-points";
 
 interface XpProgressToastContentProps {
   initialXp: number;
@@ -52,7 +53,7 @@ export function XpProgressToastContent({
     <div className="p-6">
       <div className="text-center mb-4">
         <h3 className="text-lg font-bold text-gray-800 mb-2">
-          {xpGained}P獲得しました！
+          {formatPoints(xpGained)}獲得しました！
         </h3>
       </div>
 
@@ -77,7 +78,7 @@ export function XpProgressToastContent({
 
       <div className="text-center">
         <div className="text-xs text-gray-500">
-          合計 {totalPoints.toLocaleString()}P
+          合計 {formatPoints(totalPoints)}
         </div>
       </div>
     </div>

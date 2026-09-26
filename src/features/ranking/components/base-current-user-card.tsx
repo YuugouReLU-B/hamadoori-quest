@@ -52,7 +52,7 @@ export const BaseCurrentUserCard: React.FC<BaseCurrentUserCardProps> = ({
               <div>
                 <UserName
                   name={displayUser.name}
-                  nameClassName="font-semibold text-gray-900"
+                  nameClassName="font-bold text-gray-900"
                 />
                 {/* 都道府県は表示しない（ranking-item と同じ理由） */}
               </div>

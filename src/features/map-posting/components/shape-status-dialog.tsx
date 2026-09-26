@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { formatPoints } from "@/lib/utils/format-points";
 import { completePostingMission } from "../actions/posting-mission-actions";
 import { updateShapeStatus } from "../actions/posting-shapes-actions";
 import {
@@ -134,7 +135,7 @@ export function ShapeStatusDialog({
         const result = await completePostingMission(shape.id, postingCount);
 
         if (result.success) {
-          toast.success(`クエスト達成! +${result.xpGranted}P獲得`);
+          toast.success(`クエスト達成! +${formatPoints(result.xpGranted)}獲得`);
           setIsMissionCompleted(true);
           setCompletedPostingCount(postingCount);
         } else {

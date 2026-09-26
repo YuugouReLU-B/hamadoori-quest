@@ -8,6 +8,7 @@ import MissionAchievementStatus from "@/features/missions/components/mission-ach
 import { MissionIcon } from "@/features/missions/components/mission-icon";
 import { calculateMissionXp } from "@/features/user-level/utils/level-calculator";
 import type { Tables } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 
 interface OnboardingMissionCardProps {
   mission: Omit<Tables<"missions">, "slug">;
@@ -66,7 +67,7 @@ export default function OnboardingMissionCard({
               {mission.required_artifact_type === "POSTER" ||
               mission.required_artifact_type === "POSTING"
                 ? "-"
-                : `${calculateMissionXp({ points: mission.points })}P`}
+                : formatPoints(calculateMissionXp({ points: mission.points }))}
             </span>
           </div>
         </div>

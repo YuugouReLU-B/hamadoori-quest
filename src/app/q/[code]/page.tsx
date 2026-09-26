@@ -7,6 +7,7 @@ import { redeemQrSpot } from "@/features/qr-spot/use-cases/redeem-qr-spot";
 import { getUser } from "@/features/user-profile/services/profile";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createClient } from "@/lib/supabase/client";
+import { POINT_UNIT } from "@/lib/utils/format-points";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ function Frame({
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-10">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="mb-4 text-xl font-extrabold">{title}</h1>
+        <h1 className="mb-4 text-xl font-bold">{title}</h1>
         {children}
       </div>
     </div>
@@ -107,9 +108,9 @@ export default async function QrSpotPage({ params }: PageProps) {
   return (
     <Frame title="ポイントを獲得しました！">
       <p className="text-sm text-gray-600">{result.mission.title}</p>
-      <p className="my-4 text-4xl font-extrabold">
+      <p className="my-4 text-4xl font-bold">
         +{result.xpGranted}
-        <span className="ml-1 text-base font-bold">ポイント</span>
+        <span className="ml-1 text-base font-bold">{POINT_UNIT}</span>
       </p>
       <Button asChild className="w-full">
         <Link href="/">ほかのスポットを見る</Link>

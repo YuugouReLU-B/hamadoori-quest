@@ -14,6 +14,7 @@ import {
   POSTING_POINTS_PER_UNIT,
 } from "@/lib/constants/mission-config";
 import type { Tables } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 import { cn } from "@/lib/utils/utils";
 
 interface MissionProps {
@@ -39,10 +40,10 @@ export default function Mission({
   // 遷移操作とは分けて表示する報酬
   const pointsLabel =
     mission.required_artifact_type === "POSTER"
-      ? `1枚あたり${POSTER_POINTS_PER_UNIT}P`
+      ? `1枚あたり${formatPoints(POSTER_POINTS_PER_UNIT)}`
       : mission.required_artifact_type === "POSTING"
-        ? `1枚あたり${POSTING_POINTS_PER_UNIT}P`
-        : `${calculateMissionXp({ points: mission.points })}P`;
+        ? `1枚あたり${formatPoints(POSTING_POINTS_PER_UNIT)}`
+        : formatPoints(calculateMissionXp({ points: mission.points }));
 
   // 日付の整形
   const eventDate = mission.event_date ? new Date(mission.event_date) : null;
@@ -62,29 +63,26 @@ export default function Mission({
       data-analytics-content-label={mission.title}
     >
       <Card className="@container/card h-full flex flex-col">
-        <CardHeader className="relative pl-1">
-          <div className="flex items-center gap-1">
-            <div className="flex flex-col items-center justify-center shrink-0">
-              <div className="w-32 h-32 rounded-full p-1">
-                <div className="flex items-center justify-center w-full h-full rounded-full bg-white">
-                  <MissionIcon src={iconUrl} alt={mission.title} size="lg" />
-                </div>
-              </div>
-            </div>
+        <CardHeader className="relative p-5 pb-4">
+          <div className="flex items-center gap-4">
+            <MissionIcon
+              src={iconUrl}
+              alt={mission.title}
+              size="lg"
+              className="shrink-0 w-20 h-20"
+            />
             <div className="flex-1 min-w-0 flex flex-col justify-center">
-              <CardTitle className="text-lg leading-tight min-h-[4.25rem] flex items-center text-gray-900">
+              <CardTitle className="text-base leading-normal text-gray-900 [word-break:auto-phrase]">
                 <span className="line-clamp-3">{mission.title}</span>
               </CardTitle>
               {dateStr && (
-                <div className="mt-2 text-sm font-medium text-gray-600">
-                  {dateStr}
-                </div>
+                <div className="mt-1.5 text-sm text-gray-600">{dateStr}</div>
               )}
             </div>
           </div>
         </CardHeader>
 
-        <CardFooter className="mt-auto flex flex-col items-stretch gap-3">
+        <CardFooter className="mt-auto flex flex-col items-stretch gap-3 p-5 pt-0">
           {(regionLabel || mission.tag2) && (
             // タグは折り返さず横スクロールさせる。overscroll-x-contain でホイール/タッチの
             // スクロール連鎖を止め、mousedown をキャプチャ段階で止めることで
@@ -97,9 +95,7 @@ export default function Mission({
               {regionLabel && (
                 <Badge variant="outline" className="shrink-0 text-xs px-2">
                   <MapPin size={14} className="mr-1" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {regionLabel}
-                  </span>
+                  <span className="text-sm text-gray-700">{regionLabel}</span>
                 </Badge>
               )}
               {mission.tag2 && (
@@ -114,7 +110,7 @@ export default function Mission({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <Badge
               variant="outline"
-              className="px-3 py-1 text-sm font-bold text-gray-700"
+              className="px-3 py-1 text-sm font-medium text-gray-800"
             >
               {pointsLabel}
             </Badge>
@@ -129,7 +125,7 @@ export default function Mission({
             data-analytics-id="mission-card-detail"
             className={cn(
               buttonVariants({ variant: "default" }),
-              "w-full rounded-full py-6 text-base font-bold text-primary-foreground border-none transition-[color,background-color,transform] active:scale-95 motion-reduce:transform-none motion-reduce:transition-none",
+              "w-full h-11 text-sm font-medium text-primary-foreground border-none transition-[color,background-color,transform] active:scale-95 motion-reduce:transform-none motion-reduce:transition-none",
               hasReachedMaxAchievements
                 ? "bg-gray-300 hover:bg-gray-300/90 text-gray-700"
                 : userAchievementCount === 0

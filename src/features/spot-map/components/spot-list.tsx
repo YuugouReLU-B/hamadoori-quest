@@ -1,6 +1,7 @@
 import { Check, MapPin } from "lucide-react";
 import Link from "next/link";
 import type { MapSpot } from "@/features/spot-map/services/spot-map";
+import { formatPoints } from "@/lib/utils/format-points";
 import { googleMapsSearchUrl } from "@/lib/utils/map-links";
 
 /**
@@ -28,7 +29,7 @@ export function SpotList({ spots }: { spots: MapSpot[] }) {
                   獲得済み
                 </span>
               ) : (
-                `${spot.points}P`
+                formatPoints(spot.points)
               )}
             </p>
           </div>

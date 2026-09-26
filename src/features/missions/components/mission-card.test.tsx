@@ -149,7 +149,7 @@ describe("Mission", () => {
     render(<Mission mission={mockMission} userAchievementCount={0} />);
 
     expect(screen.getByText("テストミッション")).toBeInTheDocument();
-    expect(screen.getByText("50P")).toBeInTheDocument();
+    expect(screen.getByText("50pt")).toBeInTheDocument();
   });
 
   it.each([
@@ -160,7 +160,7 @@ describe("Mission", () => {
     const link = screen.getByRole("link", { name: "詳細を見る" });
     expect(screen.getAllByRole("link")).toHaveLength(1);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
-    expect(link).not.toContainElement(screen.getByText("50P"));
+    expect(link).not.toContainElement(screen.getByText("50pt"));
     if (count === 3) {
       expect(link).not.toContainElement(screen.getByText("クリア済み"));
     } else {
@@ -201,8 +201,8 @@ describe("Mission", () => {
   });
 
   it.each([
-    ["POSTER", "1枚あたり400P"],
-    ["POSTING", "1枚あたり50P"],
+    ["POSTER", "1枚あたり400pt"],
+    ["POSTING", "1枚あたり50pt"],
   ] as const)("%sでは1枚あたりの報酬を表示する", (type, reward) => {
     render(
       <Mission
@@ -233,7 +233,7 @@ describe("Mission", () => {
 
     render(<Mission mission={missionWithoutLimit} userAchievementCount={5} />);
 
-    expect(screen.getByText("50P")).toBeInTheDocument();
+    expect(screen.getByText("50pt")).toBeInTheDocument();
   });
 
   it("icon_urlが設定されていればイベントカテゴリより優先して使用", () => {
@@ -292,7 +292,7 @@ describe("Mission", () => {
     const link = screen.getByRole("link", { name: "詳細を見る" });
     expect(screen.getAllByRole("link")).toHaveLength(1);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
-    expect(link).not.toContainElement(screen.getByText("50P"));
+    expect(link).not.toContainElement(screen.getByText("50pt"));
     expect(link).not.toContainElement(screen.getByText("クリア済み"));
 
     const tag1Badge = screen.getByText("いわき市").parentElement;
@@ -322,7 +322,7 @@ describe("Mission", () => {
     expect(screen.getByTestId("card-footer").children).toHaveLength(2);
     expect(
       screen.getByTestId("card-footer").firstElementChild,
-    ).toContainElement(screen.getByText("50P"));
+    ).toContainElement(screen.getByText("50pt"));
     expect(screen.getByTestId("card-footer").lastElementChild).toBe(
       screen.getByRole("link"),
     );

@@ -101,7 +101,7 @@ export function MissionWithSubmissionHistory({
         authUser &&
         referralCode && (
           <div className="bg-white rounded-xl border-2 p-6 flex flex-col items-center">
-            <p className="mb-2 font-semibold text-center text-lg">
+            <p className="mb-2 font-bold text-center text-lg">
               あなた専用紹介URL
             </p>
             <p className="text-sm text-muted-foreground">

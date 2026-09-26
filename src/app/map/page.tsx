@@ -22,7 +22,7 @@ export default async function SpotMapPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
-      <h1 className="text-xl font-extrabold">スポットマップ</h1>
+      <h1 className="text-xl font-bold">スポットマップ</h1>
       <p className="mt-1 mb-5 text-sm text-gray-600">
         ピンの場所にQRコードが置いてあります。読み取るとポイントを獲得できます。
         {spots.length > 0 && user && (

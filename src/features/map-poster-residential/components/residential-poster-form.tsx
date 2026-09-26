@@ -111,7 +111,7 @@ export function PlacementForm({
         onSubmit={handleSubmit}
         className="max-h-[80vh] overflow-y-auto rounded-lg bg-white p-4 shadow-lg"
       >
-        <h3 className="mb-3 font-semibold text-lg">
+        <h3 className="mb-3 font-bold text-lg">
           {mode === "edit" ? "掲示情報を編集" : "ポスター掲示を登録"}
         </h3>
         <p className="mb-3 text-gray-600 text-sm">

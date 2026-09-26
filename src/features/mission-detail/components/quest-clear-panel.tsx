@@ -83,8 +83,8 @@ export function QuestClearPanel({
         <p className="text-xs font-bold tracking-wide text-yellow-700">
           達成済み
         </p>
-        <h2 className="text-2xl font-extrabold text-gray-900">{heading}</h2>
-        <p className="flex items-baseline justify-center gap-1 font-extrabold text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-900">{heading}</h2>
+        <p className="flex items-baseline justify-center gap-1 font-bold text-gray-900">
           <span className="text-xl">+</span>
           <span className="text-5xl tabular-nums">
             {earnedPoints.toLocaleString()}
@@ -95,7 +95,7 @@ export function QuestClearPanel({
 
         <div className="mt-4 w-full border-t pt-4">
           <p className="text-xs text-gray-500">今のポイント</p>
-          <p className="text-2xl font-extrabold text-gray-900">
+          <p className="text-2xl font-bold text-gray-900">
             {totalPoints.toLocaleString()}
             <span className="ml-1 text-sm font-bold">pt</span>
           </p>

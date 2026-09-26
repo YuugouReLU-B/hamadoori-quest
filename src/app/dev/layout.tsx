@@ -37,7 +37,7 @@ export default function DevLayout({ children }: { children: React.ReactNode }) {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <header className="mb-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold">開発ツール</h1>
+            <h1 className="text-2xl font-bold">開発ツール</h1>
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
               開発環境のみ
             </span>

@@ -23,7 +23,7 @@ export function RegistrationMetric({ data }: RegistrationMetricProps) {
         </div>
         <div className="text-right">
           {/* 総登録者数（大きく表示） */}
-          <p className="text-2xl font-black text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             {formatNumber(registrationCount)}
             <span className="text-lg">人</span>
           </p>

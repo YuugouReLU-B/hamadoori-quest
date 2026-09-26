@@ -284,16 +284,16 @@ export default function QuizComponent({
           return (
             <Card key={res.questionId} className="w-full">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">
+                <h3 className="font-bold mb-4">
                   Q{index + 1}. {question.question}
                 </h3>
 
                 {/* 正解・不正解の表示 */}
                 <div className="mb-2">
                   {res.correct ? (
-                    <span className="text-green-700 font-semibold">正解</span>
+                    <span className="text-green-700 font-bold">正解</span>
                   ) : (
-                    <span className="text-red-600 font-semibold">不正解</span>
+                    <span className="text-red-600 font-bold">不正解</span>
                   )}
                 </div>
 
@@ -442,7 +442,7 @@ export default function QuizComponent({
       {questions.map((question, index) => (
         <Card key={question.id} className="w-full">
           <CardContent className="p-6">
-            <h3 className="font-semibold mb-6">
+            <h3 className="font-bold mb-6">
               Q{index + 1}. {question.question}
             </h3>
 

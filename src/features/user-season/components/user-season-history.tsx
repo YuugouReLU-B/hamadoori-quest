@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import type { UserSeasonHistoryProps } from "@/features/user-season/types/season-types";
+import { formatPoints } from "@/lib/utils/format-points";
 
 export function UserSeasonHistory({
   userId,
@@ -30,7 +31,7 @@ export function UserSeasonHistory({
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold hover:text-teal-600 transition-colors">
+                  <span className="text-lg font-bold hover:text-teal-600 transition-colors">
                     {season.name}
                   </span>
                 </div>
@@ -52,7 +53,7 @@ export function UserSeasonHistory({
               </div>
               <div className="text-right">
                 <div className="text-sm text-gray-500">
-                  {userLevel?.xp?.toLocaleString() || 0}P
+                  {formatPoints(userLevel?.xp)}
                 </div>
               </div>
             </div>

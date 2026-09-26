@@ -111,7 +111,7 @@ describe("CurrentUserCardMission", () => {
       expect(screen.getByText("テストユーザー")).toBeInTheDocument();
       // 都道府県は表示しなくなった
       expect(screen.queryByText("東京都")).not.toBeInTheDocument();
-      expect(screen.getByText("1,500P")).toBeInTheDocument();
+      expect(screen.getByText("1500pt")).toBeInTheDocument();
       expect(screen.getByText("3")).toBeInTheDocument();
       expect(mockUserName).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -183,7 +183,7 @@ describe("CurrentUserCardMission", () => {
         />,
       );
 
-      expect(screen.getByText("0P")).toBeInTheDocument();
+      expect(screen.getByText("0pt")).toBeInTheDocument();
     });
   });
 
@@ -214,7 +214,7 @@ describe("CurrentUserCardMission", () => {
         />,
       );
 
-      expect(screen.getByText("123,456P")).toBeInTheDocument();
+      expect(screen.getByText("123456pt")).toBeInTheDocument();
     });
 
     it("大きな数値も正しくフォーマットされる", () => {
@@ -227,7 +227,7 @@ describe("CurrentUserCardMission", () => {
         />,
       );
 
-      expect(screen.getByText("1,000,000P")).toBeInTheDocument();
+      expect(screen.getByText("1000000pt")).toBeInTheDocument();
     });
   });
 

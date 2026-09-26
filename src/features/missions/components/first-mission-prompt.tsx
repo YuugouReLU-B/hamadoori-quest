@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MissionIcon } from "@/features/missions/components/mission-icon";
 import type { Tables } from "@/lib/types/supabase";
+import { formatPoints } from "@/lib/utils/format-points";
 
 type FirstMissionPromptProps = {
   mission: Pick<Tables<"missions">, "slug" | "title" | "icon_url" | "points">;
@@ -19,7 +20,7 @@ export function FirstMissionPrompt({ mission }: FirstMissionPromptProps) {
       <p className="text-xs font-bold text-gray-500">
         浜通りクエストへようこそ
       </p>
-      <h1 className="mt-2 text-2xl font-extrabold text-gray-900">
+      <h1 className="mt-2 text-2xl font-bold text-gray-900">
         初回ミッションに挑戦してみよう
       </h1>
       <p className="mt-3 text-sm text-gray-600">
@@ -36,7 +37,7 @@ export function FirstMissionPrompt({ mission }: FirstMissionPromptProps) {
         <div className="min-w-0 flex-1">
           <p className="font-bold text-gray-900">{mission.title}</p>
           <p className="text-xs font-bold text-yellow-700">
-            +{mission.points.toLocaleString()}P
+            +{formatPoints(mission.points)}
           </p>
         </div>
         <ChevronRight

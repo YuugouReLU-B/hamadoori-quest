@@ -68,7 +68,7 @@ export default async function MissionsByCategory({
           key={group.questCategory}
           className="relative w-full min-w-0 md:pl-10"
         >
-          <h3 className="text-xl font-bold pl-4 md:pl-0">
+          <h3 className="text-lg font-bold pl-4 md:pl-0">
             {QUEST_CATEGORY_LABELS[group.questCategory]}
           </h3>
           <HorizontalScrollContainer>
