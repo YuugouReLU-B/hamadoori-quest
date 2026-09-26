@@ -65,14 +65,6 @@ body {
   );
 }
 
-@utility bg-gradient-level {
-  background: linear-gradient(
-    90deg,
-    var(--app-brand-primary),
-    var(--app-brand-level-end)
-  );
-}
-
 @utility bg-gradient-radial {
   /* 放射状グラデーション */
   background: radial-gradient(circle, var(--tw-gradient-stops));
@@ -150,7 +142,7 @@ body {
     --app-brand-link-hover: #6b5900;
     --app-brand-light: #ffea00;
     --app-brand-pale: #fffbe6;
-    --app-brand-level-end: #ffd400;
+    --app-brand-progress-end: #ffd400;
     --app-brand-surface: #fff8a3;
 
     /* --- オンボーディング ------------------------------------ */

@@ -1,10 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isBonusMission } from "@/features/mission-detail/utils/mission-xp-utils";
 import type { UserLevel } from "@/features/user-level/types/level-types";
-import {
-  calculateLevel,
-  calculateMissionXp,
-} from "@/features/user-level/utils/level-calculator";
+import { calculateMissionXp } from "@/features/user-level/utils/level-calculator";
 import type { Database } from "@/lib/types/supabase";
 
 export type CancelSubmissionInput = {
@@ -49,7 +46,7 @@ async function fetchUserXpBonus(
 }
 
 /**
- * XPトランザクション記録 + ユーザーレベル更新を行う。
+ * XPトランザクション記録 + 累計ポイント更新を行う。
  */
 async function processXpRevoke(
   supabase: SupabaseClient<Database>,
@@ -86,7 +83,7 @@ async function processXpRevoke(
     return { success: false, error: transactionError.message };
   }
 
-  // ユーザーレベル情報を取得（存在しない場合は初期化）
+  // 累計ポイントの行を取得（存在しない場合は初期化）
   let { data: currentLevel } = await supabase
     .from("user_levels")
     .select("*")
@@ -95,44 +92,41 @@ async function processXpRevoke(
     .maybeSingle();
 
   if (!currentLevel) {
-    const { data: newLevel, error: initError } = await supabase
+    const { data: newUserLevelRow, error: initError } = await supabase
       .from("user_levels")
       .insert({
         user_id: userId,
         season_id: seasonId,
         xp: 0,
-        level: 1,
       })
       .select()
       .single();
 
-    if (initError || !newLevel) {
+    if (initError || !newUserLevelRow) {
       console.error("Failed to initialize user level:", initError);
       return {
         success: false,
-        error: "ユーザーレベルの初期化に失敗しました",
+        error: "ポイント情報の初期化に失敗しました",
       };
     }
-    currentLevel = newLevel;
+    currentLevel = newUserLevelRow;
   }
 
   if (!currentLevel) {
     return {
       success: false,
-      error: "ユーザーレベル情報の取得に失敗しました",
+      error: "ポイント情報の取得に失敗しました",
     };
   }
 
-  // 新しいXPとレベルを計算
+  // 新しい累計XPを計算
   const newXp = Math.max(0, currentLevel.xp + xpAmount);
-  const newLevel = calculateLevel(newXp);
 
-  // ユーザーレベルを更新
+  // 累計ポイントを更新
   const { data: updatedLevel, error: updateError } = await supabase
     .from("user_levels")
     .update({
       xp: newXp,
-      level: newLevel,
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", userId)
@@ -142,7 +136,7 @@ async function processXpRevoke(
 
   if (updateError) {
     console.error("Failed to update user level:", updateError);
-    return { success: false, error: "ユーザーレベルの更新に失敗しました" };
+    return { success: false, error: "ポイント情報の更新に失敗しました" };
   }
 
   return { success: true, userLevel: updatedLevel };

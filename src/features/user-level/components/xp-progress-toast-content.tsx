@@ -1,154 +1,85 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { markLevelUpSeenAction } from "@/features/user-level/actions/level-up";
-import { LevelUpDialog } from "@/features/user-level/components/level-up-dialog";
 import { ProgressBarAnimated } from "@/features/user-level/components/progress-bar-animated";
-import {
-  calculateLevel,
-  getXpToNextLevel,
-  totalXp,
-} from "@/features/user-level/utils/level-calculator";
 
 interface XpProgressToastContentProps {
   initialXp: number;
   xpGained: number;
-  onLevelUp?: (newLevel: number) => void;
+  /** 抽選応募のしきい値。未設定なら null */
+  thresholdPoints: number | null;
   onAnimationComplete: () => void;
 }
 
+/**
+ * クエスト達成時に出るトースト。
+ *
+ * 以前はレベルアップ演出だったが、レベルの概念を廃止したので
+ * 「獲得ポイント」と「抽選応募のしきい値までの進捗」を出すものに作り替えた。
+ *
+ * バーを出すのは、しきい値が設定されていて、かつ達成前の時点で未到達のときだけ。
+ * 抽選の開始日（lottery_settings.eligible_display_from）はここでは見ない。
+ * 応募できるかどうかを示す文言も出さないので、開始前にバーが出ても
+ * 応募可能だと誤解されることはない。
+ */
 export function XpProgressToastContent({
   initialXp,
   xpGained,
-  onLevelUp,
+  thresholdPoints,
   onAnimationComplete,
 }: XpProgressToastContentProps) {
-  const [showFinalState, setShowFinalState] = useState(false);
-  const [levelState, setLevelState] = useState({
-    currentLevel: calculateLevel(initialXp),
-    currentXp: initialXp,
-    currentXpGained: xpGained,
-  });
+  const hasThreshold = thresholdPoints !== null && thresholdPoints > 0;
+  // 達成前にすでにしきい値へ届いているなら、最初からバーを出さない
+  const showsBarInitially = hasThreshold && initialXp < thresholdPoints;
 
-  // XPアニメーション関連の状態
-  const [levelUpData, setLevelUpData] = useState<{
-    newLevel: number;
-    pointsToNextLevel: number;
-  } | null>(null);
+  const [showBar, setShowBar] = useState(showsBarInitially);
+  // バーを出さないケースは、トースト表示直後を3秒の起点にする
+  const [countdownStarted, setCountdownStarted] = useState(!showsBarInitially);
 
-  // アニメーション完了後、3秒でToast閉じ
   useEffect(() => {
-    if (showFinalState) {
-      const timer = setTimeout(() => {
-        onAnimationComplete();
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showFinalState, onAnimationComplete]);
+    if (!countdownStarted) return;
+    const timer = setTimeout(onAnimationComplete, 3000);
+    return () => clearTimeout(timer);
+  }, [countdownStarted, onAnimationComplete]);
 
-  // 現在のレベルでの進捗を計算
-  const { currentLevel, currentXp, currentXpGained } = levelState;
-  const currentLevelStartXp = totalXp(currentLevel);
-  const nextLevelTotalXp = totalXp(currentLevel + 1);
-  const startXp = currentXp;
-  const endXp =
-    startXp + currentXpGained > nextLevelTotalXp
-      ? nextLevelTotalXp
-      : startXp + currentXpGained;
-  const pointsToNextLevel = getXpToNextLevel(endXp);
-
-  // レベルアップ処理
-  const handleLevelUp = (newLevel: number) => {
-    // 次の次のレベルまで上がるならそのままアニメーション継続
-    const newNextLevelXp = totalXp(newLevel + 1);
-    if (startXp + currentXpGained > newNextLevelXp) {
-      const xpUsed = endXp - startXp;
-      setLevelState({
-        currentLevel: newLevel,
-        currentXp: endXp,
-        currentXpGained: currentXpGained - xpUsed,
-      });
-      return;
-    }
-
-    if (onLevelUp) {
-      onLevelUp(newLevel);
-    }
-    setLevelUpData({
-      newLevel,
-      pointsToNextLevel,
-    });
-  };
-
-  // レベルアップダイアログを閉じる
-  const handleLevelUpDialogClose = async () => {
-    setLevelUpData(null);
-
-    // レベルアップ通知を確認済みとしてマーク
-    try {
-      const result = await markLevelUpSeenAction();
-      if (!result.success) {
-        console.error(
-          "Failed to mark level up notification as seen:",
-          result.error,
-        );
-      }
-    } catch (error) {
-      console.error("Error marking level up notification as seen:", error);
-    }
-
-    const xpUsed = endXp - startXp;
-    setLevelState({
-      currentLevel: levelState.currentLevel + 1,
-      currentXp: endXp,
-      currentXpGained: currentXpGained - xpUsed,
-    });
-  };
+  const totalPoints = initialXp + xpGained;
+  const endValue =
+    thresholdPoints !== null
+      ? Math.min(totalPoints, thresholdPoints)
+      : totalPoints;
 
   return (
-    <>
-      <div className="p-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">
-            {xpGained}P獲得しました！
-          </h3>
-        </div>
+    <div className="p-6">
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-bold text-gray-800 mb-2">
+          {xpGained}P獲得しました！
+        </h3>
+      </div>
 
+      {showBar && thresholdPoints !== null && (
         <ProgressBarAnimated
-          zeroValue={currentLevelStartXp}
-          maxValue={nextLevelTotalXp}
-          startValue={startXp}
-          endValue={endXp}
+          zeroValue={0}
+          maxValue={thresholdPoints}
+          startValue={initialXp}
+          endValue={endValue}
           className="mb-4"
           showText={false}
           animationDuration={1000}
           onAnimationComplete={() => {
-            if (endXp >= nextLevelTotalXp) {
-              const newLevel = currentLevel + 1;
-              handleLevelUp(newLevel);
-            } else {
-              setShowFinalState(true);
+            // ちょうど一致も達成扱い。到達したらバーを引っ込めてから3秒を数える
+            if (endValue >= thresholdPoints) {
+              setShowBar(false);
             }
+            setCountdownStarted(true);
           }}
         />
+      )}
 
-        <div className="text-center">
-          <div className="text-xs text-gray-500">
-            レベル {currentLevel}
-            {showFinalState && (
-              <span> • 次のレベルまで{pointsToNextLevel}P</span>
-            )}
-          </div>
+      <div className="text-center">
+        <div className="text-xs text-gray-500">
+          合計 {totalPoints.toLocaleString()}P
         </div>
       </div>
-
-      {levelUpData && (
-        <LevelUpDialog
-          isOpen={levelUpData !== null}
-          onClose={handleLevelUpDialogClose}
-          newLevel={levelUpData.newLevel}
-        />
-      )}
-    </>
+    </div>
   );
 }

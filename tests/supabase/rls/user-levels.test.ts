@@ -36,7 +36,6 @@ describe("user_levels テーブルのRLSテスト", () => {
         user_id: user1.user.userId,
         season_id: testSeasonId,
         xp: 150,
-        level: 2,
       });
 
     const { error: user2LevelError } = await adminClient
@@ -45,7 +44,6 @@ describe("user_levels テーブルのRLSテスト", () => {
         user_id: user2.user.userId,
         season_id: testSeasonId,
         xp: 300,
-        level: 3,
       });
 
     if (user1LevelError) {
@@ -82,7 +80,7 @@ describe("user_levels テーブルのRLSテスト", () => {
     expect(data).toBeTruthy();
   });
 
-  test("認証済みユーザーは自分のレベル情報を読み取れる", async () => {
+  test("認証済みユーザーは自分のポイント情報を読み取れる", async () => {
     const { data, error } = await user1.client
       .from("user_levels")
       .select("*")
@@ -93,10 +91,9 @@ describe("user_levels テーブルのRLSテスト", () => {
     expect(data).toHaveLength(1);
     expect(data?.[0].user_id).toBe(user1.user.userId);
     expect(data?.[0].xp).toBe(150);
-    expect(data?.[0].level).toBe(2);
   });
 
-  test("認証済みユーザーは他のユーザーのレベル情報も読み取れる（ランキング表示のため）", async () => {
+  test("認証済みユーザーは他のユーザーのポイント情報も読み取れる（ランキング表示のため）", async () => {
     const { data, error } = await user1.client
       .from("user_levels")
       .select("*")
@@ -107,10 +104,9 @@ describe("user_levels テーブルのRLSテスト", () => {
     expect(data).toHaveLength(1);
     expect(data?.[0].user_id).toBe(user2.user.userId);
     expect(data?.[0].xp).toBe(300);
-    expect(data?.[0].level).toBe(3);
   });
 
-  test("認証済みユーザーは全ユーザーのレベル情報を取得できる", async () => {
+  test("認証済みユーザーは全ユーザーのポイント情報を取得できる", async () => {
     const { data, error } = await user1.client
       .from("user_levels")
       .select("*")
@@ -128,10 +124,10 @@ describe("user_levels テーブルのRLSテスト", () => {
     expect(user1Data?.xp).toBe(150);
   });
 
-  test("認証済みユーザーは他のユーザーのレベル情報を更新できない", async () => {
+  test("認証済みユーザーは他のユーザーのポイント情報を更新できない", async () => {
     const { data } = await user1.client
       .from("user_levels")
-      .update({ xp: 500, level: 5 })
+      .update({ xp: 500 })
       .eq("user_id", user2.user.userId);
 
     // 他のユーザーの情報は更新できない
@@ -143,13 +139,12 @@ describe("user_levels テーブルのRLSテスト", () => {
       .eq("user_id", user2.user.userId);
     expect(after).toBeTruthy();
     expect(after?.[0].xp).toBe(300);
-    expect(after?.[0].level).toBe(3);
   });
 
-  test("認証済みユーザーは自分のレベル情報を更新できない（通常は更新機能がないため）", async () => {
+  test("認証済みユーザーは自分のポイント情報を更新できない（通常は更新機能がないため）", async () => {
     const { data } = await user1.client
       .from("user_levels")
-      .update({ xp: 200, level: 3 })
+      .update({ xp: 200 })
       .eq("user_id", user1.user.userId);
 
     // 直接更新は許可されていない（ビジネスロジックで制御される）
@@ -161,7 +156,6 @@ describe("user_levels テーブルのRLSテスト", () => {
       .eq("user_id", user1.user.userId);
     expect(after).toBeTruthy();
     expect(after?.[0].xp).toBe(150);
-    expect(after?.[0].level).toBe(2);
   });
 
   test("認証済みユーザーはuser_levelsにINSERTできない", async () => {
@@ -170,7 +164,6 @@ describe("user_levels テーブルのRLSテスト", () => {
       user_id: testUserId,
       season_id: testSeasonId,
       xp: 100,
-      level: 1,
     });
 
     // 一般ユーザーは新しいレコードを作成できない

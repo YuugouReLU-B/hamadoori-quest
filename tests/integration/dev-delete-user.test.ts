@@ -27,7 +27,6 @@ describe("開発用ユーザー削除", () => {
     await adminClient.from("user_levels").insert({
       user_id: userId,
       xp: 100,
-      level: 2,
       season_id: season.id,
     });
 

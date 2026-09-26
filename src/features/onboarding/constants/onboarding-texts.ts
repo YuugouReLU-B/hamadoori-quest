@@ -40,7 +40,7 @@ export const onboardingDialogues: OnboardingDialogue[] = [
   },
   {
     id: 7,
-    text: "うむ、上出来じゃ！\n\n実際のクエストでは、提出すると経験値がもらえて、レベルアップもできるぞい。\nさあ、浜通りクエストへ踏み出すのじゃ！",
+    text: "うむ、上出来じゃ！\n\n実際のクエストでは、提出するとポイントがもらえるぞい。\nさあ、浜通りクエストへ踏み出すのじゃ！",
     isWelcome: false,
   },
 ];

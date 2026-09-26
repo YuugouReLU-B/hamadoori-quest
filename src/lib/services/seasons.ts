@@ -91,7 +91,6 @@ export async function getUserSeasonHistory(userId: string): Promise<
   Array<{
     season: Season;
     userLevel: {
-      level: number;
       xp: number;
       updated_at: string;
     } | null;
@@ -120,7 +119,7 @@ export async function getUserSeasonHistory(userId: string): Promise<
     seasons.map(async (season) => {
       const { data: userLevel } = await supabase
         .from("user_levels")
-        .select("level, xp, updated_at")
+        .select("xp, updated_at")
         .eq("user_id", userId)
         .eq("season_id", season.id)
         .single();

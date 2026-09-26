@@ -25,7 +25,6 @@ type UserRanking = {
   name: string;
   address_prefecture: string;
   rank: number | null;
-  level: number | null;
   xp: number | null;
   updated_at: string | null;
   party_membership?: typeof mockPartyMembership | null;
@@ -36,7 +35,6 @@ type UserMissionRanking = {
   name: string;
   address_prefecture: string;
   rank: number | null;
-  level: number | null;
   xp: number | null;
   updated_at: string | null;
   user_achievement_count: number | null;
@@ -81,7 +79,6 @@ const mockUserRanking: UserRanking = {
   name: "テストユーザー",
   address_prefecture: "東京都",
   rank: 1,
-  level: 15,
   xp: 1500,
   updated_at: "2024-01-01T00:00:00Z",
   party_membership: mockPartyMembership,
@@ -92,7 +89,6 @@ const mockUserMissionRanking: UserMissionRanking = {
   name: "テストユーザー",
   address_prefecture: "東京都",
   rank: 2,
-  level: null,
   xp: null,
   updated_at: null,
   user_achievement_count: null,

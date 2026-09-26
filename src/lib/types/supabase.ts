@@ -1702,8 +1702,6 @@ export type Database = {
       };
       user_levels: {
         Row: {
-          last_notified_level: number | null;
-          level: number;
           line_1000pt_audience_added_at: string | null;
           season_id: string;
           updated_at: string;
@@ -1711,8 +1709,6 @@ export type Database = {
           xp: number;
         };
         Insert: {
-          last_notified_level?: number | null;
-          level?: number;
           line_1000pt_audience_added_at?: string | null;
           season_id: string;
           updated_at?: string;
@@ -1720,8 +1716,6 @@ export type Database = {
           xp?: number;
         };
         Update: {
-          last_notified_level?: number | null;
-          level?: number;
           line_1000pt_audience_added_at?: string | null;
           season_id?: string;
           updated_at?: string;
@@ -2345,7 +2339,6 @@ export type Database = {
       user_ranking_view: {
         Row: {
           address_prefecture: string | null;
-          level: number | null;
           name: string | null;
           rank: number | null;
           updated_at: string | null;
@@ -2757,7 +2750,6 @@ export type Database = {
         Returns: {
           address_prefecture: string;
           clear_count: number;
-          level: number;
           rank: number;
           total_points: number;
           updated_at: string;
@@ -2775,7 +2767,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           mission_id: string;
           rank: number;
           total_points: number;
@@ -2795,7 +2786,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           name: string;
           rank: number;
           updated_at: string;
@@ -2812,7 +2802,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           name: string;
           rank: number;
           updated_at: string;
@@ -2841,7 +2830,6 @@ export type Database = {
         Args: { limit_count?: number; prefecture: string };
         Returns: {
           address_prefecture: string;
-          level: number;
           rank: number;
           updated_at: string;
           user_id: string;
@@ -2922,7 +2910,6 @@ export type Database = {
         Returns: {
           address_prefecture: string;
           clear_count: number;
-          level: number;
           rank: number;
           total_points: number;
           updated_at: string;
@@ -2940,7 +2927,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           mission_id: string;
           rank: number;
           total_points: number;
@@ -2960,7 +2946,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           name: string;
           rank: number;
           updated_at: string;
@@ -2976,7 +2961,6 @@ export type Database = {
         };
         Returns: {
           address_prefecture: string;
-          level: number;
           name: string;
           rank: number;
           updated_at: string;
@@ -3009,7 +2993,6 @@ export type Database = {
         Args: { prefecture: string; target_user_id: string };
         Returns: {
           address_prefecture: string;
-          level: number;
           rank: number;
           updated_at: string;
           user_id: string;

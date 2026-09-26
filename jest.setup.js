@@ -260,9 +260,7 @@ jest.mock("@/features/user-level/services/level", () => ({
   getUserLevel: jest.fn(() =>
     Promise.resolve({
       user_id: "test-user-id",
-      level: 2,
       xp: 100,
-      last_notified_level: 1,
       updated_at: "2023-01-01T00:00:00Z",
     }),
   ),

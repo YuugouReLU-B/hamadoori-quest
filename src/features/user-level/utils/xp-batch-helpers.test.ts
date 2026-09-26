@@ -53,13 +53,11 @@ describe("aggregateXpByUser", () => {
 describe("buildLevelUpdates", () => {
   const seasonId = "season-1";
 
-  function makeUserLevel(userId: string, xp: number, level: number): UserLevel {
+  function makeUserLevel(userId: string, xp: number): UserLevel {
     return {
       user_id: userId,
       season_id: seasonId,
       xp,
-      level,
-      last_notified_level: null,
       line_1000pt_audience_added_at: null,
       created_at: "2025-01-01T00:00:00Z",
       updated_at: "2025-01-01T00:00:00Z",
@@ -78,7 +76,7 @@ describe("buildLevelUpdates", () => {
     expect(results).toHaveLength(0);
   });
 
-  it("レベル情報がないユーザーにはエラー結果を返す", () => {
+  it("ポイント情報がないユーザーにはエラー結果を返す", () => {
     const userXpChanges = new Map([["user1", 100]]);
     const levelMap = new Map<string, UserLevel>();
     const { levelUpdates, results } = buildLevelUpdates(
@@ -90,12 +88,12 @@ describe("buildLevelUpdates", () => {
     expect(results).toHaveLength(1);
     expect(results[0].userId).toBe("user1");
     expect(results[0].success).toBe(false);
-    expect(results[0].error).toBe("ユーザーレベル情報が見つかりません");
+    expect(results[0].error).toBe("ポイント情報が見つかりません");
   });
 
-  it("XP追加後の新しいレベルを正しく計算する", () => {
+  it("XP追加後の新しいXPを正しく計算する", () => {
     const userXpChanges = new Map([["user1", 100]]);
-    const levelMap = new Map([["user1", makeUserLevel("user1", 0, 1)]]);
+    const levelMap = new Map([["user1", makeUserLevel("user1", 0)]]);
     const { levelUpdates, results } = buildLevelUpdates(
       userXpChanges,
       levelMap,
@@ -105,13 +103,11 @@ describe("buildLevelUpdates", () => {
     expect(levelUpdates[0].user_id).toBe("user1");
     expect(levelUpdates[0].season_id).toBe(seasonId);
     expect(levelUpdates[0].xp).toBe(100);
-    // XP 100 -> level 3 (totalXp(3) = 95, totalXp(4) = 165)
-    expect(levelUpdates[0].level).toBe(3);
+    // XP 100 + 50 = 150
     expect(results).toHaveLength(1);
     expect(results[0].userId).toBe("user1");
     expect(results[0].success).toBe(true);
     expect(results[0].newXp).toBe(100);
-    expect(results[0].newLevel).toBe(3);
   });
 
   it("複数ユーザーのレベル更新を正しく構築する", () => {
@@ -120,8 +116,8 @@ describe("buildLevelUpdates", () => {
       ["user2", 200],
     ]);
     const levelMap = new Map([
-      ["user1", makeUserLevel("user1", 0, 1)],
-      ["user2", makeUserLevel("user2", 100, 3)],
+      ["user1", makeUserLevel("user1", 0)],
+      ["user2", makeUserLevel("user2", 100)],
     ]);
     const { levelUpdates, results } = buildLevelUpdates(
       userXpChanges,
@@ -131,23 +127,21 @@ describe("buildLevelUpdates", () => {
     expect(levelUpdates).toHaveLength(2);
     expect(results).toHaveLength(2);
 
-    // user1: 0 + 50 = 50 XP -> level 2
+    // user1: 0 + 50 = 50 XP
     const user1Update = levelUpdates.find((u) => u.user_id === "user1");
     expect(user1Update?.xp).toBe(50);
-    expect(user1Update?.level).toBe(2);
 
-    // user2: 100 + 200 = 300 XP -> level 5 (totalXp(5) = 250, totalXp(6) = 350)
+    // user2: 100 + 200 = 300 XP
     const user2Update = levelUpdates.find((u) => u.user_id === "user2");
     expect(user2Update?.xp).toBe(300);
-    expect(user2Update?.level).toBe(5);
   });
 
-  it("レベル情報があるユーザーとないユーザーが混在する場合", () => {
+  it("ポイント情報があるユーザーとないユーザーが混在する場合", () => {
     const userXpChanges = new Map([
       ["user1", 50],
       ["user2", 100],
     ]);
-    const levelMap = new Map([["user1", makeUserLevel("user1", 0, 1)]]);
+    const levelMap = new Map([["user1", makeUserLevel("user1", 0)]]);
     const { levelUpdates, results } = buildLevelUpdates(
       userXpChanges,
       levelMap,
@@ -162,12 +156,12 @@ describe("buildLevelUpdates", () => {
 
     const failResult = results.find((r) => r.userId === "user2");
     expect(failResult?.success).toBe(false);
-    expect(failResult?.error).toBe("ユーザーレベル情報が見つかりません");
+    expect(failResult?.error).toBe("ポイント情報が見つかりません");
   });
 
   it("updated_atにISO文字列が設定される", () => {
     const userXpChanges = new Map([["user1", 50]]);
-    const levelMap = new Map([["user1", makeUserLevel("user1", 0, 1)]]);
+    const levelMap = new Map([["user1", makeUserLevel("user1", 0)]]);
     const { levelUpdates } = buildLevelUpdates(
       userXpChanges,
       levelMap,
@@ -180,16 +174,14 @@ describe("buildLevelUpdates", () => {
 
   it("既存XPに加算される", () => {
     const userXpChanges = new Map([["user1", 50]]);
-    const levelMap = new Map([["user1", makeUserLevel("user1", 200, 4)]]);
+    const levelMap = new Map([["user1", makeUserLevel("user1", 200)]]);
     const { levelUpdates, results } = buildLevelUpdates(
       userXpChanges,
       levelMap,
       seasonId,
     );
-    // 200 + 50 = 250 XP -> level 5
+    // 200 + 50 = 250 XP
     expect(levelUpdates[0].xp).toBe(250);
-    expect(levelUpdates[0].level).toBe(5);
     expect(results[0].newXp).toBe(250);
-    expect(results[0].newLevel).toBe(5);
   });
 });

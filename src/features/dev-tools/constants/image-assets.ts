@@ -147,13 +147,6 @@ export const IMAGE_ASSETS: ImageAssetEntry[] = [
     usedIn: ["アイコンが未設定のクエストカード"],
   },
   {
-    path: "/img/level-up-particle.png",
-    label: "レベルアップの粒子",
-    group: "ui",
-    status: "keep",
-    usedIn: ["レベルアップのダイアログ"],
-  },
-  {
     path: "/img/icon-Shere2x.png",
     label: "共有アイコン",
     group: "ui",

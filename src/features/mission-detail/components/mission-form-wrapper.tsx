@@ -56,6 +56,7 @@ export function MissionFormWrapper({
   const [xpAnimationData, setXpAnimationData] = useState<{
     initialXp: number;
     xpGained: number;
+    thresholdPoints: number | null;
   } | null>(null);
 
   // スクロール位置をトップにリセットする関数
@@ -82,12 +83,14 @@ export function MissionFormWrapper({
   const handleXpAnimation = (result: {
     xpGranted?: number;
     userLevel?: { xp: number } | null;
+    thresholdPoints?: number | null;
   }) => {
     if (result.xpGranted && result.userLevel?.xp !== undefined) {
       const initialXp = result.userLevel.xp - result.xpGranted;
       setXpAnimationData({
         initialXp,
         xpGained: result.xpGranted,
+        thresholdPoints: result.thresholdPoints ?? null,
       });
     }
   };
@@ -129,12 +132,13 @@ export function MissionFormWrapper({
     setErrorMessage(null);
 
     // XPアニメーション表示
-    if (xpAnimationData) {
+    if (xpAnimationData && xpAnimationData.xpGained > 0) {
       toast.custom(
         (t) => (
           <XpProgressToastContent
             initialXp={xpAnimationData.initialXp}
             xpGained={xpAnimationData.xpGained}
+            thresholdPoints={xpAnimationData.thresholdPoints}
             onAnimationComplete={() => {
               toast.dismiss(t);
               setXpAnimationData(null);

@@ -36,13 +36,11 @@ describe("get_prefecture_ranking 関数のテスト", () => {
         user_id: user1.user.userId,
         season_id: seasonId,
         xp: 300,
-        level: 3,
       },
       {
         user_id: user2.user.userId,
         season_id: seasonId,
         xp: 500,
-        level: 5,
       },
     ]);
   });
@@ -139,13 +137,11 @@ describe("get_user_prefecture_ranking 関数のテスト", () => {
         user_id: user1.user.userId,
         season_id: seasonId,
         xp: 200,
-        level: 2,
       },
       {
         user_id: user2.user.userId,
         season_id: seasonId,
         xp: 400,
-        level: 4,
       },
     ]);
   });

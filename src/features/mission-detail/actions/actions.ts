@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { VALID_JP_PREFECTURES } from "@/features/map-poster/constants/poster-prefectures";
 import { LOCATION_TYPES } from "@/features/map-poster-residential/constants/location-types";
 import { POSTER_TYPES } from "@/features/map-poster-residential/constants/poster-types";
@@ -388,7 +389,16 @@ export const achieveMissionAction = async (formData: FormData) => {
     return result;
   }
 
-  return result;
+  // 抽選応募のしきい値を、達成トーストの進捗バー用にサーバー側で解決して返す。
+  // getLotterySettings は server-only なのでクライアントからは呼べない。
+  // 取得に失敗しても null を返すだけで、達成自体は失敗させない
+  // （しきい値が無ければトーストはバーを出さず、獲得ポイントだけを出す）。
+  const lotterySettings = await getLotterySettings();
+
+  return {
+    ...result,
+    thresholdPoints: lotterySettings?.threshold_points ?? null,
+  };
 };
 
 export const cancelSubmissionAction = async (formData: FormData) => {

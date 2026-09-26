@@ -1,8 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  calculateLevel,
-  calculateMissionXp,
-} from "@/features/user-level/utils/level-calculator";
+import { calculateMissionXp } from "@/features/user-level/utils/level-calculator";
 import type { Database } from "@/lib/types/supabase";
 
 /** ポスター掲示ミッションの slug */
@@ -28,7 +25,7 @@ export type AchievePosterPlacementResult =
  * 3. achievements テーブルにレコードを作成
  * 4. mission_artifacts テーブルにレコードを作成（text_content にサマリー）
  * 5. xp_transactions に XP トランザクションを記録
- * 6. user_levels を更新（XP 加算 + レベル再計算）
+ * 6. user_levels の XP を加算
  *
  * @param adminSupabase - createAdminClient() で取得した SupabaseClient（service_role で RLS バイパス）
  * @param params.userId - 報告者のユーザー ID
@@ -154,39 +151,36 @@ export async function achievePosterPlacementMission(
 
   if (levelQueryError) {
     console.error("Failed to fetch user level:", levelQueryError);
-    // レベル更新失敗はミッション達成自体の失敗にはしない
+    // XP 更新失敗はミッション達成自体の失敗にはしない
   }
 
   let effectiveLevel = currentLevel;
 
   if (!effectiveLevel && !levelQueryError) {
-    const { data: newLevel, error: initError } = await adminSupabase
+    const { data: newUserLevelRow, error: initError } = await adminSupabase
       .from("user_levels")
       .insert({
         user_id: userId,
         season_id: season.id,
         xp: 0,
-        level: 1,
       })
       .select()
       .single();
 
-    if (initError || !newLevel) {
+    if (initError || !newUserLevelRow) {
       console.error("Failed to initialize user level:", initError);
     } else {
-      effectiveLevel = newLevel;
+      effectiveLevel = newUserLevelRow;
     }
   }
 
   if (effectiveLevel) {
     const newXp = effectiveLevel.xp + xpToGrant;
-    const newLevel = calculateLevel(newXp);
 
     const { error: updateError } = await adminSupabase
       .from("user_levels")
       .update({
         xp: newXp,
-        level: newLevel,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId)

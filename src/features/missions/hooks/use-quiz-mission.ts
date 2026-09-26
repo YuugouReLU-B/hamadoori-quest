@@ -27,7 +27,11 @@ export interface QuizResults {
 interface UseQuizMissionProps {
   mission: Tables<"missions">;
   onSubmissionSuccess?: () => void;
-  onXpAnimationData?: (data: { initialXp: number; xpGained: number }) => void;
+  onXpAnimationData?: (data: {
+    initialXp: number;
+    xpGained: number;
+    thresholdPoints: number | null;
+  }) => void;
   onDialogOpen?: () => void;
   onErrorMessage?: (error: string | null) => void;
 }
@@ -107,6 +111,7 @@ export function useQuizMission({
           onXpAnimationData?.({
             initialXp,
             xpGained: result.xpGranted,
+            thresholdPoints: result.thresholdPoints ?? null,
           });
         }
 

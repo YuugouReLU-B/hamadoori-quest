@@ -10,15 +10,6 @@ export type XpSourceType =
   | "PENALTY"
   | "MISSION_CANCELLATION";
 
-export interface LevelUpNotification {
-  shouldNotify: boolean;
-  levelUp?: {
-    previousLevel: number;
-    newLevel: number;
-    pointsToNextLevel: number;
-  };
-}
-
 export interface XpGrantResult {
   success: boolean;
   userLevel?: UserLevel;
@@ -41,7 +32,6 @@ export interface BatchXpResult {
     success: boolean;
     error?: string;
     newXp?: number;
-    newLevel?: number;
   }>;
   error?: string;
 }

@@ -73,7 +73,6 @@ const mockUser = {
   rank: 3,
   total_points: 1500,
   user_achievement_count: 5,
-  level: 10,
   updated_at: "2024-01-01T00:00:00Z",
   xp: 1000,
   party_membership: {

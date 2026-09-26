@@ -1,6 +1,5 @@
 jest.mock("@/features/user-level/utils/level-calculator", () => ({
   calculateMissionXp: jest.fn().mockReturnValue(100),
-  calculateLevel: jest.fn().mockReturnValue(2),
 }));
 
 import { achievePosterPlacementMission } from "./achieve-residential-poster-mission";
@@ -173,7 +172,7 @@ describe("achievePosterPlacementMission", () => {
     const supabase = createMockSupabase({
       user_levels: { data: null, error: null },
     });
-    // maybeSingle で null → insert → select → single で新規レベル返却
+    // maybeSingle で null → insert → select → single で新規行を返す
     const userLevelsChain = supabase._chains.user_levels;
     userLevelsChain.maybeSingle.mockResolvedValue({ data: null, error: null });
     userLevelsChain.single.mockResolvedValue({
