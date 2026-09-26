@@ -345,15 +345,32 @@ missions:
     artifact_label: null
     ogp_image_url: null
 
-  # ── 紹介された側（被紹介者）の達成（50pt） ──
-  # 紹介URL（?ref=<code>）から登録が完了したときに自動で達成になるため、
-  # ユーザーが一覧から選んで挑戦するものではない。よって is_hidden: true。
+  # ── 紹介クエスト2件 ──
+  # 紹介した側（REFERRAL）と紹介された側（REFERRED）の対。紹介URL
+  # （?ref=<code>）から登録が完了すると、双方に50ptが入る。
   #
-  # 紹介した側は slug: referral（required_artifact_type: REFERRAL）を使う。
-  # そちらは既にDBにある既存クエストなので、ここ（yaml）には追加しない。
+  # referral は達成回数無制限（何人紹介してもその都度付与）。
+  # referred-signup は自動達成なのでユーザーが一覧から選ぶものではなく is_hidden: true。
   #
-  # mission:sync は挿入のみなので既存環境には反映されない。
-  # 既存環境では管理画面（/admin/missions）またはSQLで設定すること。
+  # ここは**新環境の種データ**。mission:sync は挿入のみで既存行を上書きしない。
+  # 既存環境への投入は supabase/migrations/20260926020000_seed_referral_quests.sql
+  # が ON CONFLICT (slug) DO NOTHING で行う（本番にはどちらも存在しなかった）。
+  - slug: referral
+    title: 友だちに浜通りクエストを紹介しよう
+    quest_category: SNS
+    event_category: null
+    icon_url: /img/mission-icons/refer-a-friend.png
+    content: |-
+      あなた専用の紹介URLを友だちに共有しよう。紹介URLから登録が完了すると、自動で達成になります。
+    difficulty: 1
+    required_artifact_type: REFERRAL
+    points: 50
+    max_achievement_count: null
+    is_featured: false
+    is_hidden: false
+    artifact_label: null
+    ogp_image_url: null
+
   - slug: referred-signup
     title: 紹介されて浜通りクエストを始めよう
     quest_category: SNS
