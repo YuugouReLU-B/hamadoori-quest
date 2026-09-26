@@ -7,7 +7,6 @@ export type RankingPeriod = "all" | "daily";
 export interface UserRanking {
   user_id: string | null;
   address_prefecture: string | null;
-  level: number | null;
   name: string | null;
   rank: number | null;
   updated_at: string | null;

@@ -13,7 +13,7 @@ import type {
   XpSourceType,
   XpTransaction,
 } from "../types/level-types";
-import { calculateLevel, calculateMissionXp } from "../utils/level-calculator";
+import { calculateMissionXp } from "../utils/level-calculator";
 import {
   aggregateXpByUser,
   buildLevelUpdates,
@@ -96,7 +96,6 @@ export async function initializeUserLevel(
       user_id: userId,
       season_id: seasonId,
       xp: 0,
-      level: 1,
     })
     .select()
     .single();
@@ -125,7 +124,7 @@ export async function getOrInitializeUserLevel(
 }
 
 /**
- * XPトランザクションの記録とユーザーレベルの更新を行う共通処理
+ * XPトランザクションの記録と累計ポイントの更新を行う共通処理
  */
 async function processXpTransaction(
   userId: string,
@@ -164,20 +163,18 @@ async function processXpTransaction(
     if (!currentLevel) {
       return {
         success: false,
-        error: "ユーザーレベル情報の取得に失敗しました",
+        error: "ポイント情報の取得に失敗しました",
       };
     }
 
-    // 新しいXPとレベルを計算
+    // 新しいXPを計算
     const newXp = currentLevel.xp + xpAmount;
-    const newLevel = calculateLevel(newXp);
 
-    // ユーザーレベルを更新
+    // 累計ポイントを更新
     const { data: updatedLevel, error: updateError } = await supabase
       .from("user_levels")
       .update({
         xp: newXp,
-        level: newLevel,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId)
@@ -187,7 +184,7 @@ async function processXpTransaction(
 
     if (updateError) {
       console.error("Failed to update user level:", updateError);
-      return { success: false, error: "ユーザーレベルの更新に失敗しました" };
+      return { success: false, error: "ポイント情報の更新に失敗しました" };
     }
 
     return { success: true, userLevel: updatedLevel };
@@ -304,7 +301,7 @@ export async function grantMissionCompletionXp(
   const supabase = await createAdminClient();
 
   try {
-    // ミッション情報を取得して難易度と注目ミッションフラグを確認
+    // ミッションに設定されたポイントを取得する
     const { data: mission, error: missionError } = await supabase
       .from("missions")
       .select("difficulty, points, title, is_featured")
@@ -316,7 +313,7 @@ export async function grantMissionCompletionXp(
       return { success: false, error: "クエスト情報の取得に失敗しました" };
     }
 
-    // ミッションに設定されたポイント（注目ミッションは2倍）
+    // missions.points をそのまま使う（倍率は無い）
     const xpToGrant = calculateMissionXp(mission);
     const description = `クエスト「${mission.title}」達成による経験値獲得`;
 
@@ -404,7 +401,6 @@ export async function grantXpBatch(
             user_id: userId,
             season_id: seasonId,
             xp: 0,
-            level: 1,
           })),
           async (chunk) => {
             return await supabase.from("user_levels").insert(chunk).select();

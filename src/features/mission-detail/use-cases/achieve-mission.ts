@@ -1,9 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { UserLevel } from "@/features/user-level/types/level-types";
-import {
-  calculateLevel,
-  calculateMissionXp,
-} from "@/features/user-level/utils/level-calculator";
+import { calculateMissionXp } from "@/features/user-level/utils/level-calculator";
 import {
   MAX_POSTER_COUNT,
   POSTER_POINTS_PER_UNIT,
@@ -66,7 +63,7 @@ async function fetchCurrentSeasonId(
 }
 
 /**
- * XPトランザクション記録 + ユーザーレベル更新を行う。
+ * XPトランザクション記録 + 累計ポイント更新を行う。
  * サービス層の grantXp/grantMissionCompletionXp は createAdminClient() に依存するため、
  * ユースケースでは渡されたクライアントを直接使う。
  */
@@ -106,7 +103,7 @@ async function processXpGrant(
     return { success: false, error: transactionError.message };
   }
 
-  // ユーザーレベル情報を取得（存在しない場合は初期化）
+  // 累計ポイントの行を取得（存在しない場合は初期化）
   let { data: currentLevel } = await supabase
     .from("user_levels")
     .select("*")
@@ -115,37 +112,34 @@ async function processXpGrant(
     .maybeSingle();
 
   if (!currentLevel) {
-    const { data: newLevel, error: initError } = await supabase
+    const { data: newUserLevelRow, error: initError } = await supabase
       .from("user_levels")
       .insert({
         user_id: userId,
         season_id: seasonId,
         xp: 0,
-        level: 1,
       })
       .select()
       .single();
 
-    if (initError || !newLevel) {
+    if (initError || !newUserLevelRow) {
       console.error("Failed to initialize user level:", initError);
       return {
         success: false,
-        error: "ユーザーレベルの初期化に失敗しました",
+        error: "ポイント情報の初期化に失敗しました",
       };
     }
-    currentLevel = newLevel;
+    currentLevel = newUserLevelRow;
   }
 
-  // 新しいXPとレベルを計算
+  // 新しい累計XPを計算
   const newXp = currentLevel.xp + xpAmount;
-  const newLevel = calculateLevel(newXp);
 
-  // ユーザーレベルを更新
+  // 累計ポイントを更新
   const { data: updatedLevel, error: updateError } = await supabase
     .from("user_levels")
     .update({
       xp: newXp,
-      level: newLevel,
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", userId)
@@ -155,7 +149,7 @@ async function processXpGrant(
 
   if (updateError) {
     console.error("Failed to update user level:", updateError);
-    return { success: false, error: "ユーザーレベルの更新に失敗しました" };
+    return { success: false, error: "ポイント情報の更新に失敗しました" };
   }
 
   return { success: true, xpGranted: xpAmount, userLevel: updatedLevel };

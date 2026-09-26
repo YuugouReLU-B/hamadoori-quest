@@ -7,7 +7,6 @@ type UserRanking = {
   name: string;
   address_prefecture: string;
   rank: number | null;
-  level: number | null;
   xp: number | null;
 };
 
@@ -57,7 +56,6 @@ const mockRankings: UserRanking[] = [
     name: "ユーザー1",
     address_prefecture: "東京都",
     rank: 1,
-    level: 25,
     xp: 2500,
   },
   {
@@ -65,7 +63,6 @@ const mockRankings: UserRanking[] = [
     name: "ユーザー2",
     address_prefecture: "大阪府",
     rank: 2,
-    level: 20,
     xp: 2000,
   },
 ];

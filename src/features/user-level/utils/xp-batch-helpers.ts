@@ -1,5 +1,4 @@
 import type { BatchXpTransaction, UserLevel } from "../types/level-types";
-import { calculateLevel } from "./level-calculator";
 
 /**
  * バッチトランザクションからユーザーごとのXP合計を集計する
@@ -29,7 +28,6 @@ export function buildLevelUpdates(
     user_id: string;
     season_id: string;
     xp: number;
-    level: number;
     updated_at: string;
   }>;
   results: Array<{
@@ -37,14 +35,12 @@ export function buildLevelUpdates(
     success: boolean;
     error?: string;
     newXp?: number;
-    newLevel?: number;
   }>;
 } {
   const levelUpdates: Array<{
     user_id: string;
     season_id: string;
     xp: number;
-    level: number;
     updated_at: string;
   }> = [];
 
@@ -53,7 +49,6 @@ export function buildLevelUpdates(
     success: boolean;
     error?: string;
     newXp?: number;
-    newLevel?: number;
   }> = [];
 
   for (const [userId, xpChange] of Array.from(userXpChanges.entries())) {
@@ -62,19 +57,17 @@ export function buildLevelUpdates(
       results.push({
         userId,
         success: false,
-        error: "ユーザーレベル情報が見つかりません",
+        error: "ポイント情報が見つかりません",
       });
       continue;
     }
 
     const newXp = currentLevel.xp + xpChange;
-    const newLevel = calculateLevel(newXp);
 
     levelUpdates.push({
       user_id: userId,
       season_id: seasonId,
       xp: newXp,
-      level: newLevel,
       updated_at: new Date().toISOString(),
     });
 
@@ -82,7 +75,6 @@ export function buildLevelUpdates(
       userId,
       success: true,
       newXp,
-      newLevel,
     });
   }
 

@@ -11,7 +11,6 @@ import {
 export interface UserPeriodRanking {
   user_id: string;
   address_prefecture: string | null;
-  level: number;
   name: string;
   rank: number;
   updated_at: string | null;
@@ -51,7 +50,6 @@ export async function getUserPeriodRanking(
   return {
     user_id: data[0].user_id,
     address_prefecture: data[0].address_prefecture,
-    level: data[0].level,
     name: data[0].name,
     rank: data[0].rank,
     updated_at: data[0].updated_at,

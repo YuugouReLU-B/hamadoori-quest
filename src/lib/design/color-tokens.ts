@@ -97,7 +97,7 @@ export const APP_COLOR_TOKEN_GROUPS: ColorTokenGroup[] = [
     id: "brand",
     label: "ブランド",
     description:
-      "ヒーロー・フッターのグラデーション、レベルバー、リンクなどに使う基幹色。見た目の印象を最も左右する。",
+      "ヒーロー・フッターのグラデーション、進捗バー、リンクなどに使う基幹色。見た目の印象を最も左右する。",
     tokens: [
       hex("--app-brand-primary", "プライマリ", "#ffea00"),
       hex("--app-brand-ink", "インク（リンク・強調文字）", "#736000", {
@@ -116,7 +116,7 @@ export const APP_COLOR_TOKEN_GROUPS: ColorTokenGroup[] = [
       hex("--app-brand-pale", "ペール", "#fffbe6", {
         note: "グラデーション終了色",
       }),
-      hex("--app-brand-level-end", "レベルバー終端", "#ffd400"),
+      hex("--app-brand-progress-end", "進捗バー終端", "#ffd400"),
       hex("--app-brand-surface", "サーフェス", "#fff8a3", {
         note: "進捗サークルの下地",
       }),

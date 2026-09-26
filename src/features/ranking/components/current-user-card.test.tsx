@@ -63,7 +63,6 @@ const mockUser = {
   name: "テストユーザー",
   address_prefecture: "東京都",
   rank: 5,
-  level: 25,
   xp: 2500,
   updated_at: "2024-01-01T00:00:00Z",
   party_membership: {
@@ -126,13 +125,6 @@ describe("CurrentUserCard", () => {
 
       const rankElement = screen.getByText("0");
       expect(rankElement).toBeInTheDocument();
-    });
-
-    it("levelがnullでもレベルバッジを表示しない", () => {
-      const user = { ...mockUser, level: null };
-      render(<CurrentUserCard currentUser={user} />);
-
-      expect(screen.queryByText(/^Lv\./)).not.toBeInTheDocument();
     });
 
     it("xpがnullの場合は0ptが表示される", () => {

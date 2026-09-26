@@ -147,7 +147,7 @@ export async function lineLogin(
       user_metadata: { ...newUser.user.user_metadata, sub: userId },
     });
 
-    // ユーザー作成後のコールバック（レベル初期化等）
+    // ユーザー作成後のコールバック（ポイント情報の初期化等）
     if (input.onUserCreated) {
       await input.onUserCreated(userId);
     }

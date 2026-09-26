@@ -59,8 +59,7 @@ export function ProgressBarAnimated({
   return (
     <div className={cn("w-full", className)}>
       {showText && (
-        <div className="flex justify-between text-sm mb-2">
-          <span>次のレベルまで</span>
+        <div className="flex justify-end text-sm mb-2">
           <span className="font-bold">
             {Math.round(animatedValue).toLocaleString()} /{" "}
             {maxValue.toLocaleString()}P
@@ -70,7 +69,7 @@ export function ProgressBarAnimated({
       <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
         <div
           className={cn(
-            "bg-linear-to-r from-[var(--app-brand-primary)] to-[var(--app-brand-level-end)] h-3 rounded-full transition-all duration-300 shadow-xs",
+            "bg-linear-to-r from-[var(--app-brand-primary)] to-[var(--app-brand-progress-end)] h-3 rounded-full transition-all duration-300 shadow-xs",
           )}
           style={{
             width: `${percentage}%`,

@@ -22,7 +22,6 @@ const renderRankingSection = async (dailyCount: number, allCount: number) => {
       name: `${period}の参加者${index + 1}`,
       address_prefecture: null,
       rank: index + 1,
-      level: 1,
       xp: 100,
       updated_at: null,
     }));

@@ -249,7 +249,6 @@ export async function initializeTestUserLevel(userId: string): Promise<void> {
       user_id: userId,
       season_id: season.id,
       xp: 0,
-      level: 1,
     });
   }
 }
@@ -259,7 +258,7 @@ export async function initializeTestUserLevel(userId: string): Promise<void> {
  */
 export async function getTestUserXp(
   userId: string,
-): Promise<{ xp: number; level: number } | null> {
+): Promise<{ xp: number } | null> {
   const { data: season } = await adminClient
     .from("seasons")
     .select("id")
@@ -270,7 +269,7 @@ export async function getTestUserXp(
 
   const { data } = await adminClient
     .from("user_levels")
-    .select("xp, level")
+    .select("xp")
     .eq("user_id", userId)
     .eq("season_id", season.id)
     .maybeSingle();

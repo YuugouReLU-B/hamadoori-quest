@@ -49,7 +49,6 @@ export default async function AdminPointsPage({
               <tr>
                 <th className="px-4 py-2.5 font-bold">ニックネーム</th>
                 <th className="px-4 py-2.5 text-right font-bold">現在のXP</th>
-                <th className="px-4 py-2.5 text-right font-bold">レベル</th>
                 <th className="px-4 py-2.5 font-bold">ポイント調整</th>
               </tr>
             </thead>
@@ -64,9 +63,6 @@ export default async function AdminPointsPage({
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
                     {user.xp}
-                  </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums">
-                    {user.level}
                   </td>
                   <td className="px-4 py-2.5">
                     <PointsAdjustForm userId={user.id} />

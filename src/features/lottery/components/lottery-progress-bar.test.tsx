@@ -26,9 +26,7 @@ const settings = {
 function mockPoints(xp: number) {
   jest.mocked(getMyUserLevel).mockResolvedValue({
     user_id: "test-user-id",
-    level: 2,
     xp,
-    last_notified_level: null,
     line_1000pt_audience_added_at: null,
     season_id: "season-id",
     updated_at: "2026-09-01T00:00:00Z",

@@ -132,7 +132,7 @@ const HAMADOORI_CIRCLE_VIVID_PRESET: ColorPreset = {
     "--app-brand-link-hover": "#6b5900",
     "--app-brand-light": "#ffea00",
     "--app-brand-pale": "#fff8a3",
-    "--app-brand-level-end": "#ffd400",
+    "--app-brand-progress-end": "#ffd400",
     "--app-brand-surface": "#fff8a3",
 
     // --- オンボーディング ---
@@ -198,7 +198,7 @@ const TEAM_MIRAI_PRESET: ColorPreset = {
     "--app-brand-link-hover": "#0d6b5e",
     "--app-brand-light": "#64d8c6",
     "--app-brand-pale": "#bcecd3",
-    "--app-brand-level-end": "#47c991",
+    "--app-brand-progress-end": "#47c991",
     "--app-brand-surface": "#e2f6f3",
 
     // --- オンボーディング ---

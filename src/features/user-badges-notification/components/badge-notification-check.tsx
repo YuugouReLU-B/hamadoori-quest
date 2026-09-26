@@ -19,7 +19,7 @@ export function BadgeNotificationCheck({
       // 少し待ってからダイアログを表示
       const timer = setTimeout(() => {
         setIsDialogOpen(true);
-      }, 1500); // 1.5秒待つ（レベルアップ通知より少し遅く）
+      }, 1500); // 1.5秒待つ（達成トーストより少し遅く）
 
       return () => clearTimeout(timer);
     }

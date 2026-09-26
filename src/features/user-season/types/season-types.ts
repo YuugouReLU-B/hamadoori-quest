@@ -3,7 +3,6 @@ import type { Season } from "@/lib/services/seasons";
 export interface UserSeasonHistoryItem {
   season: Season;
   userLevel: {
-    level: number;
     xp: number;
     updated_at: string;
   } | null;

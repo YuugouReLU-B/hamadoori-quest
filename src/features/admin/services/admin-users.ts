@@ -8,7 +8,6 @@ export type AdminUserSearchResult = {
   name: string;
   avatarUrl: string | null;
   xp: number;
-  level: number;
 };
 
 export type AdminUserListItem = {
@@ -76,7 +75,7 @@ const UUID_PATTERN =
  * デバッグ用のユーザー検索。
  *
  * ニックネームの部分一致、またはユーザーIDの完全一致で検索する。
- * 現在のアクティブシーズンのXP/レベルも一緒に返す。
+ * 現在のアクティブシーズンのXPも一緒に返す。
  */
 export async function searchUsersForAdmin(
   query: string,
@@ -110,13 +109,12 @@ export async function searchUsersForAdmin(
       name: p.name,
       avatarUrl: p.avatar_url,
       xp: 0,
-      level: 1,
     }));
   }
 
   const { data: levels } = await supabase
     .from("user_levels")
-    .select("user_id, xp, level")
+    .select("user_id, xp")
     .eq("season_id", season.id)
     .in(
       "user_id",
@@ -126,13 +124,12 @@ export async function searchUsersForAdmin(
   const levelMap = new Map((levels ?? []).map((l) => [l.user_id, l]));
 
   return profiles.map((p) => {
-    const level = levelMap.get(p.id);
+    const userLevelRow = levelMap.get(p.id);
     return {
       id: p.id,
       name: p.name,
       avatarUrl: p.avatar_url,
-      xp: level?.xp ?? 0,
-      level: level?.level ?? 1,
+      xp: userLevelRow?.xp ?? 0,
     };
   });
 }

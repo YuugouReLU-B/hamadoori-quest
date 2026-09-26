@@ -33,13 +33,11 @@ describe("get_period_ranking 関数のテスト", () => {
         user_id: user1.user.userId,
         season_id: seasonId,
         xp: 100,
-        level: 1,
       },
       {
         user_id: user2.user.userId,
         season_id: seasonId,
         xp: 200,
-        level: 2,
       },
     ]);
   });
@@ -210,13 +208,11 @@ describe("get_user_period_ranking 関数のテスト", () => {
         user_id: user1.user.userId,
         season_id: seasonId,
         xp: 100,
-        level: 1,
       },
       {
         user_id: user2.user.userId,
         season_id: seasonId,
         xp: 200,
-        level: 2,
       },
     ]);
   });
