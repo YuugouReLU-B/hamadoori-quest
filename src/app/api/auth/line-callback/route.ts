@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
     if (result.isNewUser) {
       const referralCode = await getCookie("referral_code");
       if (referralCode && result.email) {
-        await grantReferralReward(referralCode, result.email);
+        await grantReferralReward(referralCode, result.email, result.userId);
         await deleteCookie("referral_code");
       }
 
