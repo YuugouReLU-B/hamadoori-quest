@@ -53,6 +53,11 @@ cp .env ../action-board-<branch-name>/
 >   そのため `develop` では発火させていない（発火させると develop へのマージが本番DBを触ってしまう）。
 > - 必要なSecretsはrepoレベルに設定済み。Variablesは `SITE_URL` / `ADDITIONAL_REDIRECT_URLS` /
 >   `ENABLE_CONFIRMATIONS` の3つで、いずれも**本番Supabaseの現設定と同じ値**にしてある。
+> - **`SUPABASE_DB_PASSWORD` はワークフローに渡していない**（2026-09-26）。渡さなければ CLI が
+>   `SUPABASE_ACCESS_TOKEN` で一時ログインロールを作って接続する（`Initialising login role...`）。
+>   逆に env に置くと CLI はそれを優先して `postgres` ロールで直接つなぐため、値が古いと
+>   `password authentication failed for user "postgres" (SQLSTATE 28P01)` で必ず落ちる。
+>   repoレベルの Secret 自体は残っているが未使用。**復活させないこと。**
 > - **Variablesの値を変えると `supabase config push` が本番の認証設定を書き換える。**
 >   変更前に必ず `supabase config diff` で差分を確認すること（`config.toml` に書いた値が
 >   そのまま本番に反映される。テンプレート既定値のまま放置すると本番設定を巻き戻す）。

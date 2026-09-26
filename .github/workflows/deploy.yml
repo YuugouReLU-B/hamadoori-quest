@@ -21,7 +21,6 @@ jobs:
       # Supabase secrets
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -33,10 +32,11 @@ jobs:
           version: latest
 
       - name: Link Supabase project
-        # クォートは必須。DBパスワードは記号や空白を含み得るため、素の $VAR だと
-        # 単語分割やグロブ展開で壊れた値が --password に渡り、しかも link は
-        # 成功したように見えることがある（実際の失敗は後続の db push で出る）。
-        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+        # DBパスワードは渡さない。渡さなければ CLI が SUPABASE_ACCESS_TOKEN で
+        # 一時ログインロールを作って接続する（`Initialising login role...`）。
+        # 逆に SUPABASE_DB_PASSWORD を env に置くと CLI はそれを優先し、
+        # postgres ロールで直接つなぐためこのフォールバックが働かなくなる。
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
       - name: Apply migrations
         timeout-minutes: 10
