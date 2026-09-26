@@ -1,3 +1,4 @@
+import { EXTERNAL_LINKS } from "@/lib/constants/external-links";
 import { OPERATOR } from "@/lib/constants/operator";
 
 export default function PrivacyPolicy() {
@@ -61,11 +62,9 @@ export default function PrivacyPolicy() {
             <li>ユーザー認証およびログイン管理のため</li>
             <li>ポイント集計・ランキング機能提供のため</li>
             <li>クエスト実施状況の確認および不正防止のため</li>
-            <li>地域に応じた演説会・説明会などのお知らせ送信のため</li>
+            <li>イベントやクエストに関するお知らせ送信のため</li>
             <li>アクセス状況の分析およびサービス改善のため</li>
-            <li>
-              法令上必要な対応および当団体の政治活動に必要な範囲での活用のため
-            </li>
+            <li>法令上必要な対応のため</li>
           </ul>
         </section>
 
@@ -75,8 +74,7 @@ export default function PrivacyPolicy() {
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
             当団体は、ユーザーの利便性向上および本サービスの運営に必要な範囲でCookie等の技術を使用します。また、Google
-            LLCが提供するGoogle
-            Analyticsを利用し、アクセス状況を解析する場合があります。Googleによる情報の取扱いについてはGoogleプライバシーポリシーをご参照ください。
+            LLCが提供するGoogleタグマネージャーおよびGoogleアナリティクスを利用し、アクセス状況を解析しています。Googleによる情報の取扱いについてはGoogleプライバシーポリシーをご参照ください。
           </p>
           <p className="text-sm-custom font-normal text-black text-justify mt-3">
             あわせて当団体は、本サービスの改善のために、当団体自身のサーバー上でサービス内の利用状況を記録しています。
@@ -98,9 +96,6 @@ export default function PrivacyPolicy() {
             <li>法令に基づく場合</li>
             <li>人の生命・身体・財産の保護に緊急の必要がある場合</li>
             <li>利用目的の達成に必要な範囲内で外部委託業者に提供する場合</li>
-            <li>
-              政治資金規正法その他の法令に基づき、収支報告書等に記載・公開される場合
-            </li>
           </ul>
         </section>
 
@@ -118,7 +113,7 @@ export default function PrivacyPolicy() {
             7. 個人情報の保管期間
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            取得した個人情報は、政治資金規正法その他の関連法令に基づき、原則として取得日から7年間保管します。保管期間終了後は、当団体の責任において適切な方法により速やかに廃棄・削除いたします。
+            取得した個人情報は、利用目的の達成に必要な期間に限り保管します。ユーザーが退会した場合、プロフィール情報、クエスト達成記録と提出物、獲得ポイントとその履歴、紹介コードを含むアカウントに関連するデータは速やかに削除されます。法令により保存が義務づけられている情報については、当該法令の定める期間保管し、期間終了後は当団体の責任において適切な方法により廃棄・削除いたします。
           </p>
         </section>
 
@@ -193,7 +188,15 @@ export default function PrivacyPolicy() {
                 </p>
               ) : (
                 <p className="text-gray-700">
-                  お問い合わせ先は決定次第記載します。
+                  <a
+                    href={EXTERNAL_LINKS.feedback_action_board}
+                    className="text-black hover:text-black underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ご意見フォーム
+                  </a>
+                  よりお問い合わせください。
                 </p>
               )}
             </div>
@@ -212,7 +215,7 @@ export default function PrivacyPolicy() {
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <p className="text-sm text-gray-500 text-center">
-          最終更新日: 2026/01/25
+          最終更新日: 2026/09/26
         </p>
       </div>
     </div>

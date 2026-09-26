@@ -17,7 +17,7 @@ export default function TermsOfService() {
             1. サービスの目的と性質
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            本サービスは、ユーザーが当団体の活動を支援することを目的として提供されるものであり、特定の活動をユーザーの任意で行うことに対し、ポイントを付与するなどのゲーミフィケーション要素を備えています。
+            本サービスは、浜通り地域のスポットやイベントへの参加を後押しすることを目的として提供されるものであり、ユーザーが任意で行ったクエストの達成に対してポイントを付与するなどのゲーミフィケーション要素を備えています。
           </p>
         </section>
 
@@ -61,10 +61,10 @@ export default function TermsOfService() {
           </h2>
           <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
             <p>
-              ユーザーは、当団体が定める方法により、所定の政治活動に協力することでポイントを取得できます。
+              ユーザーは、当団体が定める方法により、所定のクエストを達成することでポイントを取得できます。
             </p>
             <p>
-              ポイントは地域ごとのランキング表示などに使用されますが、金銭的価値は一切なく、換金・譲渡・財産的利用はできません。
+              ポイントはランキング表示や抽選への応募条件などに使用されますが、金銭的価値は一切なく、換金・譲渡・財産的利用はできません。
             </p>
             <p>
               当団体は、ポイント制度やランキング機能を予告なく変更または廃止することができます。
@@ -81,8 +81,10 @@ export default function TermsOfService() {
           </p>
           <ul className="list-disc pl-6 space-y-2 text-sm-custom text-black">
             <li>法令または公序良俗に反する行為</li>
-            <li>政治活動及び選挙運動に関して法令により禁止されている行為</li>
             <li>他人になりすます行為</li>
+            <li>
+              クエストを達成していないにもかかわらず達成を申告するなど、ポイントを不正に取得する行為
+            </li>
             <li>
               本サービスの全部または一部を改変・模倣し、誤認を招くような行為
             </li>
@@ -172,7 +174,7 @@ export default function TermsOfService() {
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <p className="text-sm text-gray-500 text-center">
-          最終更新日: 2025/05/31
+          最終更新日: 2026/09/26
         </p>
       </div>
     </div>
