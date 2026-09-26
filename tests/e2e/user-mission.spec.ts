@@ -9,7 +9,7 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
 
     // 自身のステータス表示を確認（レベル表示は廃止し、ポイント数のみ表示）
     await expect(
-      signedInPage.locator("section").getByText(/現在\s*0\s*P/),
+      signedInPage.locator("section").getByText(/現在\s*0\s*pt/),
     ).toBeVisible({ timeout: 10000 });
     await expect(
       signedInPage.getByRole("link", {
@@ -145,22 +145,24 @@ test.describe("アクションボード（Web版）のe2eテスト", () => {
       signedInPage.getByText("このクエストは何度でもチャレンジできます。"),
     ).toBeVisible();
     // ポイント2倍の仕組みは廃止したので、pointsそのまま(400)が付与される
-    await expect(signedInPage.getByText("400P獲得しました")).toBeVisible({
+    await expect(signedInPage.getByText("400pt獲得しました")).toBeVisible({
       timeout: 10000,
     });
 
     // ミッション完了後のポイントの変動を確認（レベル表示は廃止し、ポイント数のみ表示）
     await signedInPage.goto("/");
     await expect(
-      signedInPage.locator("section").getByText(/現在\s*400\s*P/),
+      signedInPage.locator("section").getByText(/現在\s*400\s*pt/),
     ).toBeVisible({ timeout: 10000 });
 
     await signedInPage.goto("/ranking");
     await signedInPage.getByRole("button", { name: "全期間" }).click();
     await expect(signedInPage.getByText("あなたのランク")).toBeVisible();
-    // ランキング一覧では都道府県とレベルを表示しなくなり、単位も P になった
+    // ランキング一覧では都道府県とレベルを表示しなくなり、単位は pt（桁区切りなし）
     await expect(
-      signedInPage.getByRole("link", { name: /テストユーザー\s*400P/ }).first(),
+      signedInPage
+        .getByRole("link", { name: /テストユーザー\s*400pt/ })
+        .first(),
     ).toBeVisible({ timeout: 10000 });
 
     // 達成の取り消しはここでは検証しない。
