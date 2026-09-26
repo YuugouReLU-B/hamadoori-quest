@@ -69,19 +69,11 @@ export function DeleteAccountModal({
             </p>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
               <li>プロフィール情報</li>
-              <li>クエスト達成記録</li>
-              <li>経験値とレベル情報</li>
-              <li>バッジ情報</li>
+              <li>クエスト達成記録と提出物</li>
+              <li>獲得ポイントとその履歴</li>
+              <li>紹介コード</li>
               <li>その他のアカウントに関連するすべてのデータ</li>
             </ul>
-          </div>
-          <div className="text-left space-y-2 text-sm">
-            <p>
-              浜通りクエストから退会すると、サポーターも自動的に退会となります。
-            </p>
-            <p>
-              ただし、2026年8月5日以前にサポーター登録フォームから登録された方は、お問い合わせフォームより退会の旨をお申し出ください。
-            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirm-text">
