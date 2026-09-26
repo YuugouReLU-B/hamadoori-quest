@@ -26,7 +26,7 @@ describe("config", () => {
   });
 
   test("説明が正しく設定されている", () => {
-    expect(config.description).toContain("政治活動をもっと身近に");
+    expect(config.description).toContain("浜通りのスポットやイベント");
   });
 
   test("デフォルト画像パスが設定されている", () => {
