@@ -4,6 +4,7 @@ import {
   getGeoCheckinMission,
 } from "@/features/geo-checkin/services/geo-checkin-missions";
 import { achieveMission } from "@/features/mission-detail/use-cases/achieve-mission";
+import { hasEventEnded } from "@/features/missions/utils/mission-period";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Database } from "@/lib/types/supabase";
 import { calculateDistanceMeters } from "@/lib/utils/geo-distance";
@@ -13,6 +14,7 @@ export type RedeemGeoCheckinResult =
   | { status: "already"; mission: GeoCheckinMission }
   | { status: "invalid" }
   | { status: "unavailable"; mission: GeoCheckinMission }
+  | { status: "ended"; mission: GeoCheckinMission }
   | { status: "not_configured"; mission: GeoCheckinMission }
   | {
       status: "too_far";
@@ -50,6 +52,17 @@ export async function redeemGeoCheckin(
 
   if (mission.isHidden) {
     return { status: "unavailable", mission };
+  }
+
+  // 開催が終わったイベントは受け付けない。詳細ページでも操作UIを止めているが、
+  // 一覧から落としてもURLは開けるので、サーバー側でも同じ判定をする。
+  if (
+    hasEventEnded({
+      event_date: mission.eventDate,
+      event_end_date: mission.eventEndDate,
+    })
+  ) {
+    return { status: "ended", mission };
   }
 
   if (

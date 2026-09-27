@@ -124,6 +124,12 @@ export function GeoCheckinButton({
           setState("error");
           setMessage("このクエストは現在受付を停止しています。");
           return;
+        case "ended":
+          setState("error");
+          setMessage(
+            "このイベントは終了したため、達成の受付を終了しています。",
+          );
+          return;
         case "not_configured":
           setState("error");
           setMessage(

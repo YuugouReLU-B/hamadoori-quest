@@ -12,6 +12,7 @@ import { QrSpotGuide } from "@/features/mission-detail/components/qr-spot-guide"
 import { LineFriendForm } from "@/features/missions/components/line-friend-form";
 import { MissionGuidanceArrow } from "@/features/missions/components/mission-guidance-arrow";
 import { useMissionSubmission } from "@/features/missions/hooks/use-mission-submission";
+import { hasEventEnded } from "@/features/missions/utils/mission-period";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Tables } from "@/lib/types/supabase";
 import { MainLinkButton } from "./main-link-button";
@@ -82,6 +83,21 @@ export function MissionWithSubmissionHistory({
     (!hasReachedUserMaxAchievements ||
       mission.required_artifact_type === ARTIFACT_TYPES.LINK_ACCESS.key) &&
     !isNoGuidanceArrow;
+
+  // 開催が終わったイベントは達成を受け付けない。
+  // 一覧と地図からは落としている（missions-by-category.tsx）が、カレンダーには
+  // 残していて、URLを直接開くこともできるため、ここで操作UIごと止める。
+  // クエストの内容（MissionDetails）と達成履歴は親が別に描画しているので残る。
+  if (hasEventEnded(mission)) {
+    return (
+      <div className="rounded-xl border border-gray-300 bg-gray-50 p-4 text-center">
+        <p className="font-bold text-gray-800">このイベントは終了しました</p>
+        <p className="mt-1 text-sm text-gray-600">
+          開催日を過ぎたため、達成の受付を終了しています。
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
