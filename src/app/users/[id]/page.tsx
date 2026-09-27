@@ -3,7 +3,7 @@
  *
  * このページは以下の機能を提供します：
  * - ユーザーの基本情報表示（ソーシャルリンク）
- * - クエスト達成状況の表示
+ * - 達成したクエストの一覧
  *
  * パフォーマンス最適化：
  * - Promise.allを使用した並列データ取得
@@ -12,12 +12,7 @@ import { HeroBackdrop } from "@/components/top/hero-backdrop";
 import { Card } from "@/components/ui/card";
 import { LotteryEntryPanel } from "@/features/lottery/components/lottery-entry-panel";
 import { AchievedMissionList } from "@/features/user-achievements/components/achieved-mission-list";
-import { UserMissionAchievements } from "@/features/user-achievements/components/user-mission-achievements";
-import {
-  getUserAchievedMissions,
-  getUserRepeatableMissionAchievements,
-} from "@/features/user-achievements/loaders/achievements-loaders";
-import { getUserActivityTimelineCount } from "@/features/user-activity/loaders/timeline-loaders";
+import { getUserAchievedMissions } from "@/features/user-achievements/loaders/achievements-loaders";
 import Levels from "@/features/user-level/components/levels";
 import SocialBadgeSection from "@/features/user-profile/components/social-badge-section";
 import { getProfile, getUser } from "@/features/user-profile/services/profile";
@@ -47,14 +42,17 @@ export default async function UserDetailPage({ params }: Props) {
   // 現在のシーズンIDを取得
   const currentSeasonId = await getCurrentSeasonId();
 
-  const [count, missionAchievements, achievedMissions] = await Promise.all([
-    getUserActivityTimelineCount(id, currentSeasonId ?? undefined), // 活動総数（現在のシーズン）。クエスト達成状況セクションの表示判定にも使う
-    getUserRepeatableMissionAchievements(id, currentSeasonId ?? undefined), // 繰り返し達成できるミッションの回数
-    getUserAchievedMissions(id, currentSeasonId ?? undefined), // 達成したミッション（種別を問わず）
-  ]);
+  // 達成したミッション（種別を問わず）。繰り返し達成した回数も各行に出るので、
+  // 以前あった「クエスト達成状況」（総達成数＋回数カード）は重複として外した。
+  // 総達成数は活動タイムラインの件数で、達成件数と数字が食い違って見えていた
+  const achievedMissions = await getUserAchievedMissions(
+    id,
+    currentSeasonId ?? undefined,
+  );
 
   return (
-    <div className="flex flex-col items-stretch w-full max-w-xl gap-4">
+    // ヒーローも含めて全セクションを同じ幅に揃える（左右の余白はこのコンテナだけで取る）
+    <div className="flex flex-col items-stretch w-full max-w-xl gap-4 px-4">
       {/* ユーザー情報表示（ホームと同じ浜通りの風景を背景に敷く） */}
       <section className="relative overflow-hidden rounded-2xl">
         <HeroBackdrop overlayClassName="bg-white/55" />
@@ -67,50 +65,39 @@ export default async function UserDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <div className="px-4">
-        {/* ソーシャルメディアリンク表示 */}
-        <SocialBadgeSection
-          x_username={user.x_username}
-          github_username={user.github_username}
-        />
+      {/* ソーシャルメディアリンク表示 */}
+      <SocialBadgeSection
+        x_username={user.x_username}
+        github_username={user.github_username}
+      />
 
-        {/* クエスト達成状況セクション（活動がある場合のみ表示） */}
-        {(count || 0) > 0 && (
-          <Card className="w-full p-4 mt-4">
-            <UserMissionAchievements
-              achievements={missionAchievements}
-              totalCount={count || 0}
-            />
-          </Card>
-        )}
-
-        {/* 達成したクエスト一覧（イベントのチェックインもここに並ぶ） */}
-        {achievedMissions.length > 0 && (
-          <Card className="w-full p-4 mt-4">
-            <div className="mb-3 flex flex-row items-center justify-between">
-              <span className="text-lg font-bold">達成したクエスト</span>
-              <span className="text-sm text-gray-500">
-                {achievedMissions.length} 件
-              </span>
-            </div>
-            <AchievedMissionList missions={achievedMissions} />
-          </Card>
-        )}
-
-        {/* アカウント設定セクション（自分のページを見ているときだけ表示） */}
-        {isOwnPage && (
-          <div className="mt-8 flex flex-col gap-4">
-            <ProfileForm
-              isNew={false}
-              initialProfile={{
-                name: user.name || undefined,
-              }}
-            />
-            <LotteryEntryPanel />
-            <AccountDeletionSection />
+      {/* 達成したクエスト一覧（イベントのチェックインもここに並ぶ） */}
+      {achievedMissions.length > 0 && (
+        <Card className="w-full p-4">
+          <div className="mb-3 flex flex-row items-center justify-between">
+            <h2 className="text-lg font-bold">達成したクエスト</h2>
+            <span className="text-sm text-gray-500">
+              {achievedMissions.length} 件
+            </span>
           </div>
-        )}
-      </div>
+          <AchievedMissionList missions={achievedMissions} />
+        </Card>
+      )}
+
+      {/* アカウント設定セクション（自分のページを見ているときだけ表示） */}
+      {isOwnPage && (
+        <>
+          <ProfileForm
+            isNew={false}
+            compact
+            initialProfile={{
+              name: user.name || undefined,
+            }}
+          />
+          <LotteryEntryPanel />
+          <AccountDeletionSection />
+        </>
+      )}
     </div>
   );
 }

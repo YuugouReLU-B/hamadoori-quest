@@ -54,7 +54,7 @@ export async function LotteryEntryPanel() {
   if (isEligible && !token) return null;
 
   return (
-    <div className="w-full rounded-xl border-2 bg-white p-6">
+    <div className="w-full rounded-lg border border-gray-200 bg-card p-4">
       <p className="text-lg font-bold">{settings.title}</p>
       <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">
         {settings.description}
