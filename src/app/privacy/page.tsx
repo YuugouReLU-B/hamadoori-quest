@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
             1. 個人情報の定義
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            本ポリシーにおける「個人情報」とは、個人情報保護法に基づき、生存する個人に関する情報であって、氏名、メールアドレス、生年月日、郵便番号、SNSアカウントその他の記述等により特定の個人を識別できる情報、ならびに他の情報と照合することで特定個人を識別できる情報を指します。
+            本ポリシーにおける「個人情報」とは、個人情報保護法に基づき、生存する個人に関する情報であって、氏名、ニックネーム、LINEのユーザー識別子その他の記述等により特定の個人を識別できる情報、ならびに他の情報と照合することで特定個人を識別できる情報を指します。
           </p>
         </section>
 
@@ -33,11 +33,9 @@ export default function PrivacyPolicy() {
           </p>
           <ul className="list-disc pl-6 space-y-2 text-sm-custom text-black">
             <li>ニックネーム</li>
-            <li>生年月日</li>
-            <li>郵便番号</li>
-            <li>メールアドレス</li>
-            <li>SNSアカウント</li>
-            <li>ソーシャルログイン情報</li>
+            <li>
+              LINEログインにより取得する情報（LINEの表示名、プロフィール画像、LINEのユーザー識別子）
+            </li>
             <li>
               クエスト成果物（写真・動画のURL、SNS投稿リンク、位置情報等）
             </li>
@@ -73,8 +71,7 @@ export default function PrivacyPolicy() {
             4. Cookie等の利用
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            当団体は、ユーザーの利便性向上および本サービスの運営に必要な範囲でCookie等の技術を使用します。また、Google
-            LLCが提供するGoogleタグマネージャーおよびGoogleアナリティクスを利用し、アクセス状況を解析しています。Googleによる情報の取扱いについてはGoogleプライバシーポリシーをご参照ください。
+            当団体は、ユーザーの利便性向上および本サービスの運営に必要な範囲でCookie等の技術を使用します。
           </p>
           <p className="text-sm-custom font-normal text-black text-justify mt-3">
             あわせて当団体は、本サービスの改善のために、当団体自身のサーバー上でサービス内の利用状況を記録しています。
@@ -137,30 +134,7 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2 className="text-lg-custom font-bold text-black mb-4">
-            10. 非公式サービスへの注意
-          </h2>
-          <div className="bg-[--TM-secondary] border border-[--TM-accent-light] rounded-xl p-4">
-            <p className="text-sm-custom font-normal text-black text-justify">
-              当団体は、本サービスの一部のソースコードをOSSとして公開する場合があります。そのため、当団体以外の者による非公式サービスが存在する可能性があります。公式のサービスは、公式ドメイン（
-              <a
-                href={OPERATOR.officialUrl}
-                className="text-black hover:text-black underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {OPERATOR.officialUrl}
-              </a>
-              ）でのみ提供されます。
-              <span className="text-red-600 font-medium">
-                非公式サービスにおける情報提供、入力、被害等について、当団体は一切の責任を負いかねます。
-              </span>
-            </p>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4">
-            11. プライバシーポリシーの変更
+            10. プライバシーポリシーの変更
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
             当団体は、本ポリシーを必要に応じて改定します。改定後の内容は本サービス上に掲示することで効力を生じるものとします。
@@ -169,7 +143,7 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2 className="text-lg-custom font-bold text-black mb-4">
-            12. お問い合わせ
+            11. お問い合わせ
           </h2>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <p className="text-sm-custom font-normal text-black text-justify mb-2">
@@ -205,17 +179,17 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2 className="text-lg-custom font-bold text-black mb-4">
-            13. 準拠法および管轄
+            12. 準拠法および管轄
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            本ポリシーは日本法に準拠し、本サービスに関する一切の紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
+            本ポリシーは日本法に準拠し、本サービスに関する一切の紛争については、福島地方裁判所いわき支部を第一審の専属的合意管轄裁判所とします。
           </p>
         </section>
       </div>
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <p className="text-sm text-gray-500 text-center">
-          最終更新日: 2026/09/26
+          最終更新日: 2026/09/27
         </p>
       </div>
     </div>

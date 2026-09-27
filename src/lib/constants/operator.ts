@@ -1,5 +1,3 @@
-import { APP_ORIGIN } from "@/lib/constants/app-origin";
-
 /**
  * 本サービスの運営主体。
  *
@@ -14,6 +12,4 @@ import { APP_ORIGIN } from "@/lib/constants/app-origin";
 export const OPERATOR = {
   name: "一般社団法人HAMADOORI13",
   contactEmail: null,
-  /** 公式ドメイン。非公式サービスと区別するための記載に使う */
-  officialUrl: APP_ORIGIN,
 } as const;
