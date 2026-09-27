@@ -29,12 +29,11 @@ export default function TermsOfService() {
             本サービスの利用は、以下の条件をすべて満たす方に限られます。
           </p>
           <ul className="list-disc pl-6 space-y-2 text-sm-custom text-black mb-3">
-            <li>満18歳以上であること</li>
             <li>本規約に同意し、遵守する意思を有すること</li>
             <li>法令および公序良俗に反しない行動を取ることができること</li>
           </ul>
-          <p className="text-red-600 font-medium">
-            18歳未満の方のご利用はできません。
+          <p className="text-sm-custom font-normal text-black text-justify">
+            未成年の方は、保護者の同意を得たうえでご利用ください。
           </p>
         </section>
 
@@ -44,10 +43,10 @@ export default function TermsOfService() {
           </h2>
           <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
             <p>
-              本サービスを利用するには、当団体所定の方法による登録が必要です。登録情報は正確かつ最新のものでなければなりません。
+              本サービスを利用するには、LINEアカウントによるログインが必要です。登録するニックネーム等の情報は、他人の権利を侵害しないものでなければなりません。
             </p>
             <p>
-              ユーザーは、自己の責任においてアカウントおよびパスワードを管理し、第三者に利用させてはなりません。
+              ユーザーは、自己の責任において本サービスへのログインに用いるLINEアカウントを管理し、本サービスのアカウントを第三者に利用させてはなりません。
             </p>
             <p>
               当団体は、虚偽の登録など不正があると判断した場合、アカウントを停止・削除することができます。
@@ -97,26 +96,11 @@ export default function TermsOfService() {
 
         <section>
           <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            6. 知的財産権とオープンソースの取り扱い
+            6. 知的財産権
           </h2>
           <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
             <p>
               本サービスの名称、ロゴ、デザイン、ランキング情報等に関する権利は、当団体または正当な権利者に帰属します。
-            </p>
-            <p>
-              本サービスの一部はオープンソースソフトウェア（OSS）として公開される場合があります。OSS部分はライセンスに従い利用可能ですが、当団体が公式に提供するサービスは、公式ドメイン（
-              <a
-                href={OPERATOR.officialUrl}
-                className="text-black hover:text-black underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {OPERATOR.officialUrl}
-              </a>
-              ）を通じてのみ提供されます。
-            </p>
-            <p>
-              OSSコードを用いた非公式サービスにより生じた損害について、当団体は一切の責任を負いません。
             </p>
           </div>
         </section>
@@ -167,14 +151,14 @@ export default function TermsOfService() {
             11. 準拠法および管轄裁判所
           </h2>
           <p className="text-sm-custom font-normal text-black text-justify">
-            本規約は日本法に準拠し、本サービスに関して発生する一切の紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
+            本規約は日本法に準拠し、本サービスに関して発生する一切の紛争については、福島地方裁判所いわき支部を第一審の専属的合意管轄裁判所とします。
           </p>
         </section>
       </div>
 
       <div className="mt-12 pt-8 border-t border-gray-200">
         <p className="text-sm text-gray-500 text-center">
-          最終更新日: 2026/09/26
+          最終更新日: 2026/09/27
         </p>
       </div>
     </div>
