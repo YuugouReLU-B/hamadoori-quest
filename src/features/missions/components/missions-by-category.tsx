@@ -4,6 +4,7 @@ import {
 } from "@/features/missions/constants/quest-categories";
 import { getMissionCategoryView } from "@/features/missions/loaders/missions-loaders";
 import { groupMissionsByCategory } from "@/features/missions/utils/group-missions-by-category";
+import { hasEventEnded } from "@/features/missions/utils/mission-period";
 import { getUserMissionAchievements } from "@/features/user-achievements/loaders/achievements-loaders";
 import { HorizontalScrollContainer } from "./horizontal-scroll-container";
 import Mission from "./mission-card";
@@ -54,9 +55,16 @@ export default async function MissionsByCategory({
   const taggedMissions = missions.map((mission) =>
     toTaggedMission(mission, userAchievementCountMap.get(mission.id) ?? 0),
   );
+  // 開催が終わった特設クエストは一覧と地図から落とす。もう参加できないものを
+  // 並べても選べないため。カレンダーは「いつ何があったか」を残したいので
+  // 終了分も含めて渡す（下の calendarMissions）。
+  const activeMissions = taggedMissions.filter(
+    ({ mission }) => !hasEventEnded(mission),
+  );
+
   const questGroups = QUEST_CATEGORIES.map((questCategory) => ({
     questCategory,
-    missions: taggedMissions
+    missions: activeMissions
       .filter(({ mission }) => mission.quest_category === questCategory)
       .sort((a, b) => Number(a.achieved) - Number(b.achieved)),
   })).filter((group) => group.missions.length > 0);
@@ -88,12 +96,13 @@ export default async function MissionsByCategory({
     </div>
   );
 
-  // 地図モード用に、座標を持つミッションだけ抽出する
-  const mapMissions = taggedMissions.filter(
+  // 地図モード用に、座標を持つミッションだけ抽出する（終了分は除く）
+  const mapMissions = activeMissions.filter(
     (m) => m.mission.latitude !== null && m.mission.longitude !== null,
   );
 
-  // カレンダーモード用に、特設クエストのうち開催日を持つミッションを抽出する
+  // カレンダーモード用に、特設クエストのうち開催日を持つミッションを抽出する。
+  // ここだけは終了したイベントも残す。過去に何があったかを振り返れるようにするため。
   const calendarMissions = taggedMissions.filter(
     (m) => m.questType === "特設クエスト" && m.mission.event_date,
   );
