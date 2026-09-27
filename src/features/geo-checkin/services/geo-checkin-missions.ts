@@ -14,6 +14,8 @@ export type GeoCheckinMission = {
   latitude: number | null;
   longitude: number | null;
   radiusMeters: number | null;
+  eventDate: string | null;
+  eventEndDate: string | null;
 };
 
 /**
@@ -29,7 +31,7 @@ export async function getGeoCheckinMission(
   const { data, error } = await adminSupabase
     .from("missions")
     .select(
-      "id, slug, title, points, is_hidden, max_achievement_count, required_artifact_type, latitude, longitude, radius_meters",
+      "id, slug, title, points, is_hidden, max_achievement_count, required_artifact_type, latitude, longitude, radius_meters, event_date, event_end_date",
     )
     .eq("id", missionId)
     .maybeSingle();
@@ -51,5 +53,7 @@ export async function getGeoCheckinMission(
     latitude: data.latitude,
     longitude: data.longitude,
     radiusMeters: data.radius_meters,
+    eventDate: data.event_date,
+    eventEndDate: data.event_end_date,
   };
 }
