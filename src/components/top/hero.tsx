@@ -62,7 +62,7 @@ export default async function Hero({ returnUrl, message }: HeroProps = {}) {
               src="/img/logo.png"
               alt="浜通りクエスト"
               width={1024}
-              height={604}
+              height={608}
               sizes="(min-width: 768px) 440px, 320px"
               className="w-[320px] h-auto md:w-[440px]"
               priority
