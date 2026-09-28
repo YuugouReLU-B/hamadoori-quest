@@ -79,7 +79,7 @@ export async function LotteryEntryPanel() {
               </a>
             </Button>
           )}
-          <p className="text-xs text-gray-500">
+          <p className="text-xs font-bold text-gray-500">
             応募フォームの回答欄にこのトークンを貼り付けてください。
           </p>
         </div>
