@@ -18,7 +18,8 @@ missions:
     is_featured: true
     is_hidden: false
     artifact_label: null
-    ogp_image_url: https://tibsocpjqvxxipszbwui.supabase.co/storage/v1/object/public/ogp//7_add_official_line.png
+    # 派生元（チームみらい）の画像を指していたので外した。null なら既定の /img/ogp-default.png になる
+    ogp_image_url: null
 
   # ── ②プレイヤー訪問（100pt） ──
   # 座標(latitude/longitude/radius_meters)が未設定のため is_hidden: true。
