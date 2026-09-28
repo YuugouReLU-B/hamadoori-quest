@@ -29,7 +29,7 @@ export default async function Navbar() {
             <Image
               src="/img/logo.png"
               alt="浜通りクエスト"
-              width={40}
+              width={68}
               height={40}
             />
             <div className="flex items-center gap-2 text-base font-bold sm:text-lg">
