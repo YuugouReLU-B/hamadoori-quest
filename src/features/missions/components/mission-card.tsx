@@ -62,7 +62,15 @@ export default function Mission({
       data-analytics-content-id={missionKey}
       data-analytics-content-label={mission.title}
     >
-      <Card className="@container/card h-full flex flex-col">
+      <Card
+        className={cn(
+          "@container/card relative h-full flex flex-col",
+          // 押した感じはカード側で出す。リンクに transform をかけると、
+          // 下の ::after の基準ボックスがボタン自身まで縮んでしまい、
+          // カード全面の当たり判定が押した瞬間に消える
+          "transition-transform active:scale-[0.99] motion-reduce:transform-none motion-reduce:transition-none",
+        )}
+      >
         <CardHeader className="relative p-5 pb-4">
           <div className="flex items-center gap-4">
             <MissionIcon
@@ -125,7 +133,11 @@ export default function Mission({
             data-analytics-id="mission-card-detail"
             className={cn(
               buttonVariants({ variant: "default" }),
-              "w-full h-11 text-sm font-medium text-primary-foreground border-none transition-[color,background-color,transform] active:scale-95 motion-reduce:transform-none motion-reduce:transition-none",
+              "w-full h-11 text-sm font-medium text-primary-foreground border-none transition-[color,background-color]",
+              // ::after をカード全面に広げて、どこを押しても詳細へ飛ぶようにする。
+              // リンクを増やすとスクリーンリーダーが同じ行き先を2回読むので、
+              // ボタン自身の当たり判定を広げる形にしている
+              "after:absolute after:inset-0 after:rounded-lg after:content-['']",
               hasReachedMaxAchievements
                 ? "bg-gray-300 hover:bg-gray-300/90 text-gray-700"
                 : userAchievementCount === 0

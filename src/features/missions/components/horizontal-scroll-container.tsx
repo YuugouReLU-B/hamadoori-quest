@@ -5,6 +5,9 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils/utils";
 
+/** これ以上動かしたらドラッグ。以下ならクリックとして通す */
+const DRAG_CLICK_THRESHOLD_PX = 5;
+
 interface HorizontalScrollContainerProps {
   children: React.ReactNode;
   className?: string;
@@ -26,6 +29,9 @@ export function HorizontalScrollContainer({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [initialScrollLeft, setInitialScrollLeft] = useState(0);
+  // カード全面がリンクになったため、掴んで動かしただけで詳細へ飛んでしまう。
+  // 一定距離動いたらそのあとのクリックを1回だけ握りつぶす
+  const draggedRef = useRef(false);
 
   const updateScrollButtons = useCallback(() => {
     if (!scrollRef.current) return;
@@ -91,6 +97,7 @@ export function HorizontalScrollContainer({
       setIsDragging(true);
       setStartX(clientX);
       setInitialScrollLeft(scrollRef.current.scrollLeft);
+      draggedRef.current = false;
     },
     [isDesktop],
   );
@@ -101,6 +108,9 @@ export function HorizontalScrollContainer({
 
       const deltaX = clientX - startX;
       const newScrollLeft = initialScrollLeft - deltaX;
+
+      // 手ぶれ程度は「クリックするつもりだった」とみなす
+      if (Math.abs(deltaX) > DRAG_CLICK_THRESHOLD_PX) draggedRef.current = true;
 
       scrollRef.current.scrollLeft = newScrollLeft;
     },
@@ -138,6 +148,13 @@ export function HorizontalScrollContainer({
     if (!isDesktop) return;
     handleDragEnd();
   }, [handleDragEnd, isDesktop]);
+
+  const handleClickCapture = useCallback((e: React.MouseEvent) => {
+    if (!draggedRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    draggedRef.current = false;
+  }, []);
 
   const button_style = (side: "left" | "right") =>
     cn(
@@ -182,6 +199,7 @@ export function HorizontalScrollContainer({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onClickCapture={handleClickCapture}
       >
         {children}
       </section>

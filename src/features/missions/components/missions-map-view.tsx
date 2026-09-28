@@ -33,6 +33,7 @@ export function MissionsMapView({ missions }: MissionsMapViewProps) {
         latitude: mission.latitude as number,
         longitude: mission.longitude as number,
         achieved,
+        googleMapUrl: mission.google_map_url,
       })),
     [missions],
   );
