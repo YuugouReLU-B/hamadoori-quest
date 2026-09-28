@@ -2,12 +2,12 @@ import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import HeaderAuth from "@/components/common/header-auth";
+import { HeaderLoginMenuItem } from "@/components/common/header-login-link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getUser } from "@/features/user-profile/services/profile";
@@ -81,12 +81,7 @@ export default async function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/" data-analytics-id="nav-line-login">
-                      LINEで登録/ログイン
-                    </Link>
-                  </DropdownMenuItem>
+                  <HeaderLoginMenuItem />
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
