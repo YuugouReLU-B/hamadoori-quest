@@ -7,12 +7,14 @@ import { useState, useTransition } from "react";
 import { trackEvent } from "@/features/analytics/utils/tracker";
 import { geoCheckinAction } from "@/features/geo-checkin/actions/geo-checkin-actions";
 import { QuestClearPanel } from "@/features/mission-detail/components/quest-clear-panel";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 type GeoCheckinButtonProps = {
   missionId: string;
   latitude: number | null;
   longitude: number | null;
+  /** 管理画面で入れたGoogleマップの共有URL。あれば地図リンクに優先して使う */
+  googleMapUrl: string | null;
   /** nullでなければ日時指定のイベント。文言の出し分けに使う */
   eventDate: string | null;
   /** このミッション達成前の合計ポイント。達成演出の「今のポイント」に使う */
@@ -54,6 +56,7 @@ export function GeoCheckinButton({
   missionId,
   latitude,
   longitude,
+  googleMapUrl,
   eventDate,
   currentTotalPoints,
   lotteryProgress,
@@ -65,7 +68,7 @@ export function GeoCheckinButton({
   const [message, setMessage] = useState<string | null>(null);
   const [earnedPoints, setEarnedPoints] = useState(0);
 
-  const hasLocation = latitude !== null && longitude !== null;
+  const mapHref = questMapHref(googleMapUrl, latitude, longitude);
   const isEvent = eventDate !== null;
   const actionLabel = isEvent ? "イベントに来た" : "スポットに来た";
   const isSuccess = state === "success";
@@ -191,9 +194,9 @@ export function GeoCheckinButton({
 
         {message && <output className="text-sm text-red-600">{message}</output>}
 
-        {hasLocation && (
+        {mapHref && (
           <a
-            href={googleMapsSearchUrl(latitude, longitude)}
+            href={mapHref}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-1 inline-flex items-center gap-1 text-sm underline underline-offset-2"

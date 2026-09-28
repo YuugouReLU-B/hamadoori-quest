@@ -9,7 +9,7 @@ import {
 } from "@/features/analytics/utils/map-tracking";
 import { loadGoogleMaps } from "@/features/missions/utils/load-google-maps";
 import type { MapSpot } from "@/features/spot-map/services/spot-map";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -62,7 +62,8 @@ function createInfoWindowContent(spot: MapSpot): HTMLElement {
   root.appendChild(detail);
 
   const maps = document.createElement("a");
-  maps.href = googleMapsSearchUrl(spot.latitude, spot.longitude);
+  maps.href =
+    questMapHref(spot.googleMapUrl, spot.latitude, spot.longitude) ?? "";
   maps.target = "_blank";
   maps.rel = "noopener noreferrer";
   maps.className = "block text-xs underline underline-offset-2";

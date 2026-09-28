@@ -14,6 +14,8 @@ export type MapSpot = {
   longitude: number;
   /** ログイン中のユーザーが達成済みか。未ログインなら常に false */
   achieved: boolean;
+  /** 管理画面で入れたGoogleマップの共有URL。地図リンクに優先して使う */
+  googleMapUrl: string | null;
 };
 
 /**
@@ -27,7 +29,9 @@ export async function getMapSpots(userId: string | null): Promise<MapSpot[]> {
 
   const { data: missions, error } = await supabase
     .from("missions")
-    .select("id, slug, title, points, is_featured, latitude, longitude")
+    .select(
+      "id, slug, title, points, is_featured, latitude, longitude, google_map_url",
+    )
     .eq("required_artifact_type", ARTIFACT_TYPES.QR.key)
     .eq("is_hidden", false)
     .not("latitude", "is", null)
@@ -68,6 +72,7 @@ export async function getMapSpots(userId: string | null): Promise<MapSpot[]> {
         latitude: mission.latitude,
         longitude: mission.longitude,
         achieved: achievedIds.has(mission.id),
+        googleMapUrl: mission.google_map_url,
       },
     ];
   });

@@ -6,7 +6,7 @@ import { getMissionRegionLabel } from "@/features/missions/constants/mission-reg
 import type { Tables } from "@/lib/types/supabase";
 import { dateFormatter } from "@/lib/utils/date-formatters";
 import { formatPoints } from "@/lib/utils/format-points";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 type MissionDetailsProps = {
   mission: Tables<"missions">;
@@ -27,10 +27,11 @@ export function MissionDetails({ mission }: MissionDetailsProps) {
     (tag): tag is string => Boolean(tag),
   );
 
-  // 管理画面で入力されたGoogleマップURLを優先し、なければ座標から検索リンクを組み立てる
-  const mapHref =
-    mission.google_map_url ||
-    (hasLocation ? googleMapsSearchUrl(latitude, longitude) : null);
+  const mapHref = questMapHref(
+    mission.google_map_url,
+    hasLocation ? latitude : null,
+    hasLocation ? longitude : null,
+  );
   const hasPlaceInfo = Boolean(mission.address) || Boolean(mapHref);
 
   return (
