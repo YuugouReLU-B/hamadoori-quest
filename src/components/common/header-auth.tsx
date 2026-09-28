@@ -1,6 +1,7 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { signOutAction } from "@/app/actions";
+import { HeaderLoginLink } from "@/components/common/header-login-link";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -62,16 +63,8 @@ export default async function AuthButton() {
       </DropdownMenuContent>
     </DropdownMenu>
   ) : (
-    <div className="flex gap-2">
-      {/* 登録とログインは同じLINE認証なので入り口を分けない。
-          本体のボタンはトップのヒーローにあり、ここは下層ページからの導線 */}
-      <Button
-        asChild
-        size="sm"
-        className="bg-[var(--app-vendor-line-green)] hover:bg-[var(--app-vendor-line-green-hover)] text-white"
-      >
-        <Link href="/">LINEで登録/ログイン</Link>
-      </Button>
-    </div>
+    // 登録とログインは同じLINE認証なので入り口を分けない。
+    // 本体のボタンはトップのヒーローにあり、ここは下層ページからの導線
+    <HeaderLoginLink />
   );
 }
