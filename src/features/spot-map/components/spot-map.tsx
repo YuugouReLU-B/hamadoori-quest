@@ -23,7 +23,7 @@ import {
 } from "@/features/spot-map/utils/spot-bounds";
 import { useCurrentLocation } from "@/lib/hooks/use-current-location";
 import { formatPoints } from "@/lib/utils/format-points";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 type SpotMapProps = {
   spots: MapSpot[];
@@ -88,7 +88,8 @@ function createPopupContent(spot: MapSpot): HTMLElement {
   root.appendChild(detail);
 
   const maps = document.createElement("a");
-  maps.href = googleMapsSearchUrl(spot.latitude, spot.longitude);
+  maps.href =
+    questMapHref(spot.googleMapUrl, spot.latitude, spot.longitude) ?? "";
   maps.target = "_blank";
   maps.rel = "noopener noreferrer";
   maps.className = "block text-xs underline underline-offset-2";

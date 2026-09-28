@@ -2,7 +2,7 @@ import { Check, MapPin } from "lucide-react";
 import Link from "next/link";
 import type { MapSpot } from "@/features/spot-map/services/spot-map";
 import { formatPoints } from "@/lib/utils/format-points";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 /**
  * 地図の下に出すスポットの一覧。
@@ -35,7 +35,10 @@ export function SpotList({ spots }: { spots: MapSpot[] }) {
           </div>
 
           <a
-            href={googleMapsSearchUrl(spot.latitude, spot.longitude)}
+            href={
+              questMapHref(spot.googleMapUrl, spot.latitude, spot.longitude) ??
+              ""
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-1 text-xs underline underline-offset-2"

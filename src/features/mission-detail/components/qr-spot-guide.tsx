@@ -3,11 +3,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SCAN_PATH } from "@/features/qr-spot/constants/qr-scan";
 import { SPOT_MAP_PATH } from "@/features/spot-map/constants/spot-map-path";
-import { googleMapsSearchUrl } from "@/lib/utils/map-links";
+import { questMapHref } from "@/lib/utils/map-links";
 
 type QrSpotGuideProps = {
   latitude: number | null;
   longitude: number | null;
+  /** 管理画面で入れたGoogleマップの共有URL。あれば地図リンクに優先して使う */
+  googleMapUrl: string | null;
 };
 
 /**
@@ -17,8 +19,12 @@ type QrSpotGuideProps = {
  * 読み取れてしまい、スポットを回ってもらうという目的が成立しなくなる。
  * QRは印刷して現地に掲示するものだけにする。
  */
-export function QrSpotGuide({ latitude, longitude }: QrSpotGuideProps) {
-  const hasLocation = latitude !== null && longitude !== null;
+export function QrSpotGuide({
+  latitude,
+  longitude,
+  googleMapUrl,
+}: QrSpotGuideProps) {
+  const mapHref = questMapHref(googleMapUrl, latitude, longitude);
 
   return (
     <div className="rounded-xl border-2 bg-white p-6">
@@ -39,9 +45,9 @@ export function QrSpotGuide({ latitude, longitude }: QrSpotGuideProps) {
         </p>
 
         <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-          {hasLocation && (
+          {mapHref && (
             <a
-              href={googleMapsSearchUrl(latitude, longitude)}
+              href={mapHref}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm underline underline-offset-2"

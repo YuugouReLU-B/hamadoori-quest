@@ -161,6 +161,7 @@ export function MissionWithSubmissionHistory({
           <QrSpotGuide
             latitude={mission.latitude}
             longitude={mission.longitude}
+            googleMapUrl={mission.google_map_url}
           />
         ))}
 
@@ -177,6 +178,7 @@ export function MissionWithSubmissionHistory({
             missionId={mission.id}
             latitude={mission.latitude}
             longitude={mission.longitude}
+            googleMapUrl={mission.google_map_url}
             eventDate={mission.event_date}
             currentTotalPoints={currentTotalPoints}
             lotteryProgress={lotteryProgress}
