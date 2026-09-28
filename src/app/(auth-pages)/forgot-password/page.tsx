@@ -30,8 +30,8 @@ export default async function ForgotPassword(props: {
         <Image
           src="/img/logo.png"
           alt="浜通りクエスト"
-          width={96}
-          height={96}
+          width={160}
+          height={94}
         />
       </div>
       <h1 className="text-2xl font-medium">パスワードを忘れた方</h1>
