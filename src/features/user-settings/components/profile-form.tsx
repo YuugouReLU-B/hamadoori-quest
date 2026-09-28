@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "@/features/user-settings/actions/profile-actions";
+import { cn } from "@/lib/utils/utils";
 
 interface ProfileFormProps {
   message?: Message;
@@ -24,6 +25,11 @@ interface ProfileFormProps {
   } | null;
   /** 新規登録時、プロフィール保存後に遷移する先 */
   nextUrlAfterSignup?: string;
+  /**
+   * マイページのように他のカード（p-4・見出し text-lg）と並べるときの詰めた表示。
+   * 単独で置く登録画面では既定の余白のままにする
+   */
+  compact?: boolean;
 }
 
 export default function ProfileForm({
@@ -31,6 +37,7 @@ export default function ProfileForm({
   isNew,
   initialProfile,
   nextUrlAfterSignup,
+  compact = false,
 }: ProfileFormProps) {
   const [queryMessage, setQueryMessage] = useState<Message | undefined>(
     message,
@@ -56,8 +63,10 @@ export default function ProfileForm({
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>プロフィール設定</CardTitle>
+      <CardHeader className={cn(compact && "p-4 pb-3")}>
+        <CardTitle className={cn(compact && "text-lg")}>
+          プロフィール設定
+        </CardTitle>
         <CardDescription>
           {isNew ? "ニックネームを登録します。" : "ニックネームを編集します。"}
         </CardDescription>
@@ -73,7 +82,7 @@ export default function ProfileForm({
         {isNew && nextUrlAfterSignup && (
           <input type="hidden" name="nextUrl" value={nextUrlAfterSignup} />
         )}
-        <CardContent className="space-y-4">
+        <CardContent className={cn("space-y-4", compact && "px-4 pb-4")}>
           <div className="space-y-2">
             <Label htmlFor="name">ニックネーム</Label>
             <Input
@@ -102,7 +111,7 @@ export default function ProfileForm({
             <p className="text-center text-sm text-red-600">{state.error}</p>
           )}
         </CardContent>
-        <CardFooter>
+        <CardFooter className={cn(compact && "px-4 pb-4")}>
           <SubmitButton
             className="w-full"
             disabled={isPending || isNavigating}

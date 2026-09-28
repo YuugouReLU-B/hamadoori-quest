@@ -9,7 +9,7 @@ export function AccountDeletionSection() {
 
   return (
     <>
-      <div className="p-6 w-full">
+      <div className="w-full pt-4">
         <Button
           type="button"
           variant="ghost"
