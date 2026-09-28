@@ -1,7 +1,7 @@
 "use client";
 
 import { LocateFixed } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   createMapTracker,
@@ -12,6 +12,13 @@ import type { MapSpot } from "@/features/spot-map/services/spot-map";
 import { questMapHref } from "@/lib/utils/map-links";
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+// 初期表示は浜通り全体が入る位置と倍率に固定する。fitBounds に任せると
+// 東京のクエストまで含めた範囲に合わせてしまい、東北全体まで引いてしまう
+const DEFAULT_CENTER = { lat: 37.45, lng: 140.85 };
+const DEFAULT_ZOOM = 10;
+// 吹き出しの中のリンクを押せるように、ピンから離れてもすぐには閉じない
+const INFO_WINDOW_CLOSE_DELAY_MS = 200;
 
 const TODO_COLOR = "#9ca3af";
 const DONE_COLOR = "#facc15";
@@ -90,6 +97,39 @@ export function MissionsGoogleMap({
   const currentPosMarkerRef = useRef<google.maps.Marker | null>(null);
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  // マーカーの作り直しを選択のたびに起こさないよう、コールバックは ref で読む
+  const onSelectSpotRef = useRef(onSelectSpot);
+  onSelectSpotRef.current = onSelectSpot;
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current === null) return;
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = null;
+  }, []);
+
+  const scheduleInfoWindowClose = useCallback(() => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      infoWindowRef.current?.close();
+      closeTimerRef.current = null;
+    }, INFO_WINDOW_CLOSE_DELAY_MS);
+  }, [clearCloseTimer]);
+
+  const openInfoWindow = useCallback(
+    (spot: MapSpot, marker: google.maps.Marker) => {
+      const map = mapRef.current;
+      if (!map) return;
+      clearCloseTimer();
+      const content = createInfoWindowContent(spot);
+      // 吹き出しへポインタが移った間は閉じない。中のリンクを押せるようにする
+      content.addEventListener("mouseenter", clearCloseTimer);
+      content.addEventListener("mouseleave", scheduleInfoWindowClose);
+      infoWindowRef.current?.setContent(content);
+      infoWindowRef.current?.open({ map, anchor: marker });
+    },
+    [clearCloseTimer, scheduleInfoWindowClose],
+  );
 
   // Google Maps本体の読み込み
   useEffect(() => {
@@ -112,19 +152,15 @@ export function MissionsGoogleMap({
   useEffect(() => {
     if (!ready || !containerRef.current || mapRef.current) return;
 
-    const first = spots[0];
     mapRef.current = new google.maps.Map(containerRef.current, {
-      center: first
-        ? { lat: first.latitude, lng: first.longitude }
-        : { lat: 37.4, lng: 141.0 },
-      zoom: 10,
+      center: DEFAULT_CENTER,
+      zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
     });
     infoWindowRef.current = new google.maps.InfoWindow();
-    // mapRef.currentのガードにより地図の生成は初回のみ実行される
-  }, [ready, spots[0]]);
+  }, [ready]);
 
   // 地図の操作の計測。
   // 上の地図生成effectに同居させないのは、あちらが mapRef.current のガードで
@@ -165,46 +201,60 @@ export function MissionsGoogleMap({
     };
   }, [ready]);
 
-  // マーカーの張り替え
+  // マーカーの張り替え。
+  //
+  // 選択状態はここに入れない。依存に入れるとピンを押すたびにマーカーを
+  // 作り直すことになり、地図が動いて見た目の拡大率が戻ってしまう。
+  // 見た目の更新は下の別effectで setIcon するだけにしてある。
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
     for (const marker of Array.from(markersRef.current.values())) {
+      google.maps.event.clearInstanceListeners(marker);
       marker.setMap(null);
     }
     markersRef.current = new Map();
 
-    const bounds = new google.maps.LatLngBounds();
     for (const spot of spots) {
-      const isSelected = spot.id === selectedSpotId;
       const marker = new google.maps.Marker({
         position: { lat: spot.latitude, lng: spot.longitude },
         map,
         title: spot.title,
-        icon: createMarkerIcon(spot, isSelected),
-        zIndex: isSelected ? 999 : undefined,
+        icon: createMarkerIcon(spot, false),
       });
+
       marker.addListener("click", () => {
         trackerRef.current?.reportMarkerClick({
           id: spot.id,
           title: spot.title,
         });
-        onSelectSpot(spot.id);
-        infoWindowRef.current?.setContent(createInfoWindowContent(spot));
-        infoWindowRef.current?.open({ map, anchor: marker });
+        onSelectSpotRef.current(spot.id);
+        openInfoWindow(spot, marker);
       });
+      // ホバーでも中身を見せる。タップ端末にホバーは無いので click も残す
+      marker.addListener("mouseover", () => openInfoWindow(spot, marker));
+      marker.addListener("mouseout", scheduleInfoWindowClose);
+
       markersRef.current.set(spot.id, marker);
-      bounds.extend(marker.getPosition() as google.maps.LatLng);
     }
 
-    if (spots.length > 1) {
-      map.fitBounds(bounds, 48);
-    } else if (spots.length === 1) {
-      map.setCenter(bounds.getCenter());
-      map.setZoom(15);
+    return () => {
+      clearCloseTimer();
+    };
+  }, [spots, ready, openInfoWindow, scheduleInfoWindowClose, clearCloseTimer]);
+
+  // 選択されたピンだけ見た目を差し替える。地図は動かさない
+  useEffect(() => {
+    if (!ready) return;
+    for (const [id, marker] of Array.from(markersRef.current.entries())) {
+      const spot = spots.find((s) => s.id === id);
+      if (!spot) continue;
+      const isSelected = id === selectedSpotId;
+      marker.setIcon(createMarkerIcon(spot, isSelected));
+      marker.setZIndex(isSelected ? 999 : undefined);
     }
-  }, [spots, ready, selectedSpotId, onSelectSpot]);
+  }, [selectedSpotId, ready, spots]);
 
   // 現在地マーカー
   useEffect(() => {
