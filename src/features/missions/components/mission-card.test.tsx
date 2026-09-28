@@ -262,22 +262,77 @@ describe("Mission", () => {
     expect(missionIcon?.getAttribute("src")).toContain("mission_fallback.svg");
   });
 
-  it("tag1が設定されている場合は地域チップが表示される", () => {
+  it("regionから地域チップを作る。tag1は地域チップにしない", () => {
+    const missionWithRegion = {
+      ...mockMission,
+      region: "IWAKI" as const,
+      tag1: "サイクリング",
+    };
+
+    render(<Mission mission={missionWithRegion} userAchievementCount={0} />);
+
+    // 地域チップはピン付き。tag1はピンの無い別のチップとして並ぶ
+    expect(screen.getByTestId("map-pin-icon").parentElement).toBe(
+      screen.getByText("いわき市").parentElement,
+    );
+    expect(screen.getByText("サイクリング").parentElement).not.toContainElement(
+      screen.getByTestId("map-pin-icon"),
+    );
+    expect(screen.getByTestId("mission-card-tags").children).toHaveLength(2);
+  });
+
+  it("regionが無くてもtag1はチップとして出る（地域チップは出ない）", () => {
     const missionWithTag = { ...mockMission, tag1: "いわき市" };
 
     render(<Mission mission={missionWithTag} userAchievementCount={0} />);
 
     expect(screen.getByText("いわき市")).toBeInTheDocument();
-    expect(screen.getByTestId("map-pin-icon")).toBeInTheDocument();
-    const tagBadge = screen.getByText("いわき市").parentElement;
-    expect(tagBadge).toHaveClass("rounded-full", "border");
-    expect(tagBadge?.parentElement?.children).toHaveLength(1);
+    expect(screen.queryByTestId("map-pin-icon")).not.toBeInTheDocument();
+    expect(screen.getByTestId("mission-card-tags").children).toHaveLength(1);
   });
 
-  it("両方のタグ・カテゴリのアイコン・報酬と状態・詳細リンクが共存する", () => {
+  it("tag1〜tag3をすべて出す", () => {
     const missionWithTags = {
       ...mockMission,
-      tag1: "いわき市",
+      region: "IWAKI" as const,
+      tag1: "グルメ",
+      tag2: "地域交流",
+      tag3: "親子向け",
+    };
+
+    render(<Mission mission={missionWithTags} userAchievementCount={0} />);
+
+    for (const label of ["グルメ", "地域交流", "親子向け"]) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+    // 地域チップ + タグ3つ
+    expect(screen.getByTestId("mission-card-tags").children).toHaveLength(4);
+  });
+
+  it("溢れたら折り返さず横スクロールする", () => {
+    const missionWithTags = {
+      ...mockMission,
+      region: "IWAKI" as const,
+      tag1: "グルメ",
+      tag2: "地域交流",
+      tag3: "親子向け",
+    };
+
+    render(<Mission mission={missionWithTags} userAchievementCount={0} />);
+
+    const row = screen.getByTestId("mission-card-tags");
+    expect(row).toHaveClass("flex-nowrap", "overflow-x-auto");
+    // チップ自体は縮まない
+    for (const chip of Array.from(row.children)) {
+      expect(chip).toHaveClass("shrink-0");
+    }
+  });
+
+  it("タグ・カテゴリのアイコン・報酬と状態・詳細リンクが共存する", () => {
+    const missionWithTags = {
+      ...mockMission,
+      region: "IWAKI" as const,
+      tag1: "サイクリング",
       tag2: "地域交流",
       event_category: "FOOD" as const,
       icon_url: null,
@@ -295,12 +350,14 @@ describe("Mission", () => {
     expect(link).not.toContainElement(screen.getByText("50pt"));
     expect(link).not.toContainElement(screen.getByText("クリア済み"));
 
-    const tag1Badge = screen.getByText("いわき市").parentElement;
+    const tag1Badge = screen.getByText("サイクリング").parentElement;
     const tag2Badge = screen.getByText("地域交流").parentElement;
     expect(tag1Badge).toHaveClass("rounded-full", "border");
     expect(tag2Badge).toHaveClass("rounded-full", "border");
     expect(tag1Badge?.parentElement).toBe(tag2Badge?.parentElement);
-    expect(screen.getByTestId("map-pin-icon").parentElement).toBe(tag1Badge);
+    expect(screen.getByTestId("map-pin-icon").parentElement).not.toBe(
+      tag1Badge,
+    );
   });
 
   it("tag1がnullでもtag2のチップは表示される", () => {
@@ -315,7 +372,7 @@ describe("Mission", () => {
     expect(tagBadge?.parentElement?.children).toHaveLength(1);
   });
 
-  it("tag1とtag2が両方nullの場合はチップ群が表示されない", () => {
+  it("regionもtagも無い場合はチップ群が表示されない", () => {
     render(<Mission mission={mockMission} userAchievementCount={0} />);
 
     expect(screen.queryByTestId("map-pin-icon")).not.toBeInTheDocument();
