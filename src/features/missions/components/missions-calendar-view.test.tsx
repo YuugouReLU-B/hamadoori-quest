@@ -4,7 +4,11 @@ import type { TaggedMission } from "./missions-tags";
 
 jest.unmock("lucide-react");
 
-function event(id: string, date: string | null): TaggedMission {
+function event(
+  id: string,
+  date: string | null,
+  endDate: string | null = null,
+): TaggedMission {
   return {
     mission: {
       id,
@@ -12,7 +16,7 @@ function event(id: string, date: string | null): TaggedMission {
       title: id,
       content: "イベントの詳細",
       event_date: date,
-      event_end_date: null,
+      event_end_date: endDate,
       event_type: null,
       quest_category: "SPECIAL_HAMADORI",
       event_category: null,
@@ -166,9 +170,6 @@ describe("MissionsCalendarView", () => {
     expect(
       screen.queryByRole("heading", { name: /9月20日/ }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByText("今日から近い順に並んでいます"),
-    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "前の月" }));
     expect(screen.getByText("2026年9月")).toBeInTheDocument();
     expect(screen.queryByText("今月の開催なし")).not.toBeInTheDocument();
@@ -187,6 +188,94 @@ describe("MissionsCalendarView", () => {
     expect(screen.getAllByRole("article")).toHaveLength(2);
     expect(screen.getAllByRole("article")[0]).toHaveTextContent("近い開催");
     expect(screen.queryByText("日付なし")).not.toBeInTheDocument();
+  });
+
+  it("複数日にまたがるイベントを開始日から終了日までの全マスに出す", () => {
+    render(
+      <MissionsCalendarView
+        missions={[event("連続開催", "2026-09-19", "2026-09-21")]}
+      />,
+    );
+    for (const day of [19, 20, 21]) {
+      expect(
+        screen.getByRole("button", {
+          name: `2026年9月${day}日（${["土", "日", "月"][day - 19]}）、1件の開催`,
+        }),
+      ).toBeEnabled();
+    }
+    expect(
+      screen.getByRole("button", { name: "2026年9月22日（火）、0件の開催" }),
+    ).toBeDisabled();
+  });
+
+  it("期間の中日を選んでも「その他の日程」に重複させない", () => {
+    render(
+      <MissionsCalendarView
+        missions={[
+          event("連続開催", "2026-09-19", "2026-09-21"),
+          event("単発", "2026-09-25"),
+        ]}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "2026年9月20日（日）、1件の開催" }),
+    );
+
+    const selected = screen.getByRole("region", {
+      name: "2026年9月20日（日）の開催 1件",
+    });
+    expect(within(selected).getByText("連続開催")).toBeInTheDocument();
+    const others = screen.getByRole("region", { name: "その他の日程 1件" });
+    expect(within(others).getByText("単発")).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(2);
+  });
+
+  it("開催中の長期イベントを今日に最も近いものとして先に並べる", () => {
+    render(
+      <MissionsCalendarView
+        missions={[
+          event("明日だけ", "2026-09-15"),
+          event("開催中", "2026-09-01", "2026-09-30"),
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole("article")[0]).toHaveTextContent("開催中");
+  });
+
+  it("終了日が開始日より前の不正データは開始日だけ表示する", () => {
+    render(
+      <MissionsCalendarView
+        missions={[event("逆転", "2026-09-20", "2026-09-18")]}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "2026年9月20日（日）、1件の開催" }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: "2026年9月18日（金）、0件の開催" }),
+    ).toBeDisabled();
+  });
+
+  it("同じ日をもう一度押すと選択を解除する", () => {
+    render(<MissionsCalendarView missions={[event("開催", "2026-09-20")]} />);
+    const day = screen.getByRole("button", {
+      name: "2026年9月20日（日）、1件の開催",
+    });
+    fireEvent.click(day);
+    expect(day).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(day);
+    expect(day).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("カレンダーの外を押すと選択を解除する", () => {
+    render(<MissionsCalendarView missions={[event("開催", "2026-09-20")]} />);
+    const day = screen.getByRole("button", {
+      name: "2026年9月20日（日）、1件の開催",
+    });
+    fireEvent.click(day);
+    expect(day).toHaveAttribute("aria-pressed", "true");
+    fireEvent.pointerDown(document.body);
+    expect(day).toHaveAttribute("aria-pressed", "false");
   });
 
   it.each([

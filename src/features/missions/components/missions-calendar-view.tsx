@@ -8,13 +8,14 @@ import {
   format,
   isSameDay,
   isSameMonth,
+  startOfDay,
   startOfMonth,
   startOfWeek,
   subMonths,
 } from "date-fns";
 import { ja } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/features/analytics/utils/tracker";
 import type { TaggedMission } from "@/features/missions/components/missions-tags";
@@ -32,6 +33,27 @@ function toDateOnly(dateStr: string): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
+type EventDates = {
+  event_date: string | null;
+  event_end_date: string | null;
+};
+
+/**
+ * 開催期間を日付だけに正規化する。終了日が開始日より前という不正データが
+ * 入り得るので、そのときは開始日だけの1日扱いにする
+ */
+function eventRange(mission: EventDates): { start: Date; end: Date } | null {
+  if (!mission.event_date) return null;
+  const start = toDateOnly(mission.event_date);
+  const end = toDateOnly(mission.event_end_date ?? mission.event_date);
+  return { start, end: end < start ? start : end };
+}
+
+function coversDate(mission: EventDates, date: Date): boolean {
+  const range = eventRange(mission);
+  return range !== null && date >= range.start && date <= range.end;
+}
+
 function daysBetween(a: Date, b: Date): number {
   const msPerDay = 1000 * 60 * 60 * 24;
   return Math.abs(
@@ -43,6 +65,14 @@ function daysBetween(a: Date, b: Date): number {
   );
 }
 
+/** 期間中なら0、期間外なら近い端までの日数。開催中の長期イベントを下に沈めない */
+function daysToEvent(mission: EventDates, date: Date): number {
+  const range = eventRange(mission);
+  if (!range) return Number.MAX_SAFE_INTEGER;
+  if (date >= range.start && date <= range.end) return 0;
+  return Math.min(daysBetween(range.start, date), daysBetween(range.end, date));
+}
+
 /**
  * ミッション一覧のカレンダーモード（特設クエスト向け）。
  *
@@ -50,9 +80,22 @@ function daysBetween(a: Date, b: Date): number {
  * 今日から「近い順」に並べる。開催日を持たないミッションは対象外。
  */
 export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
-  const today = useMemo(() => new Date(), []);
+  // 開催期間の内外判定に使うので時刻を落としておく
+  const today = useMemo(() => startOfDay(new Date()), []);
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(today));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // カレンダーの外を触ったら選択を解除する。月送りはカード内なので影響しない
+  useEffect(() => {
+    if (!selectedDate) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (calendarRef.current?.contains(e.target as Node)) return;
+      setSelectedDate(null);
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [selectedDate]);
 
   const datedMissions = useMemo(
     () => missions.filter((entry) => entry.mission.event_date),
@@ -62,11 +105,15 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
   const missionsByDay = useMemo(() => {
     const map = new Map<string, TaggedMission[]>();
     for (const entry of datedMissions) {
-      if (!entry.mission.event_date) continue;
-      const key = toDateOnly(entry.mission.event_date).toDateString();
-      const list = map.get(key) ?? [];
-      list.push(entry);
-      map.set(key, list);
+      const range = eventRange(entry.mission);
+      if (!range) continue;
+      // 複数日にまたがるイベントは開始日から終了日までの全マスに立てる
+      for (const day of eachDayOfInterval(range)) {
+        const key = day.toDateString();
+        const list = map.get(key) ?? [];
+        list.push(entry);
+        map.set(key, list);
+      }
     }
     return map;
   }, [datedMissions]);
@@ -114,25 +161,18 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
   const referenceDate = selectedDate ?? today;
 
   const sortedMissions = useMemo(() => {
-    return [...datedMissions].sort((a, b) => {
-      if (!a.mission.event_date) return 1;
-      if (!b.mission.event_date) return -1;
-      return (
-        daysBetween(toDateOnly(a.mission.event_date), referenceDate) -
-        daysBetween(toDateOnly(b.mission.event_date), referenceDate)
-      );
-    });
+    return [...datedMissions].sort(
+      (a, b) =>
+        daysToEvent(a.mission, referenceDate) -
+        daysToEvent(b.mission, referenceDate),
+    );
   }, [datedMissions, referenceDate]);
 
   const selectedMissions = selectedDate
     ? (missionsByDay.get(selectedDate.toDateString()) ?? [])
     : [];
   const otherMissions = selectedDate
-    ? sortedMissions.filter(
-        (entry) =>
-          entry.mission.event_date &&
-          !isSameDay(toDateOnly(entry.mission.event_date), selectedDate),
-      )
+    ? sortedMissions.filter((entry) => !coversDate(entry.mission, selectedDate))
     : sortedMissions;
   const selectedHeading = selectedDate
     ? `${format(selectedDate, "yyyy年M月d日（E）", { locale: ja })}の開催 ${selectedMissions.length}件`
@@ -162,7 +202,10 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="mx-auto max-w-2xl rounded-xl border border-gray-300 overflow-hidden">
+      <div
+        ref={calendarRef}
+        className="mx-auto max-w-2xl rounded-xl border border-gray-300 overflow-hidden"
+      >
         <div className="flex items-center justify-between px-4 py-3">
           <p className="text-lg font-bold" aria-live="polite">
             {format(visibleMonth, "yyyy年M月", { locale: ja })}
@@ -254,7 +297,11 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
                     key={day.toISOString()}
                     type="button"
                     disabled={!inMonth || dayMissions.length === 0}
-                    onClick={() => setSelectedDate(day)}
+                    onClick={() =>
+                      setSelectedDate((prev) =>
+                        prev && isSameDay(prev, day) ? null : day,
+                      )
+                    }
                     aria-label={`${format(day, "yyyy年M月d日（E）", { locale: ja })}、${dayMissions.length}件の開催`}
                     aria-pressed={isSelected}
                     className={cn(
@@ -305,15 +352,6 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
           ))}
         </div>
       </div>
-
-      <p className="text-center text-sm text-gray-600">
-        {selectedDate
-          ? "選択日の開催を先に、その他の日程は選択日から近い順に表示しています"
-          : "今日から近い順に並んでいます"}
-        <span className="mt-1 block">
-          日付を選ぶと、その日の開催を下の一覧で確認できます
-        </span>
-      </p>
 
       {selectedDate ? (
         <>
