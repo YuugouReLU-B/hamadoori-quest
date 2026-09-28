@@ -34,8 +34,12 @@ export default function Mission({
   const iconUrl =
     mission.icon_url || getEventCategoryIcon(mission.event_category);
 
-  // regionが未設定の既存ミッションはtag1を地域チップとして流用する
-  const regionLabel = getMissionRegionLabel(mission.region) ?? mission.tag1;
+  // 地域チップはregionだけから作る。tag1を流用していたのは、詳細ページと違って
+  // カードがtag2しか出していなかった頃の名残。いまはtag1〜3をすべて出す
+  const regionLabel = getMissionRegionLabel(mission.region);
+  const tags = [mission.tag1, mission.tag2, mission.tag3].filter(
+    (tag): tag is string => Boolean(tag),
+  );
 
   // 遷移操作とは分けて表示する報酬
   const pointsLabel =
@@ -91,7 +95,7 @@ export default function Mission({
         </CardHeader>
 
         <CardFooter className="mt-auto flex flex-col items-stretch gap-3 p-5 pt-0">
-          {(regionLabel || mission.tag2) && (
+          {(regionLabel || tags.length > 0) && (
             // タグは折り返さず横スクロールさせる。overscroll-x-contain でホイール/タッチの
             // スクロール連鎖を止め、mousedown をキャプチャ段階で止めることで
             // HorizontalScrollContainer 側のドラッグスクロールが始まらないようにしている
@@ -106,13 +110,17 @@ export default function Mission({
                   <span className="text-sm text-gray-700">{regionLabel}</span>
                 </Badge>
               )}
-              {mission.tag2 && (
-                <Badge variant="outline" className="shrink-0 text-xs px-2">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  className="shrink-0 text-xs px-2"
+                >
                   <span className="text-sm font-medium text-gray-700">
-                    {mission.tag2}
+                    {tag}
                   </span>
                 </Badge>
-              )}
+              ))}
             </div>
           )}
           <div className="flex flex-wrap items-center justify-between gap-2">
