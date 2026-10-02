@@ -9,7 +9,6 @@ import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AnalyticsTrackerWrapper } from "@/features/analytics/components/analytics-tracker-wrapper";
 import { CampaignCodeHandlerWrapper } from "@/features/campaign-attribution/components/campaign-code-handler-wrapper";
-import { DevColorOverridesScript } from "@/features/dev-tools/components/dev-color-overrides-script";
 import { ReferralCodeHandlerWrapper } from "@/features/referral/components/referral-code-handler-wrapper";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -34,7 +33,6 @@ export default function RootLayout({
   return (
     <html lang="ja" className={notoSansJP.variable} suppressHydrationWarning>
       <body className="bg-background text-foreground">
-        <DevColorOverridesScript />
         {GTM_ID && (
           <>
             <noscript>
