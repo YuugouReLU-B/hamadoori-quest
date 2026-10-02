@@ -19,76 +19,12 @@ import { deleteCookie, getCookie } from "@/lib/utils/server-cookies";
 import { calculateAge, encodedRedirect } from "@/lib/utils/utils";
 import {
   forgotPasswordFormSchema,
-  signInAndLoginFormSchema,
   signUpAndLoginFormSchema,
 } from "@/lib/validation/auth";
 import {
   isEmailAlreadyUsedInReferral,
   isValidReferralCode,
 } from "@/lib/validation/referral";
-import { validateReturnUrl } from "@/lib/validation/url";
-
-// useActionState用のサインインアクション
-export const signInActionWithState = async (
-  _prevState: {
-    error?: string;
-    success?: string;
-    message?: string;
-    formData?: {
-      email: string;
-    };
-  } | null,
-  formData: FormData,
-) => {
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
-  const returnUrl = formData.get("returnUrl")?.toString();
-
-  // フォームデータを保存（エラー時の状態復元用、メールアドレスのみ）
-  const currentFormData = {
-    email: email || "",
-  };
-
-  const validatedFields = signInAndLoginFormSchema.safeParse({
-    email,
-    password,
-  });
-  if (!validatedFields.success) {
-    return {
-      error: "login-error",
-      formData: currentFormData,
-    };
-  }
-
-  if (!email || !password) {
-    return {
-      error: "login-error",
-      formData: currentFormData,
-    };
-  }
-
-  const supabase = createClient();
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    return {
-      error: "login-error",
-      formData: currentFormData,
-    };
-  }
-
-  // Validate returnUrl before redirecting
-  const validatedReturnUrl = validateReturnUrl(returnUrl);
-
-  return {
-    success: "ログインに成功しました",
-    redirectUrl: validatedReturnUrl || "/",
-  };
-};
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
