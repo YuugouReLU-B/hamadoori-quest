@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CopyTokenButton } from "@/features/lottery/components/copy-token-button";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
-import { generateLotteryToken } from "@/features/lottery/services/lottery-token";
+import { getOrIssueLotteryToken } from "@/features/lottery/services/lottery-token-store";
 import {
   getLotteryState,
   isBeforeOpenDate,
@@ -49,8 +49,8 @@ export async function LotteryEntryPanel() {
         day: "numeric",
       })
     : null;
-  // シークレット未設定の環境では発行できないので、パネルごと出さない
-  const token = isEligible ? generateLotteryToken(user.id) : null;
+  // シークレット未設定などで発行・記録できないときは、パネルごと出さない
+  const token = isEligible ? await getOrIssueLotteryToken(user.id) : null;
   if (isEligible && !token) return null;
 
   return (

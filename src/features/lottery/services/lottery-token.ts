@@ -3,12 +3,13 @@ import "server-only";
 import { createHmac } from "node:crypto";
 
 /** 表示用に十分短く、かつ総当たりが非現実的な長さ */
-const TOKEN_DISPLAY_LENGTH = 10;
+export const LOTTERY_TOKEN_LENGTH = 10;
 
 /**
- * ユーザーごとに一意で再現可能な応募トークンを生成する。
+ * userId から再現可能な応募トークンを導出する。
  *
- * DBには保存しない。userId から HMAC で毎回同じ値を導出するだけなので、
+ * 初回発行時の値として使う。発行済みのトークンは lottery_tokens の行が正なので、
+ * 表示には getOrIssueLotteryToken（lottery-token-store.ts）を使うこと。
  * 「自分のトークンを他人に渡す動機がない」前提で流出耐性を確保している
  * （他人になりすましてもそのユーザーの応募にしかならない）。
  *
@@ -25,6 +26,6 @@ export function generateLotteryToken(userId: string): string | null {
   return createHmac("sha256", secret)
     .update(userId)
     .digest("hex")
-    .slice(0, TOKEN_DISPLAY_LENGTH)
+    .slice(0, LOTTERY_TOKEN_LENGTH)
     .toUpperCase();
 }
