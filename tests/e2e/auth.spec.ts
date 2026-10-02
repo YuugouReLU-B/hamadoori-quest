@@ -62,7 +62,7 @@ test.describe("認証フロー (トップページに一本化)", () => {
   test("トップにメールアドレス+パスワードのログインは出さない", async ({
     page,
   }) => {
-    // メール+パスワードのログインは /dev/login に分離済み
+    // 一般ユーザー向けの導線はLINEログインのみ
     await expect(
       page.getByText("メールアドレス", { exact: true }),
     ).toBeHidden();
@@ -73,23 +73,6 @@ test.describe("認証フロー (トップページに一本化)", () => {
     await expect(
       page.getByRole("link", { name: "パスワードを忘れた方" }),
     ).toBeHidden();
-  });
-
-  test("開発用ログインページでメールアドレスログインができる", async ({
-    page,
-  }) => {
-    await page.goto("/dev/login");
-
-    await expect(
-      page.getByRole("heading", { name: "開発用ログイン" }),
-    ).toBeVisible();
-
-    // 不正な認証情報でエラーメッセージが表示されることを確認
-    await page.fill('input[name="email"]', "nonexistent@example.com");
-    await page.fill('input[name="password"]', "wrongpassword");
-    await page.getByRole("button", { name: "ログイン", exact: true }).click();
-
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 5000 });
   });
 
   test("LINEボタンから正しいauthorize URLへ遷移する", async ({ page }) => {

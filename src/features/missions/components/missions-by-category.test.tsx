@@ -77,7 +77,7 @@ describe("MissionsByCategory", () => {
   it("指定順に分類し重複を除き、達成済みを後ろに並べる", async () => {
     jest.mocked(getMissionCategoryView).mockResolvedValue([
       row("s", "SNS"),
-      row("t", "SPECIAL_TOKYO", { event_date: "2026-10-01" }),
+      row("t", "SPECIAL_TOKYO", { event_date: "2099-10-01" }),
       row("h", "SPECIAL_HAMADORI", { latitude: 37, longitude: 140 }),
       row("p", "PERMANENT"),
       row("p2", "PERMANENT"),
