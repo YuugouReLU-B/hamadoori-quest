@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
-import { generateLotteryToken } from "@/features/lottery/services/lottery-token";
+import { getOrIssueLotteryToken } from "@/features/lottery/services/lottery-token-store";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { LotteryEntryPanel } from "./lottery-entry-panel";
 
 jest.mock("@/features/lottery/services/lottery-settings");
-jest.mock("@/features/lottery/services/lottery-token");
+jest.mock("@/features/lottery/services/lottery-token-store");
 jest.mock("@/features/user-level/services/level", () => ({
   getMyUserLevel: jest.fn(),
 }));
@@ -34,7 +34,7 @@ beforeEach(() => {
     season_id: "season-id",
     updated_at: "2026-09-01T00:00:00Z",
   });
-  jest.mocked(generateLotteryToken).mockReturnValue("TEST-TOKEN");
+  jest.mocked(getOrIssueLotteryToken).mockResolvedValue("TEST-TOKEN");
 });
 
 afterEach(() => jest.useRealTimers());
@@ -58,7 +58,7 @@ it("開始直前はポイント達成済みでもトークンを表示しない"
   ).toBeInTheDocument();
   expect(screen.queryByText(/Pで応募できます/)).not.toBeInTheDocument();
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
-  expect(generateLotteryToken).not.toHaveBeenCalled();
+  expect(getOrIssueLotteryToken).not.toHaveBeenCalled();
 });
 
 it.each([
@@ -86,7 +86,7 @@ it.each([
   });
   render(await LotteryEntryPanel());
   expect(screen.getByText(/500pt/)).toBeInTheDocument();
-  expect(generateLotteryToken).not.toHaveBeenCalled();
+  expect(getOrIssueLotteryToken).not.toHaveBeenCalled();
   if (startDate === "2026-09-14") {
     expect(screen.getByText(/まだ応募できません/)).toBeInTheDocument();
     expect(screen.queryByText(/Pで応募できます/)).not.toBeInTheDocument();

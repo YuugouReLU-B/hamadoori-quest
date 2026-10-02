@@ -329,6 +329,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      lottery_tokens: {
+        Row: {
+          id: string;
+          issued_at: string;
+          token: string;
+          user_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          issued_at?: string;
+          token: string;
+          user_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          issued_at?: string;
+          token?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       mission_artifacts: {
         Row: {
           achievement_id: string;
