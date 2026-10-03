@@ -244,6 +244,16 @@ export async function achieveMission(
     };
   }
 
+  // 呼び出し側が名乗る種別と、DB上のクエストの種別が一致しなければ達成させない。
+  // 専用の経路（QR読み取り・位置判定・LINE友だち確認）はそれぞれ正しい種別で
+  // 呼ぶので、ここで弾かれるのは種別を偽った呼び出しだけになる
+  if (missionData.required_artifact_type !== artifactType) {
+    return {
+      success: false,
+      error: "クエストの種別が一致しません。",
+    };
+  }
+
   // Check max_achievement_count
   if (missionData?.max_achievement_count !== null) {
     const { data: userAchievements, error: userAchievementError } =

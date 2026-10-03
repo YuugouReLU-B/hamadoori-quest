@@ -180,3 +180,109 @@ describe("achieveMissionAction — RESIDENTIAL_POSTER バリデーション", ()
     }
   });
 });
+
+describe("achieveMissionAction — 種別はDB上のクエストの種別で判定する", () => {
+  const { achieveMission } = jest.requireMock("../use-cases/achieve-mission");
+  const { createClient } = jest.requireMock("@/lib/supabase/client");
+  const { createAdminClient } = jest.requireMock("@/lib/supabase/adminClient");
+
+  function mockLoggedInWithMission(requiredArtifactType: string | null) {
+    createClient.mockReturnValue({
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { id: "user-1" } },
+          error: null,
+        }),
+      },
+    });
+    const query: Record<string, jest.Mock> = {};
+    Object.assign(query, {
+      select: jest.fn(() => query),
+      eq: jest.fn(() => query),
+      maybeSingle: jest.fn().mockResolvedValue({
+        data:
+          requiredArtifactType === null
+            ? null
+            : { required_artifact_type: requiredArtifactType },
+        error: null,
+      }),
+    });
+    createAdminClient.mockResolvedValue({ from: jest.fn(() => query) });
+  }
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it.each([
+    ["QR", "このクエストは現地のQRコードを読み取ると達成になります"],
+    [
+      "GEO_CHECKIN",
+      "このクエストは現地で「イベントに来た」ボタンを押すと達成になります",
+    ],
+    ["LINE_FRIEND", "このクエストは公式LINEを友だち追加すると達成になります"],
+    ["REFERRAL", "このクエストは紹介した友だちが登録すると達成になります"],
+  ])("DB上の種別が %s なら、NONEと偽って送っても達成させない", async (realType, message) => {
+    mockLoggedInWithMission(realType);
+
+    const result = await achieveMissionAction(
+      buildFormData({
+        missionId: "mission-1",
+        requiredArtifactType: ARTIFACT_TYPES.NONE.key,
+      }),
+    );
+
+    expect(result).toEqual({ success: false, error: message });
+    expect(achieveMission).not.toHaveBeenCalled();
+  });
+
+  it("送られてきた種別がDB上の種別と違えば達成させない", async () => {
+    mockLoggedInWithMission(ARTIFACT_TYPES.IMAGE.key);
+
+    const result = await achieveMissionAction(
+      buildFormData({
+        missionId: "mission-1",
+        requiredArtifactType: ARTIFACT_TYPES.NONE.key,
+      }),
+    );
+
+    expect(result.success).toBe(false);
+    expect(achieveMission).not.toHaveBeenCalled();
+  });
+
+  it("クエストが見つからなければ達成させない", async () => {
+    mockLoggedInWithMission(null);
+
+    const result = await achieveMissionAction(
+      buildFormData({
+        missionId: "missing",
+        requiredArtifactType: ARTIFACT_TYPES.NONE.key,
+      }),
+    );
+
+    expect(result.success).toBe(false);
+    expect(achieveMission).not.toHaveBeenCalled();
+  });
+
+  it("種別が一致すればユースケースに渡す", async () => {
+    mockLoggedInWithMission(ARTIFACT_TYPES.NONE.key);
+    achieveMission.mockResolvedValue({ success: false, error: "stop" });
+
+    await achieveMissionAction(
+      buildFormData({
+        missionId: "mission-1",
+        requiredArtifactType: ARTIFACT_TYPES.NONE.key,
+      }),
+    );
+
+    expect(achieveMission).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({
+        userId: "user-1",
+        missionId: "mission-1",
+        artifactType: ARTIFACT_TYPES.NONE.key,
+      }),
+    );
+  });
+});
