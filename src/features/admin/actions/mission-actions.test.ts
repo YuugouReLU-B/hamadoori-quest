@@ -17,14 +17,29 @@ jest.mock("@/features/qr-spot/services/qr-code", () => ({
 const insert = jest.fn().mockResolvedValue({ error: null });
 const eq = jest.fn().mockResolvedValue({ error: null });
 const update = jest.fn((_data: Record<string, unknown>) => ({ eq }));
-const from = jest.fn(() => ({ insert, update }));
+let currentArtifactType = "GEO_CHECKIN";
+const single = jest.fn(() =>
+  Promise.resolve({
+    data: { required_artifact_type: currentArtifactType },
+    error: null,
+  }),
+);
+const select = jest.fn(() => ({ eq: jest.fn(() => ({ single })) }));
+const from = jest.fn(() => ({ insert, update, select }));
 
-function form(quest = "SPECIAL_TOKYO", event = "FOOD") {
+function form(
+  quest = "SPECIAL_TOKYO",
+  event = "FOOD",
+  artifactType = "GEO_CHECKIN",
+) {
   const data = new FormData();
   for (const [key, value] of Object.entries({
     slug: "test-quest",
     title: "テスト",
-    required_artifact_type: "QR",
+    required_artifact_type: artifactType,
+    latitude: "37.4",
+    longitude: "140.9",
+    radius_meters: "300",
     difficulty: "1",
     points: "50",
     quest_category: quest,
@@ -38,6 +53,7 @@ function form(quest = "SPECIAL_TOKYO", event = "FOOD") {
 describe("mission category actions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    currentArtifactType = "GEO_CHECKIN";
     jest
       .mocked(requireAdmin)
       .mockResolvedValue({ id: "admin" } as Awaited<
@@ -79,6 +95,30 @@ describe("mission category actions", () => {
       success: false,
     });
     expect(from).not.toHaveBeenCalled();
+  });
+  it.each([
+    "LINE_FRIEND",
+    "REFERRAL",
+    "QR",
+  ])("新規作成では %s のクエストを作れない", async (artifactType) => {
+    expect(
+      await createMission(form("PERMANENT", "", artifactType)),
+    ).toMatchObject({ success: false });
+    expect(insert).not.toHaveBeenCalled();
+  });
+  it("既存クエストは今の種別（LINE友だち）のまま保存できる", async () => {
+    currentArtifactType = "LINE_FRIEND";
+    expect(
+      await updateMission("m1", form("SNS", "", "LINE_FRIEND")),
+    ).toMatchObject({ success: true });
+    expect(update).toHaveBeenCalled();
+  });
+  it("既存クエストの種別を位置情報チェックイン以外に変えることはできない", async () => {
+    currentArtifactType = "GEO_CHECKIN";
+    expect(
+      await updateMission("m1", form("SNS", "", "LINE_FRIEND")),
+    ).toMatchObject({ success: false });
+    expect(update).not.toHaveBeenCalled();
   });
   it("管理者認可に失敗するとDBに書き込まない", async () => {
     jest.mocked(requireAdmin).mockRejectedValueOnce(new Error("権限なし"));
