@@ -45,6 +45,38 @@ describe("achieveMission ユースケース", () => {
     }
   });
 
+  test.each([
+    "QR",
+    "GEO_CHECKIN",
+    "LINE_FRIEND",
+  ])("%s のクエストは種別を偽って送っても達成できない", async (realType) => {
+    testMission = await createTestMission({
+      requiredArtifactType: realType,
+      difficulty: 1,
+      points: 300,
+    });
+
+    const result = await achieveMission(adminClient, testUserClient, {
+      userId: testUserId,
+      missionId: testMission.id,
+      artifactType: "NONE",
+      artifactData: {
+        missionId: testMission.id,
+        requiredArtifactType: "NONE",
+      } as any,
+    });
+
+    expect(result.success).toBe(false);
+
+    const { data: achievements } = await adminClient
+      .from("achievements")
+      .select("id")
+      .eq("user_id", testUserId)
+      .eq("mission_id", testMission.id);
+    expect(achievements).toHaveLength(0);
+    expect((await getTestUserXp(testUserId))?.xp ?? 0).toBe(0);
+  });
+
   test("NONEタイプでミッション達成できる", async () => {
     testMission = await createTestMission({
       requiredArtifactType: "NONE",

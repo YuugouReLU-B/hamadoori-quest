@@ -261,32 +261,41 @@ const cancelSubmissionFormSchema = z.object({
   missionId: z.string().nonempty({ message: "クエストIDが必要です" }),
 });
 
+/**
+ * 専用の処理でしか達成させない種別と、このアクションに来たときに返す案内。
+ *
+ * - QR: 現地のコードを読み取ったとき（redeemQrSpot）
+ * - GEO_CHECKIN: 位置情報を判定したとき（geoCheckinAction）
+ * - LINE_FRIEND: LINEの友だち状態を確認したとき（verifyLineFriendship）
+ * - REFERRAL / REFERRED: 紹介コードでの登録時（grantReferralReward）
+ *
+ * ここを通してしまうと、ボタンを押すだけで条件を満たさずにポイントを取れてしまう。
+ */
+const DEDICATED_ACHIEVEMENT_PATH_ERRORS: Record<string, string> = {
+  [ARTIFACT_TYPES.QR.key]:
+    "このクエストは現地のQRコードを読み取ると達成になります",
+  [ARTIFACT_TYPES.GEO_CHECKIN.key]:
+    "このクエストは現地で「イベントに来た」ボタンを押すと達成になります",
+  [ARTIFACT_TYPES.LINE_FRIEND.key]:
+    "このクエストは公式LINEを友だち追加すると達成になります",
+  [ARTIFACT_TYPES.REFERRAL.key]:
+    "このクエストは紹介した友だちが登録すると達成になります",
+  [ARTIFACT_TYPES.REFERRED.key]:
+    "このクエストは紹介リンクから登録すると達成になります",
+};
+
 export const achieveMissionAction = async (formData: FormData) => {
   const supabase = createClient();
   const missionId = formData.get("missionId")?.toString();
   const requiredArtifactType = formData.get("requiredArtifactType")?.toString();
 
-  // QRスポットは現地のコードを読んだときだけ達成させる。
-  // このアクションから通してしまうと、ミッション画面のボタンを押すだけで
-  // 現地に行かずにポイントを取れてしまい、QRである意味が無くなる。
-  if (requiredArtifactType === ARTIFACT_TYPES.QR.key) {
-    // success を literal にしないと戻り値の型が boolean に広がり、
-    // 呼び出し側の success === true での絞り込みが効かなくなる
-    return {
-      success: false as const,
-      error: "このクエストは現地のQRコードを読み取ると達成になります",
-    };
-  }
-
-  // GEO_CHECKINも同様に、位置情報を判定する専用アクション（geoCheckinAction）
-  // からしか達成させない。ここを通してしまうと、ボタンを押すだけで
-  // 現地に行かずにポイントを取れてしまう。
-  if (requiredArtifactType === ARTIFACT_TYPES.GEO_CHECKIN.key) {
-    return {
-      success: false as const,
-      error:
-        "このクエストは現地で「イベントに来た」ボタンを押すと達成になります",
-    };
+  // 送られてきた種別が専用経路のものなら、DBを見るまでもなく案内を返す。
+  // 種別を偽った送信は、後段でDB上の種別と照合して弾く
+  const declaredDedicatedPathError = requiredArtifactType
+    ? DEDICATED_ACHIEVEMENT_PATH_ERRORS[requiredArtifactType]
+    : undefined;
+  if (declaredDedicatedPathError) {
+    return { success: false as const, error: declaredDedicatedPathError };
   }
 
   const artifactLink = formData.get("artifactLink")?.toString();
@@ -373,8 +382,38 @@ export const achieveMissionAction = async (formData: FormData) => {
     };
   }
 
-  // ユースケースに委譲（ミッション達成コアロジック）
+  // 種別はフォームから送られてきた値を信じず、DB上のクエストの種別で判定する。
+  // 送られてきた値だけで判定すると、種別を書き換えるだけで現地に行かずに
+  // QR・位置チェックインのクエストを達成できてしまう
   const adminClient = await createAdminClient();
+  const { data: mission, error: missionError } = await adminClient
+    .from("missions")
+    .select("required_artifact_type")
+    .eq("id", validatedMissionId)
+    .maybeSingle();
+
+  if (missionError || !mission) {
+    return {
+      success: false as const,
+      error: "クエスト情報の取得に失敗しました。",
+    };
+  }
+
+  const dedicatedPathError =
+    DEDICATED_ACHIEVEMENT_PATH_ERRORS[mission.required_artifact_type];
+  if (dedicatedPathError) {
+    return { success: false as const, error: dedicatedPathError };
+  }
+
+  if (mission.required_artifact_type !== validatedRequiredArtifactType) {
+    return {
+      success: false as const,
+      error:
+        "クエストの内容が更新されています。ページを再読み込みしてからもう一度お試しください。",
+    };
+  }
+
+  // ユースケースに委譲（ミッション達成コアロジック）
   const result = await achieveMission(adminClient, supabase, {
     userId: authUser.id,
     missionId: validatedMissionId,
