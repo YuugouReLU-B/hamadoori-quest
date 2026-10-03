@@ -8,6 +8,9 @@
 --   DELETE FROM achievements WHERE user_id = '622d6984-2f8a-41df-9ac3-cd4dcceb8d19' AND mission_id = (SELECT id FROM missions WHERE slug = 'x-like');
 --   または pnpm run db:reset
 
+-- 同じユーザー×同じクエストに大量に入れるため、達成回数の上限トリガーを一時的に止める
+ALTER TABLE achievements DISABLE TRIGGER enforce_achievement_limit;
+
 DO $$
 DECLARE
   v_mission_id UUID;
@@ -55,3 +58,5 @@ BEGIN
 
   RAISE NOTICE 'Done. Inserted 2000 achievements + 2000 mission_artifacts.';
 END $$;
+
+ALTER TABLE achievements ENABLE TRIGGER enforce_achievement_limit;

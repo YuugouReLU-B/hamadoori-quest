@@ -140,6 +140,12 @@ VALUES
 
 
 
+-- 開発用のダミーデータは、ダッシュボードの動作確認のために同じユーザー×同じクエストの
+-- 達成を上限を超えて入れている。達成回数の上限を守るトリガー
+-- （20261003010000_prevent_double_award.sql）を、シードを流す間だけ止める。
+-- 本番ではシードは流れない
+ALTER TABLE achievements DISABLE TRIGGER enforce_achievement_limit;
+
 -- ミッション達成データ（過去日付分）
 INSERT INTO achievements (id, mission_id, user_id, season_id, created_at)
 SELECT 
@@ -455,3 +461,6 @@ SELECT
   ((9 + (i % 12)) || ' hours')::interval +
   ((i * 7 % 60) || ' minutes')::interval as created_at
 FROM generate_series(1, 1350) as i;  -- 90日 × 15件/日 = 1350件
+
+-- 上で止めた達成回数の上限トリガーを戻す
+ALTER TABLE achievements ENABLE TRIGGER enforce_achievement_limit;
