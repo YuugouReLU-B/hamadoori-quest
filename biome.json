@@ -15,7 +15,6 @@
       "!**/supabase/.temp",
       "!**/playwright-report",
       "!**/coverage",
-      "!**/mobile_flutter",
       "!**/supabase/templates"
     ]
   },

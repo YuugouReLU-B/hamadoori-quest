@@ -26,7 +26,7 @@ cp .env ../action-board-<branch-name>/
 **UIコンポーネント（`.tsx`ファイル）からSupabaseを直接呼び出してはいけない。** Service層（`services/`）経由でアクセスすること。
 コード例・配置場所の詳細は [アーキテクチャガイドライン](docs/nextjs_architecture_guidelines.md) を参照。
 
-### ミッション・ポスティングイベント・シーズンのデータ管理
+### ミッション・シーズンのデータ管理
 **ミッションだけDBが正**、それ以外はYAMLが正、という二本立てになっている。
 
 **ミッション（`missions`）** は管理画面 `/admin` から編集する。
@@ -39,9 +39,8 @@ cp .env ../action-board-<branch-name>/
 - `mission_data/categories.yaml` - カテゴリ定義
 - `mission_data/category_links.yaml` - カテゴリとミッションの紐付け
 - `mission_data/quiz_*.yaml` - クイズのカテゴリと設問
-- `posting_data/posting_events.yaml` - ポスティングイベント
 - `season_data/seasons.yaml` - シーズン定義（`name`, `is_active`, `start_date`, `end_date` の変更もここ）
-- CI/CDデプロイ時に `posting:sync` / `season:sync` で自動同期される（`.github/workflows/deploy.yml`、`develop`/`main`へのpushで発火）
+- CI/CDデプロイ時に `season:sync` で自動同期される（`.github/workflows/deploy.yml`、`main`へのpushで発火）
 
 > ⚠️ yamlに載っていないミッションは `mission:sync` が一切触れない。過去に初期マイグレーションで
 > 直接INSERTされたミッションが取りこぼされていた。DBのslug一覧とyamlを突き合わせて確認すること。

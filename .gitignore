@@ -53,17 +53,11 @@ playwright-report/
 *storybook.log
 
 copilot-instructions.md
-# Sentry Config File
-.env.sentry-build-plugin
 
 .cursor
 .issues
 
-# Poster data directories
 raw_data/
-poster_data/temp/
-poster_data/*.log
-poster_data/processed-files.json
 /supabase/archive/
 
 temp
