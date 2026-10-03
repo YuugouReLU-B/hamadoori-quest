@@ -2642,6 +2642,17 @@ export type Database = {
           seq: number;
         }[];
       };
+      analytics_timeseries: {
+        Args: { bucket_unit?: string; from_ts: string; to_ts: string };
+        Returns: {
+          achievements: number;
+          bucket_start: string;
+          page_views: number;
+          sessions: number;
+          signups: number;
+          visitors: number;
+        }[];
+      };
       analytics_user_quest_journey: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {
