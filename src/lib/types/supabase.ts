@@ -2484,6 +2484,17 @@ export type Database = {
           visitors: number;
         }[];
       };
+      analytics_cumulative: {
+        Args: { bucket_unit?: string; from_ts: string; to_ts: string };
+        Returns: {
+          bucket_start: string;
+          geo_checkin_achievements: number;
+          line_friend_achievements: number;
+          other_achievements: number;
+          referral_achievements: number;
+          total_users: number;
+        }[];
+      };
       analytics_filter_usage: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {

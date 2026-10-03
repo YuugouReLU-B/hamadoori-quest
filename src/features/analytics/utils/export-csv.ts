@@ -113,6 +113,11 @@ const FIELD_LABELS: Record<string, string> = {
   visitors: "訪問者",
   visits: "訪問回数",
   zero_result_rate: "0件になった率（%）",
+  total_users: "登録ユーザー数（累計）",
+  line_friend_achievements: "LINE友だち追加（累計）",
+  geo_checkin_achievements: "位置情報チェックイン（累計）",
+  referral_achievements: "紹介（累計）",
+  other_achievements: "その他のクエスト（累計）",
 };
 
 function toCell(value: unknown): string {
