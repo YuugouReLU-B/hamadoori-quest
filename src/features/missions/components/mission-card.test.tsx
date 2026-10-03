@@ -222,6 +222,23 @@ describe("Mission", () => {
     expect(screen.getByText("6月22日（日）開催")).toBeInTheDocument();
   });
 
+  it("複数日にまたがるイベントは最終日まで表示する", () => {
+    render(
+      <Mission
+        mission={{
+          ...mockMission,
+          event_date: "2025-06-22",
+          event_end_date: "2025-06-24",
+        }}
+        userAchievementCount={0}
+      />,
+    );
+
+    expect(
+      screen.getByText("6月22日（日）〜6月24日（火）開催"),
+    ).toBeInTheDocument();
+  });
+
   it("最大達成回数に達した場合の表示が正しい", () => {
     render(<Mission mission={mockMission} userAchievementCount={3} />);
 

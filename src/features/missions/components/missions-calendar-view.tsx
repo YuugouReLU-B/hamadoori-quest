@@ -19,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/features/analytics/utils/tracker";
 import type { TaggedMission } from "@/features/missions/components/missions-tags";
+import { layoutWeek } from "@/features/missions/utils/calendar-week-layout";
 import { cn } from "@/lib/utils/utils";
 import Mission from "./mission-card";
 
@@ -27,6 +28,9 @@ type MissionsCalendarViewProps = {
 };
 
 const WEEKDAY_LABELS = ["月", "火", "水", "木", "金", "土", "日"];
+
+/** PCのマスに出す帯の段数。収まらない分は「他N件」にまとめる */
+const MAX_LANES = 2;
 
 function toDateOnly(dateStr: string): Date {
   const d = new Date(dateStr);
@@ -85,12 +89,17 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
   const [visibleMonth, setVisibleMonth] = useState(() => startOfMonth(today));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  // カレンダーの外を触ったら選択を解除する。月送りはカード内なので影響しない
+  // カレンダーの外を触ったら選択を解除する。月送りはカード内なので影響しない。
+  // クエスト一覧も外す。解除すると一覧が並び替わってカードが動き、押そうとした
+  // 「詳細を見る」のクリックが成立しなくなるため
   useEffect(() => {
     if (!selectedDate) return;
     function handlePointerDown(e: PointerEvent) {
-      if (calendarRef.current?.contains(e.target as Node)) return;
+      const target = e.target as Node;
+      if (calendarRef.current?.contains(target)) return;
+      if (listRef.current?.contains(target)) return;
       setSelectedDate(null);
     }
     document.addEventListener("pointerdown", handlePointerDown);
@@ -102,21 +111,28 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
     [missions],
   );
 
+  const calendarItems = useMemo(
+    () =>
+      datedMissions.flatMap((entry) => {
+        const range = eventRange(entry.mission);
+        return range ? [{ item: entry, ...range }] : [];
+      }),
+    [datedMissions],
+  );
+
   const missionsByDay = useMemo(() => {
     const map = new Map<string, TaggedMission[]>();
-    for (const entry of datedMissions) {
-      const range = eventRange(entry.mission);
-      if (!range) continue;
+    for (const { item, start, end } of calendarItems) {
       // 複数日にまたがるイベントは開始日から終了日までの全マスに立てる
-      for (const day of eachDayOfInterval(range)) {
+      for (const day of eachDayOfInterval({ start, end })) {
         const key = day.toDateString();
         const list = map.get(key) ?? [];
-        list.push(entry);
+        list.push(item);
         map.set(key, list);
       }
     }
     return map;
-  }, [datedMissions]);
+  }, [calendarItems]);
 
   const eventDays = useMemo(
     () =>
@@ -280,106 +296,141 @@ export function MissionsCalendarView({ missions }: MissionsCalendarViewProps) {
         </div>
 
         <div>
-          {weeks.map((week) => (
-            <div
-              key={week[0].toISOString()}
-              className="grid grid-cols-7 border-t border-gray-200"
-            >
-              {week.map((day) => {
-                const inMonth = isSameMonth(day, visibleMonth);
-                const dayMissions = missionsByDay.get(day.toDateString()) ?? [];
-                const isSelected = selectedDate
-                  ? isSameDay(day, selectedDate)
-                  : false;
+          {weeks.map((week) => {
+            const { segments, overflowByCol } = layoutWeek(
+              week,
+              calendarItems,
+              visibleMonth,
+              MAX_LANES,
+            );
 
-                return (
-                  <button
-                    key={day.toISOString()}
-                    type="button"
-                    disabled={!inMonth || dayMissions.length === 0}
-                    onClick={() =>
-                      setSelectedDate((prev) =>
-                        prev && isSameDay(prev, day) ? null : day,
-                      )
-                    }
-                    aria-label={`${format(day, "yyyy年M月d日（E）", { locale: ja })}、${dayMissions.length}件の開催`}
-                    aria-pressed={isSelected}
-                    className={cn(
-                      "flex min-h-16 min-w-0 flex-col items-end gap-1 border-r border-gray-200 p-1 text-right last:border-r-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary md:min-h-20",
-                      !inMonth && "bg-gray-50",
-                      isSelected &&
-                        "bg-yellow-50 ring-2 ring-inset ring-primary",
-                      dayMissions.length > 0 && inMonth && "cursor-pointer",
-                    )}
-                  >
-                    <span
+            return (
+              // 1行目は日付、続く段がイベントの帯と「他N件」。日付のマスは全段を
+              // 貫く背景として敷き、帯はその上に列をまたいで重ねる
+              <div
+                key={week[0].toISOString()}
+                className="grid min-h-16 grid-cols-7 grid-rows-[1.5rem_repeat(3,auto)_minmax(0.25rem,1fr)] border-t border-gray-200 md:min-h-20"
+              >
+                {week.map((day, col) => {
+                  const inMonth = isSameMonth(day, visibleMonth);
+                  const dayMissions =
+                    missionsByDay.get(day.toDateString()) ?? [];
+                  const isSelected = selectedDate
+                    ? isSameDay(day, selectedDate)
+                    : false;
+
+                  return (
+                    <button
+                      key={day.toISOString()}
+                      type="button"
+                      disabled={!inMonth || dayMissions.length === 0}
+                      onClick={() =>
+                        setSelectedDate((prev) =>
+                          prev && isSameDay(prev, day) ? null : day,
+                        )
+                      }
+                      aria-label={`${format(day, "yyyy年M月d日（E）", { locale: ja })}、${dayMissions.length}件の開催`}
+                      aria-pressed={isSelected}
+                      style={{ gridColumn: col + 1 }}
                       className={cn(
-                        "rounded px-1 text-xs",
-                        !inMonth ? "text-gray-300" : "text-gray-700",
-                        isSameDay(day, today) &&
-                          inMonth &&
-                          "bg-orange-100 font-bold text-gray-900",
+                        "row-span-full flex min-w-0 flex-col items-end gap-1 border-gray-200 p-1 text-right focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
+                        col < week.length - 1 && "border-r",
+                        !inMonth && "bg-gray-50",
+                        isSelected &&
+                          "bg-yellow-50 ring-2 ring-inset ring-primary",
+                        dayMissions.length > 0 && inMonth && "cursor-pointer",
                       )}
                     >
-                      {format(day, "d")}
-                    </span>
-                    {inMonth && dayMissions.length > 0 && (
-                      <>
+                      <span
+                        className={cn(
+                          "rounded px-1 text-xs",
+                          !inMonth ? "text-gray-300" : "text-gray-700",
+                          isSameDay(day, today) &&
+                            inMonth &&
+                            "bg-orange-100 font-bold text-gray-900",
+                        )}
+                      >
+                        {format(day, "d")}
+                      </span>
+                      {inMonth && dayMissions.length > 0 && (
                         <span className="max-w-full self-center rounded bg-primary px-1 py-0.5 text-[10px] font-bold text-primary-foreground md:hidden">
                           {dayMissions.length}件
                         </span>
-                        <span className="hidden w-full min-w-0 flex-col gap-0.5 md:flex">
-                          {dayMissions.slice(0, 2).map((entry) => (
-                            <span
-                              key={entry.mission.id}
-                              className="w-full truncate rounded bg-primary px-1 py-0.5 text-left text-[10px] font-bold text-primary-foreground"
-                            >
-                              {entry.mission.title}
-                            </span>
-                          ))}
-                          {dayMissions.length > 2 && (
-                            <span className="text-left text-[10px] text-gray-500">
-                              他{dayMissions.length - 2}件
-                            </span>
-                          )}
-                        </span>
-                      </>
+                      )}
+                    </button>
+                  );
+                })}
+                {/* 件数はマスのaria-labelで伝えているので、帯は見た目だけ。
+                    クリックは下のマスに通す */}
+                {segments.map((segment) => (
+                  <span
+                    key={segment.item.mission.id}
+                    aria-hidden="true"
+                    data-testid="calendar-event-bar"
+                    style={{
+                      gridColumn: `${segment.startCol + 1} / span ${segment.span}`,
+                      gridRow: segment.lane + 2,
+                    }}
+                    className={cn(
+                      "pointer-events-none mb-0.5 hidden min-w-0 truncate bg-primary px-1 py-0.5 text-left text-[10px] font-bold text-primary-foreground md:block",
+                      // 週や月をまたいで続く側は角を落とし、マスの端まで伸ばす
+                      !segment.continuesBefore && "ml-1 rounded-l",
+                      !segment.continuesAfter && "mr-1 rounded-r",
                     )}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+                  >
+                    {segment.item.mission.title}
+                  </span>
+                ))}
+                {overflowByCol.map(
+                  (count, col) =>
+                    count > 0 && (
+                      <span
+                        key={week[col].toISOString()}
+                        aria-hidden="true"
+                        style={{ gridColumn: col + 1, gridRow: MAX_LANES + 2 }}
+                        className="pointer-events-none hidden min-w-0 truncate px-2 text-left text-[10px] text-gray-500 md:block"
+                      >
+                        他{count}件
+                      </span>
+                    ),
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {selectedDate ? (
-        <>
-          <section aria-label={selectedHeading} className="space-y-4">
-            <h3 className="text-lg font-bold" aria-live="polite">
-              {selectedHeading}
-            </h3>
-            {selectedMissions.length > 0 ? (
-              renderMissions(selectedMissions)
-            ) : (
-              <p className="text-sm text-gray-600">この日の開催はありません</p>
-            )}
-          </section>
-          {otherMissions.length > 0 && (
-            <section
-              aria-label={`その他の日程 ${otherMissions.length}件`}
-              className="space-y-4 border-t border-gray-200 pt-6"
-            >
-              <h3 className="text-lg font-bold">
-                その他の日程 {otherMissions.length}件
+      <div ref={listRef} className="space-y-6">
+        {selectedDate ? (
+          <>
+            <section aria-label={selectedHeading} className="space-y-4">
+              <h3 className="text-lg font-bold" aria-live="polite">
+                {selectedHeading}
               </h3>
-              {renderMissions(otherMissions)}
+              {selectedMissions.length > 0 ? (
+                renderMissions(selectedMissions)
+              ) : (
+                <p className="text-sm text-gray-600">
+                  この日の開催はありません
+                </p>
+              )}
             </section>
-          )}
-        </>
-      ) : (
-        renderMissions(sortedMissions)
-      )}
+            {otherMissions.length > 0 && (
+              <section
+                aria-label={`その他の日程 ${otherMissions.length}件`}
+                className="space-y-4 border-t border-gray-200 pt-6"
+              >
+                <h3 className="text-lg font-bold">
+                  その他の日程 {otherMissions.length}件
+                </h3>
+                {renderMissions(otherMissions)}
+              </section>
+            )}
+          </>
+        ) : (
+          renderMissions(sortedMissions)
+        )}
+      </div>
     </div>
   );
 }
