@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { parse } from "csv-parse/sync";
+import { isCreatableArtifactType } from "@/features/admin/constants/creatable-artifact-types";
 import {
   type MissionSchemaOutput,
   missionSchema,
@@ -15,10 +16,6 @@ import type { Database } from "@/lib/types/supabase";
  * イベント登録CSVの1行を管理画面フォームと同じスキーマ（missionSchema）に合わせて解釈する。
  * 一括登録の対象は現地訪問系（QR / GEO_CHECKIN）に限定する。
  */
-const IMPORTABLE_ARTIFACT_TYPES: ReadonlySet<string> = new Set([
-  ARTIFACT_TYPES.QR.key,
-  ARTIFACT_TYPES.GEO_CHECKIN.key,
-]);
 
 export type MissionCsvRow = {
   rowNumber: number;
@@ -69,10 +66,10 @@ export function parseMissionCsv(csvText: string): MissionCsvRow[] {
     const requiredArtifactType = emptyToNull(record.required_artifact_type);
     if (
       requiredArtifactType &&
-      !IMPORTABLE_ARTIFACT_TYPES.has(requiredArtifactType)
+      !isCreatableArtifactType(requiredArtifactType)
     ) {
       errors.push(
-        `required_artifact_typeはQRまたはGEO_CHECKINのみ指定できます（入力値: ${requiredArtifactType}）`,
+        `required_artifact_typeはGEO_CHECKINのみ指定できます（入力値: ${requiredArtifactType}）`,
       );
     }
 
