@@ -3,7 +3,10 @@ import {
   type GeoCheckinMission,
   getGeoCheckinMission,
 } from "@/features/geo-checkin/services/geo-checkin-missions";
-import { achieveMission } from "@/features/mission-detail/use-cases/achieve-mission";
+import {
+  ACHIEVEMENT_LIMIT_REACHED_MESSAGE,
+  achieveMission,
+} from "@/features/mission-detail/use-cases/achieve-mission";
 import { hasEventEnded } from "@/features/missions/utils/mission-period";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Database } from "@/lib/types/supabase";
@@ -113,6 +116,11 @@ export async function redeemGeoCheckin(
       requiredArtifactType: ARTIFACT_TYPES.GEO_CHECKIN.key,
     },
   });
+
+  // 同時に押された2回目は、DBで上限超過として弾かれる。達成済みとして扱う
+  if (!result.success && result.error === ACHIEVEMENT_LIMIT_REACHED_MESSAGE) {
+    return { status: "already", mission };
+  }
 
   if (!result.success) {
     return { status: "error", mission, message: result.error };

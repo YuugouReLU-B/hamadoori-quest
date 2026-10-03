@@ -158,28 +158,13 @@ async function processXpTransaction(
       return { success: false, error: transactionError.message };
     }
 
-    // ユーザーレベル情報を取得・初期化
-    const currentLevel = await getOrInitializeUserLevel(userId);
-    if (!currentLevel) {
-      return {
-        success: false,
-        error: "ポイント情報の取得に失敗しました",
-      };
-    }
-
-    // 新しいXPを計算
-    const newXp = currentLevel.xp + xpAmount;
-
-    // 累計ポイントを更新
+    // 累計ポイントへの加算はDBで1文で行う（同時付与での上書きを防ぐ）
     const { data: updatedLevel, error: updateError } = await supabase
-      .from("user_levels")
-      .update({
-        xp: newXp,
-        updated_at: new Date().toISOString(),
+      .rpc("increment_user_xp", {
+        target_user_id: userId,
+        target_season_id: seasonId,
+        amount: xpAmount,
       })
-      .eq("user_id", userId)
-      .eq("season_id", seasonId)
-      .select()
       .single();
 
     if (updateError) {
