@@ -1,26 +1,23 @@
 import { redirect } from "next/navigation";
 import { AnalyticsDashboard } from "@/features/analytics/components/analytics-dashboard";
 import {
+  resolveAnalyticsDays,
+  resolveAnalyticsTab,
+} from "@/features/analytics/constants/dashboard";
+import {
   getAnalyticsDashboard,
   recentPeriod,
 } from "@/features/analytics/services/analytics-report";
 import { getUser } from "@/features/user-profile/services/profile";
 import { isAdmin } from "@/lib/utils/admin";
 
-/** ?days= で受け付ける期間。想定外の値はここで既定値に丸める */
-const ALLOWED_DAYS = [1, 7, 30, 90];
-const DEFAULT_DAYS = 7;
-
-function resolveDays(raw: string | string[] | undefined): number {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  const parsed = Number.parseInt(value ?? "", 10);
-  return ALLOWED_DAYS.includes(parsed) ? parsed : DEFAULT_DAYS;
-}
-
 export default async function AdminAnalyticsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ days?: string | string[] }>;
+  searchParams: Promise<{
+    days?: string | string[];
+    tab?: string | string[];
+  }>;
 }) {
   const user = await getUser();
 
@@ -29,8 +26,10 @@ export default async function AdminAnalyticsPage({
     redirect("/");
   }
 
-  const days = resolveDays((await searchParams).days);
+  const params = await searchParams;
+  const days = resolveAnalyticsDays(params.days);
+  const tab = resolveAnalyticsTab(params.tab);
   const data = await getAnalyticsDashboard(recentPeriod(days));
 
-  return <AnalyticsDashboard data={data} days={days} />;
+  return <AnalyticsDashboard data={data} days={days} tab={tab} />;
 }
