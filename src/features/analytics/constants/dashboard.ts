@@ -82,6 +82,11 @@ export interface AnalyticsDataset {
 export const ANALYTICS_DATASETS: readonly AnalyticsDataset[] = [
   { dataKey: "overview", tab: "overview", title: "サマリー" },
   { dataKey: "timeseries", tab: "overview", title: "推移" },
+  {
+    dataKey: "cumulative",
+    tab: "overview",
+    title: "累計の推移（登録ユーザー数・クエスト達成数）",
+  },
   { dataKey: "hours", tab: "overview", title: "曜日×時間帯のセッション数" },
   { dataKey: "channels", tab: "acquisition", title: "流入チャネル" },
   { dataKey: "referrers", tab: "acquisition", title: "参照元の内訳" },

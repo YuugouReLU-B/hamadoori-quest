@@ -20,6 +20,10 @@ import {
   savePostingActivity,
 } from "../actions/artifact-helpers";
 
+/** 達成回数の上限に達しているときの案内。事前チェックとDBでの拒否で同じ文言にする */
+export const ACHIEVEMENT_LIMIT_REACHED_MESSAGE =
+  "あなたはこのクエストの達成回数の上限に達しています。";
+
 export type AchieveMissionInput = {
   userId: string;
   missionId: string;
@@ -104,48 +108,14 @@ async function processXpGrant(
     return { success: false, error: transactionError.message };
   }
 
-  // 累計ポイントの行を取得（存在しない場合は初期化）
-  let { data: currentLevel } = await supabase
-    .from("user_levels")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("season_id", seasonId)
-    .maybeSingle();
-
-  if (!currentLevel) {
-    const { data: newUserLevelRow, error: initError } = await supabase
-      .from("user_levels")
-      .insert({
-        user_id: userId,
-        season_id: seasonId,
-        xp: 0,
-      })
-      .select()
-      .single();
-
-    if (initError || !newUserLevelRow) {
-      console.error("Failed to initialize user level:", initError);
-      return {
-        success: false,
-        error: "ポイント情報の初期化に失敗しました",
-      };
-    }
-    currentLevel = newUserLevelRow;
-  }
-
-  // 新しい累計XPを計算
-  const newXp = currentLevel.xp + xpAmount;
-
-  // 累計ポイントを更新
+  // 累計ポイントへの加算はDBで1文で行う。読んで足して書き戻すと、
+  // 同時に付与されたときに後の書き込みが先の加算を上書きしてしまう
   const { data: updatedLevel, error: updateError } = await supabase
-    .from("user_levels")
-    .update({
-      xp: newXp,
-      updated_at: new Date().toISOString(),
+    .rpc("increment_user_xp", {
+      target_user_id: userId,
+      target_season_id: seasonId,
+      amount: xpAmount,
     })
-    .eq("user_id", userId)
-    .eq("season_id", seasonId)
-    .select()
     .single();
 
   if (updateError) {
@@ -277,7 +247,7 @@ export async function achieveMission(
     ) {
       return {
         success: false,
-        error: "あなたはこのクエストの達成回数の上限に達しています。",
+        error: ACHIEVEMENT_LIMIT_REACHED_MESSAGE,
       };
     }
   }
@@ -335,6 +305,14 @@ export async function achieveMission(
     .insert(achievementPayload)
     .select("id")
     .single();
+
+  // 同時に届いた達成は、DBのトリガーが上限を超えた分を弾く（unique_violation）
+  if (achievementError?.code === "23505") {
+    return {
+      success: false,
+      error: ACHIEVEMENT_LIMIT_REACHED_MESSAGE,
+    };
+  }
 
   if (achievementError || !achievement) {
     return {

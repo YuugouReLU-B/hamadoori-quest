@@ -55,6 +55,8 @@ export type CalendarUsageRow =
   Fn["analytics_calendar_usage"]["Returns"][number];
 export type AnalyticsTimeseriesRow =
   Fn["analytics_timeseries"]["Returns"][number];
+export type AnalyticsCumulativeRow =
+  Fn["analytics_cumulative"]["Returns"][number];
 
 export interface AnalyticsPeriod {
   from: Date;
@@ -116,6 +118,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapSpotExposure,
     calendarUsage,
     timeseries,
+    cumulative,
   ] = await Promise.all([
     supabase.rpc("analytics_overview", args),
     supabase.rpc("analytics_by_channel", args),
@@ -152,6 +155,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
       ...args,
       bucket_unit: timeseriesUnit(period),
     }),
+    supabase.rpc("analytics_cumulative", {
+      ...args,
+      bucket_unit: timeseriesUnit(period),
+    }),
   ]);
 
   const failed = [
@@ -180,6 +187,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapSpotExposure,
     calendarUsage,
     timeseries,
+    cumulative,
   ].find((result) => result.error);
 
   if (failed?.error) {
@@ -214,6 +222,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapSpotExposure: mapSpotExposure.data ?? [],
     calendarUsage: calendarUsage.data ?? [],
     timeseries: timeseries.data ?? [],
+    cumulative: cumulative.data ?? [],
     timeseriesUnit: timeseriesUnit(period),
   };
 }

@@ -2484,6 +2484,17 @@ export type Database = {
           visitors: number;
         }[];
       };
+      analytics_cumulative: {
+        Args: { bucket_unit?: string; from_ts: string; to_ts: string };
+        Returns: {
+          bucket_start: string;
+          geo_checkin_achievements: number;
+          line_friend_achievements: number;
+          other_achievements: number;
+          referral_achievements: number;
+          total_users: number;
+        }[];
+      };
       analytics_filter_usage: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {
@@ -3052,6 +3063,26 @@ export type Database = {
           referred_achievement_id: string;
           referrer_achievement_id: string;
         }[];
+      };
+      increment_user_xp: {
+        Args: {
+          amount: number;
+          target_season_id: string;
+          target_user_id: string;
+        };
+        Returns: {
+          line_1000pt_audience_added_at: string | null;
+          season_id: string;
+          updated_at: string;
+          user_id: string;
+          xp: number;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "user_levels";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
       };
       is_admin: { Args: never; Returns: boolean };
       is_internal_analytics_path: { Args: { path: string }; Returns: boolean };
