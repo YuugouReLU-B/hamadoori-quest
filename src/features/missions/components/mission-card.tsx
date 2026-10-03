@@ -22,6 +22,11 @@ interface MissionProps {
   userAchievementCount: number;
 }
 
+function formatEventDay(dateStr: string): string {
+  const date = new Date(dateStr);
+  return `${date.getMonth() + 1}月${date.getDate()}日（${["日", "月", "火", "水", "木", "金", "土"][date.getDay()]}）`;
+}
+
 export default function Mission({
   mission,
   userAchievementCount,
@@ -49,10 +54,19 @@ export default function Mission({
         ? `1枚あたり${formatPoints(POSTING_POINTS_PER_UNIT)}`
         : formatPoints(calculateMissionXp({ points: mission.points }));
 
-  // 日付の整形
-  const eventDate = mission.event_date ? new Date(mission.event_date) : null;
-  const dateStr = eventDate
-    ? `${eventDate.getMonth() + 1}月${eventDate.getDate()}日（${["日", "月", "火", "水", "木", "金", "土"][eventDate.getDay()]}）開催`
+  // 日付の整形。複数日にまたがるときは最終日まで出す（初日だけだと、
+  // カレンダーで中日を選んだときに日付が合わないように見える）
+  const startLabel = mission.event_date
+    ? formatEventDay(mission.event_date)
+    : null;
+  const endLabel =
+    mission.event_date &&
+    mission.event_end_date &&
+    mission.event_end_date > mission.event_date
+      ? formatEventDay(mission.event_end_date)
+      : null;
+  const dateStr = startLabel
+    ? `${startLabel}${endLabel ? `〜${endLabel}` : ""}開催`
     : null;
 
   const missionKey = mission.slug || mission.id;
