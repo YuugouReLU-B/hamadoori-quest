@@ -37,7 +37,7 @@ describe("importMissionCsvRows", () => {
     await adminClient.from("mission_category").delete().eq("id", categoryId);
   });
 
-  test("QR行を登録し、カテゴリとQRコードが紐づく", async () => {
+  test("QR行は取り込まない（新しく作れるのは位置情報チェックインだけ）", async () => {
     const slug = `csv-import-qr-${Date.now()}`;
     const csv = [
       "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
@@ -47,31 +47,15 @@ describe("importMissionCsvRows", () => {
     const rows = parseMissionCsv(csv);
     const result = await importMissionCsvRows(adminClient, rows);
 
-    expect(result.failed).toEqual([]);
-    expect(result.succeeded).toHaveLength(1);
-    const missionId = result.succeeded[0].missionId;
-    missionIds.push(missionId);
+    expect(result.succeeded).toEqual([]);
+    expect(result.failed[0].errors.join(" ")).toContain("GEO_CHECKINのみ");
 
     const { data: mission } = await adminClient
       .from("missions")
-      .select("slug, required_artifact_type")
-      .eq("id", missionId)
-      .single();
-    expect(mission?.slug).toBe(slug);
-
-    const { data: link } = await adminClient
-      .from("mission_category_link")
-      .select("category_id")
-      .eq("mission_id", missionId)
+      .select("id")
+      .eq("slug", slug)
       .maybeSingle();
-    expect(link?.category_id).toBe(categoryId);
-
-    const { data: qr } = await adminClient
-      .from("mission_qr_codes")
-      .select("code")
-      .eq("mission_id", missionId)
-      .maybeSingle();
-    expect(qr?.code).toBeTruthy();
+    expect(mission).toBeNull();
   });
 
   test("GEO_CHECKIN行を登録できる（QRコードは発行しない）", async () => {
@@ -100,7 +84,7 @@ describe("importMissionCsvRows", () => {
     const slug = `csv-import-badcat-${Date.now()}`;
     const csv = [
       "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},存在しないカテゴリ,,QR,200,1,,,,,,no-such-category,false,true`,
+      `${slug},存在しないカテゴリ,,GEO_CHECKIN,200,1,,37.4,140.9,300,,no-such-category,false,true`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -117,7 +101,7 @@ describe("importMissionCsvRows", () => {
     const slug = `csv-import-dup-${Date.now()}`;
     const csv = [
       "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},重複テスト,,QR,200,1,,,,,,${categorySlug},false,true`,
+      `${slug},重複テスト,,GEO_CHECKIN,200,1,,37.4,140.9,300,,${categorySlug},false,true`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);

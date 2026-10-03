@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import type { AdminActionResult } from "@/features/admin/actions/mission-actions";
+import { CREATABLE_ARTIFACT_TYPES } from "@/features/admin/constants/creatable-artifact-types";
 import type { AdminCategory } from "@/features/admin/services/admin-categories";
 import { EVENT_TYPES } from "@/features/missions/constants/event-types";
 import {
@@ -13,7 +14,7 @@ import {
   QUEST_CATEGORY_LABELS,
 } from "@/features/missions/constants/quest-categories";
 import { defaultPointsForDifficulty } from "@/features/user-level/utils/level-calculator";
-import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
+import { ARTIFACT_TYPES, getArtifactConfig } from "@/lib/types/artifact-types";
 import type { Tables } from "@/lib/types/supabase";
 
 type MissionFormProps = {
@@ -26,10 +27,23 @@ type MissionFormProps = {
   submitLabel: string;
 };
 
-const ARTIFACT_TYPE_OPTIONS = Object.values(ARTIFACT_TYPES).map((type) => ({
-  value: type.key,
-  label: `${type.displayName}（${type.key}）`,
-}));
+/**
+ * 達成の種類の選択肢。新しく作れる種別に加えて、編集中のクエストの今の種別も出す
+ * （LINE友だち・紹介など既存のクエストを、種別を変えずに保存できるようにするため）
+ */
+function artifactTypeOptions(currentType: string | undefined) {
+  const keys = [...CREATABLE_ARTIFACT_TYPES];
+  if (currentType && !keys.includes(currentType)) {
+    keys.push(currentType);
+  }
+  return keys.map((key) => {
+    const config = getArtifactConfig(key);
+    return {
+      value: key,
+      label: `${config?.displayName ?? key}（${key}）`,
+    };
+  });
+}
 
 function Field({
   label,
@@ -255,11 +269,13 @@ export function MissionForm({
             onChange={(e) => setArtifactType(e.target.value)}
             className={inputClass}
           >
-            {ARTIFACT_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            {artifactTypeOptions(mission?.required_artifact_type).map(
+              (option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ),
+            )}
           </select>
         </Field>
       </div>

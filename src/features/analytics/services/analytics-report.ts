@@ -53,6 +53,8 @@ export type MapSpotExposureRow =
   Fn["analytics_map_spot_exposure"]["Returns"][number];
 export type CalendarUsageRow =
   Fn["analytics_calendar_usage"]["Returns"][number];
+export type AnalyticsTimeseriesRow =
+  Fn["analytics_timeseries"]["Returns"][number];
 
 export interface AnalyticsPeriod {
   from: Date;
@@ -68,6 +70,13 @@ export function recentPeriod(days: number): AnalyticsPeriod {
 
 function range({ from, to }: AnalyticsPeriod) {
   return { from_ts: from.toISOString(), to_ts: to.toISOString() };
+}
+
+/** 推移グラフの刻み。2日以内なら1時間ごと、それより長ければ1日ごと */
+export function timeseriesUnit({ from, to }: AnalyticsPeriod): "hour" | "day" {
+  return to.getTime() - from.getTime() <= 2 * 24 * 60 * 60 * 1000
+    ? "hour"
+    : "day";
 }
 
 /**
@@ -106,6 +115,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapUsage,
     mapSpotExposure,
     calendarUsage,
+    timeseries,
   ] = await Promise.all([
     supabase.rpc("analytics_overview", args),
     supabase.rpc("analytics_by_channel", args),
@@ -138,6 +148,10 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     supabase.rpc("analytics_map_usage", args),
     supabase.rpc("analytics_map_spot_exposure", { ...args, row_limit: 60 }),
     supabase.rpc("analytics_calendar_usage", { ...args, row_limit: 36 }),
+    supabase.rpc("analytics_timeseries", {
+      ...args,
+      bucket_unit: timeseriesUnit(period),
+    }),
   ]);
 
   const failed = [
@@ -165,6 +179,7 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapUsage,
     mapSpotExposure,
     calendarUsage,
+    timeseries,
   ].find((result) => result.error);
 
   if (failed?.error) {
@@ -198,6 +213,8 @@ export async function getAnalyticsDashboard(period: AnalyticsPeriod) {
     mapUsage: mapUsage.data ?? [],
     mapSpotExposure: mapSpotExposure.data ?? [],
     calendarUsage: calendarUsage.data ?? [],
+    timeseries: timeseries.data ?? [],
+    timeseriesUnit: timeseriesUnit(period),
   };
 }
 

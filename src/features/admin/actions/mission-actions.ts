@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isCreatableArtifactType } from "@/features/admin/constants/creatable-artifact-types";
 import { missionSchema } from "@/features/admin/schemas/mission-schema";
 import {
   copyMissionCategories,
@@ -9,6 +10,10 @@ import {
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
 import { issueQrCode } from "@/features/qr-spot/services/qr-code";
 import { createAdminClient } from "@/lib/supabase/adminClient";
+
+/** 新しく作れない種別を指定されたときの案内 */
+const NOT_CREATABLE_ERROR =
+  "達成の種類は「位置情報チェックイン」だけが選べます（LINE友だち・紹介のクエストは既存のものを使ってください）";
 
 export type AdminActionResult =
   | { success: true; missionId: string }
@@ -77,6 +82,10 @@ export async function createMission(
     return { success: false, error: parsed.error.issues[0].message };
   }
 
+  if (!isCreatableArtifactType(parsed.data.required_artifact_type)) {
+    return { success: false, error: NOT_CREATABLE_ERROR };
+  }
+
   const supabase = await createAdminClient();
   const id = crypto.randomUUID();
 
@@ -123,6 +132,22 @@ export async function updateMission(
   }
 
   const supabase = await createAdminClient();
+
+  // 種別は今のまま保存するか、新しく作れる種別にだけ変えられる
+  const { data: current, error: currentError } = await supabase
+    .from("missions")
+    .select("required_artifact_type")
+    .eq("id", missionId)
+    .single();
+  if (currentError || !current) {
+    return { success: false, error: "クエストが見つかりません" };
+  }
+  if (
+    parsed.data.required_artifact_type !== current.required_artifact_type &&
+    !isCreatableArtifactType(parsed.data.required_artifact_type)
+  ) {
+    return { success: false, error: NOT_CREATABLE_ERROR };
+  }
 
   const { error } = await supabase
     .from("missions")
@@ -258,6 +283,13 @@ export async function duplicateMission(
 
   if (fetchError || !source) {
     return { success: false, error: "複製元のクエストが見つかりません" };
+  }
+
+  if (!isCreatableArtifactType(source.required_artifact_type)) {
+    return {
+      success: false,
+      error: "複製できるのは位置情報チェックインのクエストだけです",
+    };
   }
 
   const id = crypto.randomUUID();

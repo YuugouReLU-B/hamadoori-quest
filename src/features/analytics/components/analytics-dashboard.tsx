@@ -1,5 +1,11 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
+import {
+  ANALYTICS_PERIOD_OPTIONS,
+  ANALYTICS_TABS,
+  type AnalyticsTabKey,
+} from "../constants/dashboard";
 import type {
   AnalyticsAcquisitionRow,
   AnalyticsChannelRow,
@@ -18,6 +24,7 @@ import {
   formatPercent,
   orDash,
 } from "../utils/format";
+import { RankingBarChart, TrendCharts } from "./analytics-charts";
 import {
   AccessHeatmapCard,
   ClickTargetsTable,
@@ -42,14 +49,6 @@ import {
   QuestTransitionsTable,
 } from "./quest-journey-sections";
 
-/** 期間切り替えの選択肢 */
-const PERIOD_OPTIONS = [
-  { days: 1, label: "24時間" },
-  { days: 7, label: "7日" },
-  { days: 30, label: "30日" },
-  { days: 90, label: "90日" },
-] as const;
-
 function StatCard({
   label,
   value,
@@ -68,13 +67,17 @@ function StatCard({
   );
 }
 
-function PeriodSwitcher({ days }: { days: number }) {
+function analyticsHref(days: number, tab: AnalyticsTabKey): string {
+  return `/admin/analytics?days=${days}&tab=${tab}`;
+}
+
+function PeriodSwitcher({ days, tab }: { days: number; tab: AnalyticsTabKey }) {
   return (
     <div className="flex gap-2 flex-wrap">
-      {PERIOD_OPTIONS.map((option) => (
+      {ANALYTICS_PERIOD_OPTIONS.map((option) => (
         <Link
           key={option.days}
-          href={`/admin/analytics?days=${option.days}`}
+          href={analyticsHref(option.days, tab)}
           className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
             option.days === days
               ? "bg-[var(--app-brand-primary-strong)] text-white border-transparent"
@@ -88,28 +91,92 @@ function PeriodSwitcher({ days }: { days: number }) {
   );
 }
 
-export function AnalyticsDashboard({
-  data,
-  days,
-}: {
-  data: DashboardData;
-  days: number;
-}) {
-  const { overview } = data;
-
+/** タブはURL（?tab=）で切り替える。リンクで共有でき、期間を変えてもタブが保たれる */
+function TabNav({ days, tab }: { days: number; tab: AnalyticsTabKey }) {
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">アクセス解析</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            /admin と /dev、およびクローラからのアクセスは除外しています
-          </p>
-        </div>
-        <PeriodSwitcher days={days} />
-      </div>
+    <nav
+      aria-label="解析の切り替え"
+      className="-mx-4 px-4 overflow-x-auto border-b"
+    >
+      <ul className="flex gap-1 min-w-max">
+        {ANALYTICS_TABS.map((item) => {
+          const active = item.key === tab;
+          return (
+            <li key={item.key}>
+              <Link
+                href={analyticsHref(days, item.key)}
+                aria-current={active ? "page" : undefined}
+                className={`block px-3 py-2 text-sm whitespace-nowrap border-b-2 -mb-px transition-colors ${
+                  active
+                    ? "border-[var(--app-brand-primary-strong)] font-bold"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
 
-      {/* サマリー */}
+function CsvDownloads({ days, tab }: { days: number; tab: AnalyticsTabKey }) {
+  const tabLabel = ANALYTICS_TABS.find((item) => item.key === tab)?.label;
+  const linkClass =
+    "px-3 py-1.5 rounded-md text-sm border hover:bg-muted transition-colors";
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs text-muted-foreground">CSV</span>
+      <a
+        href={`/admin/analytics/export?days=${days}&tab=${tab}`}
+        className={linkClass}
+        download
+      >
+        「{tabLabel}」の表
+      </a>
+      <a
+        href={`/admin/analytics/export?days=${days}&tab=all`}
+        className={linkClass}
+        download
+      >
+        すべての表をまとめて
+      </a>
+    </div>
+  );
+}
+
+function TabSection({ children }: { children: ReactNode }) {
+  return <div className="space-y-6">{children}</div>;
+}
+
+/** 地域の表は市区町村単位なので、グラフ用に都道府県でまとめる */
+function sessionsByRegion(data: DashboardData) {
+  const totals = new Map<string, number>();
+  for (const row of data.locations) {
+    const label = row.ip_region ?? row.ip_country ?? "不明";
+    totals.set(label, (totals.get(label) ?? 0) + row.sessions);
+  }
+  return Array.from(totals).map(([label, value]) => ({ label, value }));
+}
+
+/** 獲得の表はクエスト×流入元なので、グラフ用にクエストでまとめる */
+function achievementsByQuest(data: DashboardData) {
+  const totals = new Map<string, number>();
+  for (const row of data.acquisitions) {
+    totals.set(
+      row.mission_title,
+      (totals.get(row.mission_title) ?? 0) + row.achievements,
+    );
+  }
+  return Array.from(totals).map(([label, value]) => ({ label, value }));
+}
+
+function OverviewTab({ data }: { data: DashboardData }) {
+  const { overview } = data;
+  return (
+    <TabSection>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
           label="セッション"
@@ -143,7 +210,25 @@ export function AnalyticsDashboard({
         />
       </div>
 
-      {/* 流入元 */}
+      <TrendCharts rows={data.timeseries} unit={data.timeseriesUnit} />
+
+      <AccessHeatmapCard rows={data.hours} />
+    </TabSection>
+  );
+}
+
+function AcquisitionTab({ data }: { data: DashboardData }) {
+  return (
+    <TabSection>
+      <RankingBarChart
+        title="チャネル別のセッション"
+        description="下の表のセッション数をグラフにしたもの"
+        items={data.channels.map((row) => ({
+          label: formatChannel(row.channel),
+          value: row.sessions,
+        }))}
+        valueLabel="セッション"
+      />
       <AnalyticsTable<AnalyticsChannelRow>
         title="流入チャネル"
         description="どこから来た人が、どれだけ回遊して、どれだけクエストを獲得したか"
@@ -240,7 +325,69 @@ export function AnalyticsDashboard({
         ]}
       />
 
-      {/* ページ別の滞在とスクロール */}
+      <RankingBarChart
+        title="都道府県別のセッション（上位10）"
+        description="下の表（市区町村単位）を都道府県でまとめたもの。接続元IPからの推定です"
+        items={sessionsByRegion(data)}
+        valueLabel="セッション"
+        color="hsl(var(--chart-1))"
+      />
+      <AnalyticsTable<AnalyticsLocationRow>
+        title="地域（IPからの推定）"
+        description="端末のGPSではなく、接続元IPから推定した市区町村レベルの位置です"
+        rows={data.locations}
+        rowKey={(row, index) =>
+          `${row.ip_country ?? ""}-${row.ip_region ?? ""}-${row.ip_city ?? ""}-${index}`
+        }
+        columns={[
+          {
+            key: "country",
+            header: "国",
+            render: (row) => orDash(row.ip_country),
+          },
+          {
+            key: "region",
+            header: "都道府県",
+            render: (row) => orDash(row.ip_region),
+          },
+          {
+            key: "city",
+            header: "市区町村",
+            render: (row) => orDash(row.ip_city),
+          },
+          {
+            key: "sessions",
+            header: "セッション",
+            align: "right",
+            render: (row) => formatCount(row.sessions),
+          },
+          {
+            key: "visitors",
+            header: "訪問者",
+            align: "right",
+            render: (row) => formatCount(row.visitors),
+          },
+        ]}
+      />
+    </TabSection>
+  );
+}
+
+function PagesTab({ data }: { data: DashboardData }) {
+  return (
+    <TabSection>
+      <RankingBarChart
+        title="よく見られたページ（上位10）"
+        description="下の表のページビューをグラフにしたもの"
+        items={data.pages.map((row) => ({
+          label: row.page_title
+            ? `${row.page_title}（${row.page_path ?? ""}）`
+            : (row.page_path ?? "不明"),
+          value: row.page_views,
+        }))}
+        valueLabel="ページビュー"
+        color="hsl(var(--chart-3))"
+      />
       <AnalyticsTable<AnalyticsPageRow>
         title="ページ別の滞在とスクロール"
         description="どのページにどれだけ留まり、ページの高さのどこまで読まれたか"
@@ -312,27 +459,6 @@ export function AnalyticsDashboard({
         ]}
       />
 
-      {/* どのコンテンツが見られたか */}
-      <ContentDwellTable rows={data.contents} />
-
-      {/* ページ内のどこを見ていたか */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <PageBandsCard rows={data.bands} />
-        <AccessHeatmapCard rows={data.hours} />
-      </div>
-
-      <SectionDwellTable rows={data.sections} />
-
-      {/* 押されたボタン */}
-      <ClickTargetsTable rows={data.clicks} />
-
-      {/* クエストをどう探しているか */}
-      <FilterUsageTable rows={data.filterUsage} />
-      <MapUsageTable rows={data.mapUsage} />
-      <MapSpotExposureTable rows={data.mapSpotExposure} />
-      <CalendarUsageTable rows={data.calendarUsage} />
-
-      {/* 回遊経路 */}
       <AnalyticsTable<AnalyticsFlowRow>
         title="ページ遷移"
         description="セッション内で何ページ目にどこからどこへ動いたか"
@@ -372,27 +498,40 @@ export function AnalyticsDashboard({
         ]}
       />
 
-      {/* クエスト達成の順番と期間。
-          achievements から直接出しているので、行動計測を入れる前の期間でも見られる */}
-      <div className="pt-2">
-        <h2 className="text-xl font-bold">クエスト達成の流れ</h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          この期間に<strong>登録した人</strong>
-          が対象です。行動計測とは独立していて、
-          計測を入れる前に登録した人の分も見られます
-        </p>
-      </div>
+      {/* どのコンテンツが見られたか */}
+      <ContentDwellTable rows={data.contents} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <QuestProgressionCard rows={data.questProgression} />
-        <QuestTimingCard rows={data.questTiming} />
-      </div>
+      {/* ページ内のどこを見ていたか */}
+      <PageBandsCard rows={data.bands} />
+      <SectionDwellTable rows={data.sections} />
 
-      <QuestSequenceTable rows={data.questSequence} />
-      <QuestTransitionsTable rows={data.questTransitions} />
-      <QuestJourneyTable rows={data.questJourneys} />
+      {/* 押されたボタン */}
+      <ClickTargetsTable rows={data.clicks} />
+    </TabSection>
+  );
+}
 
-      {/* 獲得 */}
+function DiscoveryTab({ data }: { data: DashboardData }) {
+  return (
+    <TabSection>
+      <FilterUsageTable rows={data.filterUsage} />
+      <MapUsageTable rows={data.mapUsage} />
+      <MapSpotExposureTable rows={data.mapSpotExposure} />
+      <CalendarUsageTable rows={data.calendarUsage} />
+    </TabSection>
+  );
+}
+
+function QuestsTab({ data }: { data: DashboardData }) {
+  return (
+    <TabSection>
+      <RankingBarChart
+        title="クエスト別の獲得数（上位10）"
+        description="下の「クエスト獲得と流入元」をクエストごとにまとめたもの"
+        items={achievementsByQuest(data)}
+        valueLabel="獲得数"
+        color="hsl(var(--chart-5))"
+      />
       <AnalyticsTable<AnalyticsAcquisitionRow>
         title="クエスト獲得と流入元"
         description="達成した時刻を含むセッションの流入元で紐づけています"
@@ -446,50 +585,34 @@ export function AnalyticsDashboard({
         ]}
       />
 
-      {/* 地域 */}
-      <AnalyticsTable<AnalyticsLocationRow>
-        title="地域（IPからの推定）"
-        description="端末のGPSではなく、接続元IPから推定した市区町村レベルの位置です"
-        rows={data.locations}
-        rowKey={(row, index) =>
-          `${row.ip_country ?? ""}-${row.ip_region ?? ""}-${row.ip_city ?? ""}-${index}`
-        }
-        columns={[
-          {
-            key: "country",
-            header: "国",
-            render: (row) => orDash(row.ip_country),
-          },
-          {
-            key: "region",
-            header: "都道府県",
-            render: (row) => orDash(row.ip_region),
-          },
-          {
-            key: "city",
-            header: "市区町村",
-            render: (row) => orDash(row.ip_city),
-          },
-          {
-            key: "sessions",
-            header: "セッション",
-            align: "right",
-            render: (row) => formatCount(row.sessions),
-          },
-          {
-            key: "visitors",
-            header: "訪問者",
-            align: "right",
-            render: (row) => formatCount(row.visitors),
-          },
-        ]}
-      />
+      {/* クエスト達成の順番と期間。
+          achievements から直接出しているので、行動計測を入れる前の期間でも見られる */}
+      <div className="pt-2">
+        <h2 className="text-xl font-bold">クエスト達成の流れ</h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          この期間に<strong>登録した人</strong>
+          が対象です。行動計測とは独立していて、
+          計測を入れる前に登録した人の分も見られます
+        </p>
+      </div>
 
-      {/* 再訪と訪問者ごとの行動 */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <QuestProgressionCard rows={data.questProgression} />
+        <QuestTimingCard rows={data.questTiming} />
+      </div>
+
+      <QuestSequenceTable rows={data.questSequence} />
+      <QuestTransitionsTable rows={data.questTransitions} />
+      <QuestJourneyTable rows={data.questJourneys} />
+    </TabSection>
+  );
+}
+
+function VisitorsTab({ data }: { data: DashboardData }) {
+  return (
+    <TabSection>
       <VisitFrequencyCard rows={data.visitFrequency} />
       <VisitorActivityTable rows={data.visitors} />
-
-      {/* 個別セッション */}
       <AnalyticsTable<AnalyticsSessionRow>
         title="直近のセッション"
         description="1件の行動を最初から最後まで追いたいときはここから"
@@ -563,6 +686,56 @@ export function AnalyticsDashboard({
           },
         ]}
       />
+    </TabSection>
+  );
+}
+
+const TAB_CONTENT: Record<
+  AnalyticsTabKey,
+  (props: { data: DashboardData }) => ReactNode
+> = {
+  overview: OverviewTab,
+  acquisition: AcquisitionTab,
+  pages: PagesTab,
+  discovery: DiscoveryTab,
+  quests: QuestsTab,
+  visitors: VisitorsTab,
+};
+
+export function AnalyticsDashboard({
+  data,
+  days,
+  tab,
+}: {
+  data: DashboardData;
+  days: number;
+  tab: AnalyticsTabKey;
+}) {
+  const Content = TAB_CONTENT[tab];
+  const description = ANALYTICS_TABS.find(
+    (item) => item.key === tab,
+  )?.description;
+
+  return (
+    <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">アクセス解析</h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            /admin と /dev、およびクローラからのアクセスは除外しています
+          </p>
+        </div>
+        <PeriodSwitcher days={days} tab={tab} />
+      </div>
+
+      <TabNav days={days} tab={tab} />
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <p className="text-sm text-muted-foreground">{description}</p>
+        <CsvDownloads days={days} tab={tab} />
+      </div>
+
+      <Content data={data} />
     </div>
   );
 }
