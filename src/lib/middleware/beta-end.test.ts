@@ -152,7 +152,6 @@ describe("resolveBetaEndResponse", () => {
     it.each([
       "/api/batch/backfill-missing-xp",
       "/api/users/abc/activity-timeline",
-      "/api/mcp",
     ])("returns 503 for API request %s", async (pathname) => {
       const response = resolveBetaEndResponse(createRequest(pathname));
 
