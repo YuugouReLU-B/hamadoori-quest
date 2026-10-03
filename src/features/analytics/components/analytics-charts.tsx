@@ -18,7 +18,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import type { AnalyticsTimeseriesRow } from "../services/analytics-report";
+import type {
+  AnalyticsCumulativeRow,
+  AnalyticsTimeseriesRow,
+} from "../services/analytics-report";
 
 const EMPTY_MESSAGE = "この期間のデータはまだありません";
 
@@ -256,5 +259,132 @@ export function RankingBarChart({
         </ChartContainer>
       )}
     </ChartCard>
+  );
+}
+
+const cumulativeUsersConfig = {
+  total_users: { label: "登録ユーザー数", color: "hsl(var(--chart-2))" },
+} satisfies ChartConfig;
+
+/** LINE友だちはLINEの緑で、ほかと見分けられるようにする */
+const cumulativeAchievementsConfig = {
+  line_friend_achievements: { label: "LINE友だち追加", color: "#06C755" },
+  geo_checkin_achievements: {
+    label: "位置情報チェックイン",
+    color: "hsl(var(--chart-1))",
+  },
+  referral_achievements: { label: "紹介", color: "hsl(var(--chart-4))" },
+  other_achievements: { label: "その他", color: "hsl(var(--chart-3))" },
+} satisfies ChartConfig;
+
+/** 登録ユーザー数とクエスト達成数の累計（期間より前の分も含めた通算） */
+export function CumulativeCharts({
+  rows,
+  unit,
+}: {
+  rows: AnalyticsCumulativeRow[];
+  unit: "hour" | "day";
+}) {
+  const data = rows.map((row) => ({
+    ...row,
+    label: bucketLabel(row.bucket_start, unit),
+  }));
+  const last = rows.at(-1);
+  const unitLabel = unit === "hour" ? "1時間" : "1日";
+  const achievementKeys = Object.keys(
+    cumulativeAchievementsConfig,
+  ) as (keyof typeof cumulativeAchievementsConfig)[];
+  const totalAchievements = last
+    ? achievementKeys.reduce((sum, key) => sum + last[key], 0)
+    : 0;
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <ChartCard
+        title="登録ユーザー数の累計"
+        description={`${unitLabel}ごとの終わり時点（日本時間）。サービス開始からの通算で、現在 ${(last?.total_users ?? 0).toLocaleString("ja-JP")}人`}
+      >
+        {data.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            {EMPTY_MESSAGE}
+          </p>
+        ) : (
+          <ChartContainer
+            config={cumulativeUsersConfig}
+            className="h-[260px] w-full"
+          >
+            <LineChart data={data} margin={{ left: -16, right: 8 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={10}
+                minTickGap={16}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                fontSize={10}
+                allowDecimals={false}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                type="stepAfter"
+                dataKey="total_users"
+                stroke="var(--color-total_users)"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+
+      <ChartCard
+        title="クエスト達成数の累計"
+        description={`${unitLabel}ごとの終わり時点（日本時間）。クエストの種類別に積み上げ、現在 ${totalAchievements.toLocaleString("ja-JP")}件`}
+      >
+        {data.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            {EMPTY_MESSAGE}
+          </p>
+        ) : (
+          <ChartContainer
+            config={cumulativeAchievementsConfig}
+            className="h-[260px] w-full"
+          >
+            <BarChart data={data} margin={{ left: -16, right: 8 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={10}
+                minTickGap={16}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                fontSize={10}
+                allowDecimals={false}
+              />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartLegend content={<ChartLegendContent />} />
+              {achievementKeys.map((key) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  stackId="achievements"
+                  fill={`var(--color-${key})`}
+                />
+              ))}
+            </BarChart>
+          </ChartContainer>
+        )}
+      </ChartCard>
+    </div>
   );
 }

@@ -24,7 +24,11 @@ import {
   formatPercent,
   orDash,
 } from "../utils/format";
-import { RankingBarChart, TrendCharts } from "./analytics-charts";
+import {
+  CumulativeCharts,
+  RankingBarChart,
+  TrendCharts,
+} from "./analytics-charts";
 import {
   AccessHeatmapCard,
   ClickTargetsTable,
@@ -211,6 +215,8 @@ function OverviewTab({ data }: { data: DashboardData }) {
       </div>
 
       <TrendCharts rows={data.timeseries} unit={data.timeseriesUnit} />
+
+      <CumulativeCharts rows={data.cumulative} unit={data.timeseriesUnit} />
 
       <AccessHeatmapCard rows={data.hours} />
     </TabSection>
