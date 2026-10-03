@@ -66,11 +66,8 @@ export const BadgeType = {
  * バッジタイプに応じたランキングページのURLを取得
  *
  * NOTE: バッジ機能は現在稼働していない。
- * バッジを発行する calculate-badges ワークフロー
- * (.github/workflows/calculate-badges-production.yml / -staging.yml) は
- * production・staging とも `on:` が workflow_dispatch のみで、
- * 「本プロジェクト用に Secrets と接続先を再設定するまで定期実行を停止している」
- * という NOTE 付きで定期実行が止まっている（実行履歴もゼロ）。
+ * バッジを発行していた calculate-badges のスクリプトとワークフローは
+ * 一度も本プロジェクトで実行されないまま撤去した。
  * そのため user_badges テーブルに行が無く、バッジ獲得通知ダイアログも
  * ヒーローのバッジ表示も実際には出ていない。
  *

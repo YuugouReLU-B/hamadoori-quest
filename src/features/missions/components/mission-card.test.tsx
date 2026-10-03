@@ -4,19 +4,6 @@ import type React from "react";
 import type { Tables } from "@/lib/types/supabase";
 import Mission from "./mission-card";
 
-jest.mock("@/components/ui/avatar", () => ({
-  Avatar: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="avatar">{children}</div>
-  ),
-  AvatarFallback: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="avatar-fallback">{children}</div>
-  ),
-  AvatarImage: ({ src, alt }: { src: string; alt: string }) => (
-    // biome-ignore lint/performance/noImgElement: テスト用モックのため<img>を使用
-    <img src={src} alt={alt} data-testid="avatar-image" />
-  ),
-}));
-
 jest.mock("@/components/ui/card", () => ({
   Card: ({
     children,
@@ -61,21 +48,6 @@ jest.mock("@/components/ui/card", () => ({
     <h3 className={className} data-testid="card-title">
       {children}
     </h3>
-  ),
-}));
-
-jest.mock("@/features/missions/components/difficulty-badge", () => ({
-  DifficultyBadge: ({
-    difficulty,
-    className,
-  }: {
-    difficulty: number;
-    points: number;
-    className?: string;
-  }) => (
-    <span className={className} data-testid="difficulty-badge">
-      難易度{difficulty}
-    </span>
   ),
 }));
 
