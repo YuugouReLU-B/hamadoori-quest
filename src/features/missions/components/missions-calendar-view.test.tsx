@@ -135,7 +135,7 @@ describe("MissionsCalendarView", () => {
     ).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("スマホ用の件数バッジを表示し、セル内タイトルはPC用にする", () => {
+  it("スマホ用の件数バッジを表示し、タイトルの帯はPC用にする", () => {
     render(
       <MissionsCalendarView
         missions={[
@@ -149,12 +149,37 @@ describe("MissionsCalendarView", () => {
       name: "2026年9月20日（日）、3件の開催",
     });
     expect(within(day).getByText("3件")).toHaveClass("md:hidden");
-    expect(within(day).getByText("同日A").parentElement).toHaveClass(
-      "hidden",
-      "md:flex",
-    );
-    expect(within(day).getByText("他1件")).toBeInTheDocument();
+    const bars = screen.getAllByTestId("calendar-event-bar");
+    expect(bars.map((bar) => bar.textContent)).toEqual(["同日A", "同日B"]);
+    for (const bar of bars) {
+      expect(bar).toHaveClass("hidden", "md:block");
+    }
+    expect(screen.getByText("他1件")).toHaveClass("hidden", "md:block");
     expect(screen.getAllByRole("article")).toHaveLength(3);
+  });
+
+  it("連続する日のイベントは1本の帯につなぎ、週をまたぐと週ごとに分ける", () => {
+    render(
+      <MissionsCalendarView
+        missions={[
+          // 9/17(木)〜9/22(火)。月曜始まりなので 17〜20 と 21〜22 の2本になる
+          event("連続開催", "2026-09-17", "2026-09-22"),
+          event("単発", "2026-09-25"),
+        ]}
+      />,
+    );
+    const bars = screen.getAllByTestId("calendar-event-bar");
+    expect(bars.map((bar) => bar.textContent)).toEqual([
+      "連続開催",
+      "連続開催",
+      "単発",
+    ]);
+    // 続く側は角を落とし、始まり・終わりの側だけ丸める
+    expect(bars[0]).toHaveClass("rounded-l");
+    expect(bars[0]).not.toHaveClass("rounded-r");
+    expect(bars[1]).toHaveClass("rounded-r");
+    expect(bars[1]).not.toHaveClass("rounded-l");
+    expect(bars[2]).toHaveClass("rounded-l", "rounded-r");
   });
 
   it("月の切り替えで選択を解除し、表示月に応じた空状態を示す", () => {
@@ -276,6 +301,28 @@ describe("MissionsCalendarView", () => {
     expect(day).toHaveAttribute("aria-pressed", "true");
     fireEvent.pointerDown(document.body);
     expect(day).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("クエスト一覧を押しても選択を解除しない（詳細へ進めるようにする）", () => {
+    render(
+      <MissionsCalendarView
+        missions={[event("開催", "2026-09-20"), event("別日", "2026-09-25")]}
+      />,
+    );
+    const day = screen.getByRole("button", {
+      name: "2026年9月20日（日）、1件の開催",
+    });
+    fireEvent.click(day);
+
+    const selected = screen.getByRole("region", {
+      name: "2026年9月20日（日）の開催 1件",
+    });
+    fireEvent.pointerDown(within(selected).getByRole("link"));
+    expect(day).toHaveAttribute("aria-pressed", "true");
+
+    const others = screen.getByRole("region", { name: "その他の日程 1件" });
+    fireEvent.pointerDown(within(others).getByRole("link"));
+    expect(day).toHaveAttribute("aria-pressed", "true");
   });
 
   it.each([
