@@ -33,3 +33,16 @@ it.each([
       .success,
   ).toBe(false);
 });
+
+it("Googleフォームの事前入力URL（{token} 入り）を保存できる", () => {
+  const url =
+    "https://docs.google.com/forms/d/e/abc/viewform?usp=pp_url&entry.123456789={token}";
+  expect(
+    lotterySettingsSchema.parse({
+      ...input,
+      eligible_display_from: "",
+      eligible_display_until: "",
+      form_url: url,
+    }),
+  ).toHaveProperty("form_url", url);
+});
