@@ -4,9 +4,14 @@
 
 import { NextRequest } from "next/server";
 import { getUserActivityTimeline } from "@/features/user-activity/services/timeline";
+import { getUser } from "@/features/user-profile/services/profile";
 import { GET } from "./route";
 
 jest.mock("@/features/user-activity/services/timeline");
+jest.mock("@/features/user-profile/services/profile", () => ({
+  getUser: jest.fn(),
+}));
+const mockGetUser = getUser as jest.MockedFunction<typeof getUser>;
 const mockGetUserActivityTimeline =
   getUserActivityTimeline as jest.MockedFunction<
     typeof getUserActivityTimeline
@@ -30,6 +35,26 @@ const mockGetUserActivityTimeline =
 describe("/api/users/[id]/activity-timeline", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // 既定では本人（user-123）としてログインしている
+    mockGetUser.mockResolvedValue({ id: "user-123" } as Awaited<
+      ReturnType<typeof getUser>
+    >);
+  });
+
+  it("本人以外（他人・未ログイン）には404を返し、タイムラインを読まない", async () => {
+    for (const viewer of [{ id: "someone-else" }, null]) {
+      mockGetUser.mockResolvedValueOnce(
+        viewer as Awaited<ReturnType<typeof getUser>>,
+      );
+      const request = new NextRequest(
+        "http://localhost/api/users/user-123/activity-timeline",
+      );
+      const response = await GET(request, {
+        params: Promise.resolve({ id: "user-123" }),
+      });
+      expect(response.status).toBe(404);
+    }
+    expect(mockGetUserActivityTimeline).not.toHaveBeenCalled();
   });
 
   describe("GET", () => {
@@ -145,6 +170,9 @@ describe("/api/users/[id]/activity-timeline", () => {
       ];
 
       mockGetUserActivityTimeline.mockResolvedValue(mockTimeline);
+      mockGetUser.mockResolvedValueOnce({ id: "user-456" } as Awaited<
+        ReturnType<typeof getUser>
+      >);
 
       const request = new NextRequest(
         "http://localhost:3000/api/users/user-456/activity-timeline?limit=5",

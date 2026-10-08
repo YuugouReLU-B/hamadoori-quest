@@ -1,16 +1,20 @@
 import "server-only";
 
+import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { getCurrentSeason } from "@/lib/services/seasons";
 import { createAdminClient } from "@/lib/supabase/adminClient";
+
+/**
+ * 照合結果の状態。
+ * プライバシーポリシーで「応募フォームの情報を利用履歴と突き合わせない」としているので、
+ * 誰のトークンか・何ポイントかは返さず、応募条件を満たすかどうかだけを返す。
+ */
+export type LotteryTokenStatus = "eligible" | "not_eligible" | "withdrawn";
 
 export type AdminLotteryTokenItem = {
   token: string;
   issuedAt: string;
-  /** 退会済みなら null */
-  userId: string | null;
-  name: string | null;
-  /** 現在のアクティブシーズンのポイント。退会済み・未取得なら null */
-  xp: number | null;
+  status: LotteryTokenStatus;
 };
 
 /** 応募フォームの回答は前後の空白や小文字が混ざりうるので、照合前にそろえる */
@@ -22,6 +26,7 @@ export function normalizeLotteryToken(input: string): string {
  * 発行済みの抽選応募トークンの一覧。応募フォームの回答と照合するために使う。
  *
  * `token` を渡すとそのトークンだけに絞る。新しい発行順で、1000件まで。
+ * 返すのはトークン・発行日時・応募条件を満たすかどうかだけで、持ち主は返さない。
  */
 export async function listLotteryTokensForAdmin(
   token?: string,
@@ -46,35 +51,29 @@ export async function listLotteryTokensForAdmin(
   const userIds = rows
     .map((row) => row.user_id)
     .filter((id): id is string => id !== null);
-  if (userIds.length === 0) {
-    return rows.map((row) => ({
-      token: row.token,
-      issuedAt: row.issued_at,
-      userId: row.user_id,
-      name: null,
-      xp: null,
-    }));
-  }
 
-  const season = await getCurrentSeason();
-  const [{ data: profiles }, { data: levels }] = await Promise.all([
-    supabase.from("public_user_profiles").select("id, name").in("id", userIds),
-    season
-      ? supabase
+  const [season, settings] = await Promise.all([
+    getCurrentSeason(),
+    getLotterySettings(),
+  ]);
+  const threshold = settings?.threshold_points ?? null;
+  const { data: levels } =
+    season && userIds.length > 0
+      ? await supabase
           .from("user_levels")
           .select("user_id, xp")
           .eq("season_id", season.id)
           .in("user_id", userIds)
-      : Promise.resolve({ data: [] as { user_id: string; xp: number }[] }),
-  ]);
-  const nameMap = new Map((profiles ?? []).map((p) => [p.id, p.name]));
+      : { data: [] as { user_id: string; xp: number }[] };
   const xpMap = new Map((levels ?? []).map((l) => [l.user_id, l.xp]));
 
   return rows.map((row) => ({
     token: row.token,
     issuedAt: row.issued_at,
-    userId: row.user_id,
-    name: row.user_id ? (nameMap.get(row.user_id) ?? null) : null,
-    xp: row.user_id ? (xpMap.get(row.user_id) ?? null) : null,
+    status: !row.user_id
+      ? "withdrawn"
+      : threshold !== null && (xpMap.get(row.user_id) ?? 0) >= threshold
+        ? "eligible"
+        : "not_eligible",
   }));
 }

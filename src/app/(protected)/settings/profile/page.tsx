@@ -41,8 +41,10 @@ export default async function ProfileSettingsPage({
         <ProfileForm
           message={params}
           isNew={true}
+          // LINEの表示名（本名のことが多い）を初期値にすると、そのまま登録して
+          // 本名が公開されてしまう。ニックネームは利用者に一から入力してもらう
           initialProfile={{
-            name: publicUser?.name || user.user_metadata.name || "",
+            name: publicUser?.name || "",
           }}
           nextUrlAfterSignup={nextUrlAfterSignup}
         />
