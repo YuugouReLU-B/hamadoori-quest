@@ -23,8 +23,8 @@ describe("beta-end-mode", () => {
     expect(isBetaEndActive(now, null)).toBe(false);
   });
 
-  it("デフォルトのBETA_END_ATは2026-12-01 JST", () => {
-    expect(BETA_END_AT?.toISOString()).toBe("2026-11-30T15:00:00.000Z");
+  it("デフォルトのBETA_END_ATは2026-11-30 0時 JST（利用規約の11月29日終了）", () => {
+    expect(BETA_END_AT?.toISOString()).toBe("2026-11-29T15:00:00.000Z");
   });
 
   it("終了前でも preview=beta-end なら表示する", () => {
