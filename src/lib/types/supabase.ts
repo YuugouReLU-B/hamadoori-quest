@@ -293,6 +293,64 @@ export type Database = {
         };
         Relationships: [];
       };
+      geo_checkin_locations: {
+        Row: {
+          accuracy_meters: number | null;
+          created_at: string;
+          distance_meters: number | null;
+          id: string;
+          latitude: number;
+          longitude: number;
+          mission_id: string;
+          result: string;
+          user_id: string;
+        };
+        Insert: {
+          accuracy_meters?: number | null;
+          created_at?: string;
+          distance_meters?: number | null;
+          id?: string;
+          latitude: number;
+          longitude: number;
+          mission_id: string;
+          result: string;
+          user_id: string;
+        };
+        Update: {
+          accuracy_meters?: number | null;
+          created_at?: string;
+          distance_meters?: number | null;
+          id?: string;
+          latitude?: number;
+          longitude?: number;
+          mission_id?: string;
+          result?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_achievement_count_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_category_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "missions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       lottery_settings: {
         Row: {
           button_label: string;

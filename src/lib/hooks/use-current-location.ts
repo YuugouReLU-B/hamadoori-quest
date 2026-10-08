@@ -11,8 +11,23 @@ interface UseCurrentLocationOptions {
   flyToOnFirstLocation?: boolean;
 }
 
+export type LocateStatus = "idle" | "locating" | "located" | "error";
+
+export const LOCATION_PERMISSION_DENIED_MESSAGE =
+  "位置情報の利用が許可されていません。端末の位置情報設定を確認してください。";
+export const LOCATION_UNAVAILABLE_MESSAGE =
+  "位置情報を取得できませんでした。端末の位置情報設定を確認してください。";
+
+// GeolocationPositionError.PERMISSION_DENIED。jsdom などで定数が無い環境もあるので数値で持つ
+const PERMISSION_DENIED = 1;
+
 /**
- * 現在地の監視とマーカー表示を管理するhook
+ * 現在地の取得とマーカー表示を管理するhook。
+ *
+ * プライバシーポリシー上、位置情報は利用者が操作したときにだけ取得する。
+ * 画面を開いただけでは取得せず、`requestLocation`（または `handleLocate`）が
+ * 呼ばれたときに `getCurrentPosition` を1回だけ呼ぶ。`watchPosition` による
+ * 継続取得はしない。取得した座標はブラウザ内で使うだけでサーバーへは送らない。
  */
 export function useCurrentLocation(
   mapInstance: LeafletMap | null,
@@ -20,26 +35,57 @@ export function useCurrentLocation(
 ) {
   const { flyToOnFirstLocation = false } = options;
   const [currentPos, setCurrentPos] = useState<[number, number] | null>(null);
+  const [status, setStatus] = useState<LocateStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const currentMarkerRef = useRef<CircleMarker | null>(null);
   const hasFlownToLocationRef = useRef(false);
+  const isMountedRef = useRef(true);
 
-  // Watch current location
   useEffect(() => {
-    if (!navigator.geolocation) {
-      return;
-    }
-    const watchId = navigator.geolocation.watchPosition(
-      (pos) => {
-        setCurrentPos([pos.coords.latitude, pos.coords.longitude]);
-      },
-      () => {
-        // 位置情報の取得に失敗した場合は静かに処理
-      },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 },
-    );
+    isMountedRef.current = true;
     return () => {
-      navigator.geolocation.clearWatch(watchId);
+      isMountedRef.current = false;
     };
+  }, []);
+
+  /** 現在地を1回だけ取得する。取れなければ null */
+  const requestLocation = useCallback((): Promise<[number, number] | null> => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setStatus("error");
+      setErrorMessage(LOCATION_UNAVAILABLE_MESSAGE);
+      return Promise.resolve(null);
+    }
+
+    setStatus("locating");
+    setErrorMessage(null);
+
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const next: [number, number] = [
+            pos.coords.latitude,
+            pos.coords.longitude,
+          ];
+          if (isMountedRef.current) {
+            setCurrentPos(next);
+            setStatus("located");
+          }
+          resolve(next);
+        },
+        (error) => {
+          if (isMountedRef.current) {
+            setStatus("error");
+            setErrorMessage(
+              error.code === PERMISSION_DENIED
+                ? LOCATION_PERMISSION_DENIED_MESSAGE
+                : LOCATION_UNAVAILABLE_MESSAGE,
+            );
+          }
+          resolve(null);
+        },
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 },
+      );
+    });
   }, []);
 
   // 初回の現在地取得時に自動で飛ぶ
@@ -86,18 +132,22 @@ export function useCurrentLocation(
     }
   }, [currentPos, mapInstance]);
 
-  // Handle locate button click - fly to current location
-  const handleLocate = useCallback(() => {
-    if (currentPos && mapInstance) {
-      mapInstance.flyTo(currentPos, mapInstance.getZoom(), {
+  // 「現在地へ」ボタン: その場で現在地を取得して移動する
+  const handleLocate = useCallback(async () => {
+    const pos = await requestLocation();
+    if (pos && mapInstance) {
+      mapInstance.flyTo(pos, mapInstance.getZoom(), {
         animate: true,
         duration: 0.8,
       });
     }
-  }, [currentPos, mapInstance]);
+  }, [requestLocation, mapInstance]);
 
   return {
     currentPos,
+    status,
+    errorMessage,
+    requestLocation,
     handleLocate,
   };
 }
