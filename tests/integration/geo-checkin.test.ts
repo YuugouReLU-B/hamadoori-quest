@@ -131,6 +131,136 @@ describe("位置情報チェックイン", () => {
     expect(count).toBe(0);
   });
 
+  async function fetchCheckinLocations(userId: string, missionId: string) {
+    const { data, error } = await adminClient
+      .from("geo_checkin_locations")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("mission_id", missionId)
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(`位置記録の取得に失敗: ${error.message}`);
+    return data;
+  }
+
+  test("半径内で達成したときは、送られた座標と判定結果を1行保存する", async () => {
+    const missionId = await createGeoMission({
+      slug: `geo-location-granted-${Date.now()}`,
+    });
+    const { user, client } = await createTestUser();
+    userIds.push(user.userId);
+
+    const result = await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT,
+      BASE_LNG,
+      12.5,
+    );
+    expect(result.status).toBe("granted");
+
+    const rows = await fetchCheckinLocations(user.userId, missionId);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      latitude: BASE_LAT,
+      longitude: BASE_LNG,
+      accuracy_meters: 12.5,
+      result: "granted",
+    });
+    expect(rows[0].distance_meters).toBeCloseTo(0, 3);
+
+    // 獲得済みで押し直したときも already として残る
+    const again = await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT,
+      BASE_LNG,
+    );
+    expect(again.status).toBe("already");
+    const after = await fetchCheckinLocations(user.userId, missionId);
+    expect(after.map((row) => row.result)).toEqual(["granted", "already"]);
+
+    // 本人のクライアントからも読めない（service_role だけに開けている）
+    const { data: own } = await client
+      .from("geo_checkin_locations")
+      .select("id")
+      .eq("user_id", user.userId);
+    expect(own ?? []).toHaveLength(0);
+  });
+
+  test("半径の外から押したときも、不正防止の検証用に too_far として保存する", async () => {
+    const missionId = await createGeoMission({
+      slug: `geo-location-too-far-${Date.now()}`,
+      radiusMeters: 300,
+    });
+    const { user, client } = await createTestUser();
+    userIds.push(user.userId);
+
+    const result = await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT + 0.01,
+      BASE_LNG,
+    );
+    expect(result.status).toBe("too_far");
+
+    const rows = await fetchCheckinLocations(user.userId, missionId);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      latitude: BASE_LAT + 0.01,
+      longitude: BASE_LNG,
+      accuracy_meters: null,
+      result: "too_far",
+    });
+    expect(rows[0].distance_meters).toBeGreaterThan(300);
+  });
+
+  test("判定前に弾かれるケース（非表示）は位置を保存しない", async () => {
+    const missionId = await createGeoMission({
+      slug: `geo-location-hidden-${Date.now()}`,
+      isHidden: true,
+    });
+    const { user, client } = await createTestUser();
+    userIds.push(user.userId);
+
+    const result = await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT,
+      BASE_LNG,
+    );
+    expect(result.status).toBe("unavailable");
+    expect(await fetchCheckinLocations(user.userId, missionId)).toHaveLength(0);
+  });
+
+  test("退会（ユーザー削除）すると保存した位置も消える", async () => {
+    const missionId = await createGeoMission({
+      slug: `geo-location-delete-${Date.now()}`,
+    });
+    const { user, client } = await createTestUser();
+
+    await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT,
+      BASE_LNG,
+    );
+    expect(await fetchCheckinLocations(user.userId, missionId)).toHaveLength(1);
+
+    await cleanupTestUser(user.userId);
+
+    expect(await fetchCheckinLocations(user.userId, missionId)).toHaveLength(0);
+  });
+
   test("座標・半径が未設定のミッションは not_configured になる", async () => {
     const missionId = await createGeoMission({
       slug: `geo-not-configured-${Date.now()}`,
