@@ -64,16 +64,16 @@ export function DeleteAccountModal({
             <p className="font-medium text-red-600 text-sm">
               この操作は元に戻すことができません。
             </p>
-            <p className="text-sm">
-              退会すると、以下のデータが完全に削除されます：
-            </p>
+            <p className="text-sm">退会すると、次の情報が削除されます：</p>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              <li>プロフィール情報</li>
-              <li>クエスト達成記録と提出物</li>
-              <li>獲得ポイントとその履歴</li>
+              <li>アカウント情報とプロフィール</li>
+              <li>クエストの達成記録と提出物</li>
+              <li>獲得したポイントとその履歴</li>
               <li>紹介コード</li>
-              <li>その他のアカウントに関連するすべてのデータ</li>
             </ul>
+            <p className="text-sm">
+              獲得したポイントと達成記録は失われ、景品への応募もできなくなります。
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirm-text">

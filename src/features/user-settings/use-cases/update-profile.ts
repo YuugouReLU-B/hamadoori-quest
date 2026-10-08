@@ -4,7 +4,6 @@ import { after } from "next/server";
 import { z } from "zod";
 import { PREFECTURES } from "@/lib/constants/prefectures";
 import { formatZodErrors } from "@/lib/utils/validation-utils";
-import type { MailClient } from "../types/mail-client";
 
 function generateReferralCode(length = 8): string {
   return randomBytes(length).toString("base64url").slice(0, length);
@@ -55,7 +54,6 @@ async function insertReferralCode(
 
 export type UpdateProfileInput = {
   userId: string;
-  email: string | undefined;
   name: string;
   /** 任意。アンケート項目 */
   addressPrefecture?: string;
@@ -76,7 +74,6 @@ export type UpdateProfileResult =
 
 export type UpdateProfileDeps = {
   adminSupabase: SupabaseClient;
-  mail: MailClient;
 };
 
 const updateProfileSchema = z.object({
@@ -114,7 +111,7 @@ export async function updateProfile(
   deps: UpdateProfileDeps,
   input: UpdateProfileInput,
 ): Promise<UpdateProfileResult> {
-  const { adminSupabase, mail } = deps;
+  const { adminSupabase } = deps;
 
   // バリデーション
   const validatedFields = updateProfileSchema.safeParse({
@@ -204,18 +201,12 @@ export async function updateProfile(
   }
 
   if (isNewUser) {
-    // ウェルカムメール送信・サインアップアクティビティ記録は本人の登録完了を
-    // 待たせる必要がない付帯処理。レスポンスを返したあとにバックグラウンドで行う
-    // （メール送信が失敗/遅延すると登録ボタンの反応がそのぶん遅く見えていた）
+    // サインアップアクティビティの記録は本人の登録完了を待たせる必要がない
+    // 付帯処理。レスポンスを返したあとにバックグラウンドで行う。
+    // なお、ウェルカムメールは送らない。プライバシーポリシーで
+    // 「メールアドレスは取得しない」としており、auth.users.email は
+    // LINEログイン用の合成アドレス（実在しない）でしかないため。
     await runAfterResponse(async () => {
-      try {
-        if (input.email) {
-          await mail.sendWelcomeMail(input.email);
-        }
-      } catch (e) {
-        console.error("案内メール送信失敗:", e);
-      }
-
       try {
         // 既存のサインアップアクティビティをチェック
         const { data: existingActivity } = await adminSupabase

@@ -7,11 +7,9 @@ import {
   shouldDeleteOldAvatar,
   validateAvatarFile,
 } from "@/features/user-settings/utils/avatar-helpers";
-import { sendWelcomeMail } from "@/lib/services/mail";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createClient } from "@/lib/supabase/client";
 import { validateReturnUrl } from "@/lib/validation/url";
-import type { MailClient } from "../types/mail-client";
 import { updateProfile as updateProfileUseCase } from "../use-cases/update-profile";
 
 export type UpdateProfileResult = {
@@ -23,11 +21,6 @@ export type UploadAvatarResult = {
   success: boolean;
   avatarPath?: string;
   error?: string;
-};
-
-/** 本番用メールクライアント */
-const prodMailClient: MailClient = {
-  sendWelcomeMail: (to) => sendWelcomeMail(to),
 };
 
 export async function updateProfile(
@@ -129,11 +122,9 @@ export async function updateProfile(
   const result = await updateProfileUseCase(
     {
       adminSupabase: supabaseServiceClient,
-      mail: prodMailClient,
     },
     {
       userId: user.id,
-      email: user.email,
       name,
       avatarPath: avatar_path,
     },

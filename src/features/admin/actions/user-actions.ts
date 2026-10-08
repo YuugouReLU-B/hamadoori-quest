@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { extractRoles } from "@/features/admin/services/admin-users";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
+import { deleteAccountByAdmin } from "@/features/user-profile/services/profile";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 
 export type AdminUserActionResult =
@@ -56,6 +57,40 @@ export async function setUserAdminRole(
   if (error) {
     console.error("管理者権限の変更に失敗:", error);
     return { success: false, error: `変更に失敗しました: ${error.message}` };
+  }
+
+  revalidatePath("/admin/users");
+  return { success: true };
+}
+
+/**
+ * 管理者がユーザーを退会させる（お問い合わせフォームからの削除依頼に対応する）。
+ *
+ * 本人の退会と同じく `delete_user_account` → auth.users 削除の順で消す。
+ * Supabaseダッシュボードから auth.users だけを消すとプロフィールなどが
+ * 残ってしまうので、代理削除は必ずこの操作から行う。
+ *
+ * **自分自身は退会させられない。** 管理画面から自分を消すと、その場で
+ * セッションが無効になり操作の結果も確認できなくなるため。
+ * 本人の退会は通常どおり設定画面から行う。
+ */
+export async function deleteUserByAdmin(
+  userId: string,
+): Promise<AdminUserActionResult> {
+  const currentUser = await requireAdmin();
+
+  if (currentUser.id === userId) {
+    return {
+      success: false,
+      error: "自分自身はここから退会させられません",
+    };
+  }
+
+  try {
+    await deleteAccountByAdmin(userId);
+  } catch (error) {
+    console.error("管理者によるユーザー削除に失敗:", error);
+    return { success: false, error: "ユーザーの削除に失敗しました" };
   }
 
   revalidatePath("/admin/users");
