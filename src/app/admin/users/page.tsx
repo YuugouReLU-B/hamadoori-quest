@@ -1,4 +1,4 @@
-import { AdminDeleteUserButton } from "@/features/admin/components/admin-delete-user-button";
+import Link from "next/link";
 import { AdminRoleToggleButton } from "@/features/admin/components/admin-role-toggle-button";
 import { listUsersForAdmin } from "@/features/admin/services/admin-users";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
@@ -25,8 +25,11 @@ export default async function AdminUsersPage() {
         管理者にすると、クエストの作成・削除やポイント調整など管理画面のすべての操作ができるようになります。
         権限の変更は次回ログイン時から反映されます。
         <br />
-        お問い合わせフォームから退会の申し出があった場合は「退会させる」から削除してください。
-        Supabaseのダッシュボードで認証ユーザーだけを消すと、プロフィールなどが残ってしまいます。
+        お問い合わせフォームから削除の申し出があった場合は、
+        <Link href="/admin/users/delete" className="underline">
+          ユーザーデータの削除
+        </Link>
+        から行ってください。Supabaseのダッシュボードで認証ユーザーだけを消すと、プロフィールなどが残ってしまいます。
       </p>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
@@ -83,11 +86,6 @@ export default async function AdminUsersPage() {
                       userId={user.id}
                       userLabel={user.name ?? user.email ?? user.id}
                       isAdmin={user.isAdmin}
-                      isSelf={user.id === currentUser.id}
-                    />
-                    <AdminDeleteUserButton
-                      userId={user.id}
-                      userLabel={user.name ?? user.email ?? user.id}
                       isSelf={user.id === currentUser.id}
                     />
                   </div>

@@ -87,6 +87,33 @@ export type Database = {
           },
         ];
       };
+      admin_deletion_logs: {
+        Row: {
+          admin_user_id: string;
+          counts_after: Json | null;
+          counts_before: Json;
+          deleted_at: string;
+          deleted_user_id: string;
+          id: string;
+        };
+        Insert: {
+          admin_user_id: string;
+          counts_after?: Json | null;
+          counts_before: Json;
+          deleted_at?: string;
+          deleted_user_id: string;
+          id?: string;
+        };
+        Update: {
+          admin_user_id?: string;
+          counts_after?: Json | null;
+          counts_before?: Json;
+          deleted_at?: string;
+          deleted_user_id?: string;
+          id?: string;
+        };
+        Relationships: [];
+      };
       analytics_events: {
         Row: {
           engaged_ms: number | null;
@@ -2428,6 +2455,10 @@ export type Database = {
       };
     };
     Functions: {
+      admin_user_data_counts: {
+        Args: { target_user_id: string };
+        Returns: Json;
+      };
       analytics_acquisitions: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {
