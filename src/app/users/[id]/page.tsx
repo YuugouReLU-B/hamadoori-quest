@@ -3,7 +3,7 @@
  *
  * このページは以下の機能を提供します：
  * - ユーザーの基本情報表示（ソーシャルリンク）
- * - 達成したクエストの一覧
+ * - 達成したクエストの一覧（本人のページのときだけ）
  *
  * パフォーマンス最適化：
  * - Promise.allを使用した並列データ取得
@@ -45,10 +45,11 @@ export default async function UserDetailPage({ params }: Props) {
   // 達成したミッション（種別を問わず）。繰り返し達成した回数も各行に出るので、
   // 以前あった「クエスト達成状況」（総達成数＋回数カード）は重複として外した。
   // 総達成数は活動タイムラインの件数で、達成件数と数字が食い違って見えていた
-  const achievedMissions = await getUserAchievedMissions(
-    id,
-    currentSeasonId ?? undefined,
-  );
+  // どのイベント・スポットにいつ行ったかは本人にだけ見せる
+  // （規約で公開するのはニックネームとポイントまで）
+  const achievedMissions = isOwnPage
+    ? await getUserAchievedMissions(id, currentSeasonId ?? undefined)
+    : [];
 
   return (
     // ヒーローも含めて全セクションを同じ幅に揃える（左右の余白はこのコンテナだけで取る）

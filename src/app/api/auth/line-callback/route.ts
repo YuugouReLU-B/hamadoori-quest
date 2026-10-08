@@ -14,6 +14,7 @@ import { getOrInitializeUserLevel } from "@/features/user-level/services/level";
 import { APP_ORIGIN, LINE_REDIRECT_URI } from "@/lib/constants/app-origin";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createClient } from "@/lib/supabase/client";
+import { isBetaEndActive } from "@/lib/utils/beta-end-mode";
 import { deleteCookie, getCookie } from "@/lib/utils/server-cookies";
 import { validateReturnUrl } from "@/lib/validation/url";
 
@@ -143,6 +144,8 @@ export async function GET(request: NextRequest) {
         onUserCreated: async (userId) => {
           await getOrInitializeUserLevel(userId);
         },
+        // 実証実験の終了後は新規登録を止める（既存ユーザーのログインは通す）
+        allowNewUser: !isBetaEndActive(),
       },
     );
 

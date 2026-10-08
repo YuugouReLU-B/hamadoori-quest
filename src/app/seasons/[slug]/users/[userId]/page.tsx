@@ -22,7 +22,7 @@ import {
 } from "@/features/user-activity/loaders/timeline-loaders";
 import Levels from "@/features/user-level/components/levels";
 import SocialBadgeSection from "@/features/user-profile/components/social-badge-section";
-import { getProfile } from "@/features/user-profile/services/profile";
+import { getProfile, getUser } from "@/features/user-profile/services/profile";
 import { UserSeasonHeader } from "@/features/user-season/components/user-season-header";
 import { UserSeasonHistory } from "@/features/user-season/components/user-season-history";
 import {
@@ -56,12 +56,23 @@ export default async function SeasonUserDetailPage({ params }: Props) {
 
   if (!user) return <div>ユーザーが見つかりません</div>;
 
+  // どのクエストをいつ達成したか（活動タイムライン・達成状況）は本人にだけ見せる。
+  // 規約で他のユーザーに公開するのはニックネームとポイントまで
+  const viewer = await getUser();
+  const isOwnPage = viewer?.id === userId;
+
   const [timeline, count, missionAchievements, seasonHistory] =
     await Promise.all([
-      getUserActivityTimeline(userId, PAGE_SIZE, 0, season.id), // 初期の活動タイムライン（シーズン指定）
-      getUserActivityTimelineCount(userId, season.id), // 活動総数（ページネーション用、シーズン指定）
-      getUserRepeatableMissionAchievements(userId, season.id), // ミッション達成状況（シーズン指定）
-      getUserSeasonHistory(userId), // 全シーズン履歴
+      isOwnPage
+        ? getUserActivityTimeline(userId, PAGE_SIZE, 0, season.id) // 初期の活動タイムライン（シーズン指定）
+        : Promise.resolve([]),
+      isOwnPage
+        ? getUserActivityTimelineCount(userId, season.id) // 活動総数（ページネーション用、シーズン指定）
+        : Promise.resolve(0),
+      isOwnPage
+        ? getUserRepeatableMissionAchievements(userId, season.id) // ミッション達成状況（シーズン指定）
+        : Promise.resolve([]),
+      getUserSeasonHistory(userId), // 全シーズン履歴（シーズンごとのポイント）
     ]);
 
   return (
@@ -102,20 +113,22 @@ export default async function SeasonUserDetailPage({ params }: Props) {
           </Card>
         )}
 
-        {/* 活動タイムラインセクション */}
-        <Card className="w-full p-4 mt-4">
-          <div className="flex flex-row justify-between items-center mb-2">
-            <span className="text-lg font-bold">活動タイムライン</span>
-          </div>
-          {/* クライアントサイドページネーション付きの活動タイムライン */}
-          <UserDetailActivities
-            userId={userId}
-            initialTimeline={timeline}
-            pageSize={PAGE_SIZE}
-            totalCount={count}
-            seasonId={season.id}
-          />
-        </Card>
+        {/* 活動タイムラインセクション（本人のページのときだけ） */}
+        {isOwnPage && (
+          <Card className="w-full p-4 mt-4">
+            <div className="flex flex-row justify-between items-center mb-2">
+              <span className="text-lg font-bold">活動タイムライン</span>
+            </div>
+            {/* クライアントサイドページネーション付きの活動タイムライン */}
+            <UserDetailActivities
+              userId={userId}
+              initialTimeline={timeline}
+              pageSize={PAGE_SIZE}
+              totalCount={count}
+              seasonId={season.id}
+            />
+          </Card>
+        )}
 
         {/* シーズン履歴セクション */}
         {seasonHistory.length > 0 && (

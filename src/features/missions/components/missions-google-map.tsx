@@ -1,6 +1,6 @@
 "use client";
 
-import { LocateFixed } from "lucide-react";
+import { Loader2, LocateFixed } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,12 @@ const SELECTED_COLOR = "#ef4444";
 type MissionsGoogleMapProps = {
   spots: MapSpot[];
   currentPos: [number, number] | null;
+  /** 「現在地へ」を押したときに現在地を1回取得する。取れなければ null */
+  onRequestLocation: () => Promise<[number, number] | null>;
+  /** 現在地を取得中か */
+  locating: boolean;
+  /** 現在地を取得できなかったときの案内 */
+  locationError: string | null;
   selectedSpotId: string | null;
   onSelectSpot: (id: string | null) => void;
 };
@@ -83,6 +89,9 @@ function createInfoWindowContent(spot: MapSpot): HTMLElement {
 export function MissionsGoogleMap({
   spots,
   currentPos,
+  onRequestLocation,
+  locating,
+  locationError,
   selectedSpotId,
   onSelectSpot,
 }: MissionsGoogleMapProps) {
@@ -282,11 +291,13 @@ export function MissionsGoogleMap({
     }
   }, [currentPos, ready]);
 
-  const handleLocate = () => {
+  // 現在地は押したときにだけ取得する。画面を開いただけでは取らない
+  const handleLocate = async () => {
+    const pos = await onRequestLocation();
     const map = mapRef.current;
-    if (!map || !currentPos) return;
+    if (!map || !pos) return;
     onSelectSpot(null);
-    map.panTo({ lat: currentPos[0], lng: currentPos[1] });
+    map.panTo({ lat: pos[0], lng: pos[1] });
     map.setZoom(15);
   };
 
@@ -339,12 +350,20 @@ export function MissionsGoogleMap({
           variant="outline"
           size="sm"
           onClick={handleLocate}
-          disabled={!currentPos}
+          disabled={locating}
         >
-          <LocateFixed className="mr-1 h-4 w-4" aria-hidden="true" />
+          {locating ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <LocateFixed className="mr-1 h-4 w-4" aria-hidden="true" />
+          )}
           現在地へ
         </Button>
       </div>
+
+      {locationError && (
+        <output className="block text-sm text-red-600">{locationError}</output>
+      )}
     </div>
   );
 }

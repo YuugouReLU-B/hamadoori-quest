@@ -1,7 +1,7 @@
 "use client";
 
 import L from "leaflet";
-import { LocateFixed } from "lucide-react";
+import { Loader2, LocateFixed } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,9 @@ export default function SpotMap({ spots }: SpotMapProps) {
   const spotsRef = useRef(spots);
   spotsRef.current = spots;
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
-  const { currentPos, handleLocate } = useCurrentLocation(mapInstance);
+  // 現在地は「現在地へ」を押したときだけ取得する（画面を開いただけでは取らない）
+  const { status, errorMessage, handleLocate } =
+    useCurrentLocation(mapInstance);
   // 初期表示の位置は最初のスポットから決める。あとでスポットが変わっても
   // 勝手に地図が動くと、利用者がずらした表示を奪ってしまう
   const initialSpotsRef = useRef(spots);
@@ -221,12 +223,20 @@ export default function SpotMap({ spots }: SpotMapProps) {
           variant="outline"
           size="sm"
           onClick={handleLocate}
-          disabled={!currentPos}
+          disabled={status === "locating"}
         >
-          <LocateFixed className="mr-1 h-4 w-4" aria-hidden="true" />
+          {status === "locating" ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <LocateFixed className="mr-1 h-4 w-4" aria-hidden="true" />
+          )}
           現在地へ
         </Button>
       </div>
+
+      {errorMessage && (
+        <output className="block text-sm text-red-600">{errorMessage}</output>
+      )}
     </div>
   );
 }
