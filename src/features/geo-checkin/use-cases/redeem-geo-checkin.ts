@@ -1,5 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  type GeoCheckinLocationResult,
+  recordGeoCheckinLocation,
+} from "@/features/geo-checkin/services/geo-checkin-locations";
+import {
   type GeoCheckinMission,
   getGeoCheckinMission,
 } from "@/features/geo-checkin/services/geo-checkin-missions";
@@ -35,6 +39,10 @@ export type RedeemGeoCheckinResult =
  *
  * **ブラウザが返す位置情報は偽装できる**（開発者ツール・モックGPSアプリ等）。
  * QRの転載と同じく、ベータでは対策しない前提で許容する。
+ *
+ * 距離の判定まで進んだ場合は、送られた座標と判定結果を geo_checkin_locations に
+ * 1行残す（判定・不正の防止・実証実験の検証のため。プライバシーポリシー4-2）。
+ * 判定前に弾くケース（存在しない・非表示・終了・未設定）は残さない。
  */
 export async function redeemGeoCheckin(
   adminSupabase: SupabaseClient<Database>,
@@ -43,6 +51,7 @@ export async function redeemGeoCheckin(
   missionId: string,
   latitude: number,
   longitude: number,
+  accuracyMeters: number | null = null,
 ): Promise<RedeemGeoCheckinResult> {
   const mission = await getGeoCheckinMission(adminSupabase, missionId);
 
@@ -77,6 +86,24 @@ export async function redeemGeoCheckin(
     return { status: "not_configured", mission };
   }
 
+  const distanceMeters = calculateDistanceMeters(
+    latitude,
+    longitude,
+    mission.latitude,
+    mission.longitude,
+  );
+
+  const record = (result: GeoCheckinLocationResult) =>
+    recordGeoCheckinLocation(adminSupabase, {
+      userId,
+      missionId: mission.id,
+      latitude,
+      longitude,
+      accuracyMeters,
+      distanceMeters,
+      result,
+    });
+
   // 上限に達しているかを先に見る。achieveMission でも弾かれるが、
   // 「もう獲得済み」と「遠すぎる」を利用者に区別して伝えたい
   if (mission.maxAchievementCount !== null) {
@@ -87,18 +114,13 @@ export async function redeemGeoCheckin(
       .eq("mission_id", mission.id);
 
     if ((count ?? 0) >= mission.maxAchievementCount) {
+      await record("already");
       return { status: "already", mission };
     }
   }
 
-  const distanceMeters = calculateDistanceMeters(
-    latitude,
-    longitude,
-    mission.latitude,
-    mission.longitude,
-  );
-
   if (distanceMeters > mission.radiusMeters) {
+    await record("too_far");
     return {
       status: "too_far",
       mission,
@@ -119,12 +141,15 @@ export async function redeemGeoCheckin(
 
   // 同時に押された2回目は、DBで上限超過として弾かれる。達成済みとして扱う
   if (!result.success && result.error === ACHIEVEMENT_LIMIT_REACHED_MESSAGE) {
+    await record("already");
     return { status: "already", mission };
   }
 
   if (!result.success) {
+    await record("error");
     return { status: "error", mission, message: result.error };
   }
 
+  await record("granted");
   return { status: "granted", mission, xpGranted: result.xpGranted };
 }

@@ -47,6 +47,21 @@ it("日付未設定なら従来どおり閾値到達で応募できる", async (
   ).toHaveAttribute("href", settings.form_url);
 });
 
+it("応募フォームURLの {token} を、そのユーザーのトークンに差し替える", async () => {
+  jest.mocked(getLotterySettings).mockResolvedValue({
+    ...settings,
+    form_url:
+      "https://docs.google.com/forms/d/e/abc/viewform?usp=pp_url&entry.123={token}",
+  });
+  render(await LotteryEntryPanel());
+  expect(
+    screen.getByRole("link", { name: settings.button_label }),
+  ).toHaveAttribute(
+    "href",
+    "https://docs.google.com/forms/d/e/abc/viewform?usp=pp_url&entry.123=TEST-TOKEN",
+  );
+});
+
 it("開始直前はポイント達成済みでもトークンを表示しない", async () => {
   jest.mocked(getLotterySettings).mockResolvedValue({
     ...settings,

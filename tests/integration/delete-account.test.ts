@@ -15,12 +15,14 @@ import {
 
 describe("delete_user_account RPC（退会機能）", () => {
   let testUserId: string;
+  let testUserEmail: string;
   let testUserClient: SupabaseClient<Database>;
   let testMission: TestMission | null = null;
 
   beforeEach(async () => {
     const { user, client } = await createTestUser();
     testUserId = user.userId;
+    testUserEmail = user.email;
     testUserClient = client;
   });
 
@@ -346,5 +348,166 @@ describe("delete_user_account RPC（退会機能）", () => {
 
     expect(error).not.toBeNull();
     expect(error!.message).toContain("Unauthorized");
+  });
+
+  test("アクセス解析のセッションとイベントも削除される", async () => {
+    const visitorId = crypto.randomUUID();
+    const sessionId = crypto.randomUUID();
+    const anonSessionId = crypto.randomUUID();
+
+    const { error: sessionError } = await adminClient
+      .from("analytics_sessions")
+      .insert([
+        {
+          id: sessionId,
+          visitor_id: visitorId,
+          user_id: testUserId,
+          ip_address: "192.0.2.1",
+          ip_city: "テスト市",
+          user_agent: "jest",
+          landing_path: "/",
+        },
+        // 未ログインのセッション（user_id なし）。退会とは無関係なので残る
+        {
+          id: anonSessionId,
+          visitor_id: crypto.randomUUID(),
+          user_id: null,
+          ip_address: "192.0.2.2",
+        },
+      ]);
+    if (sessionError)
+      throw new Error(`session insert failed: ${sessionError.message}`);
+
+    const { error: eventError } = await adminClient
+      .from("analytics_events")
+      .insert({
+        event_id: crypto.randomUUID(),
+        session_id: sessionId,
+        visitor_id: visitorId,
+        user_id: testUserId,
+        tab_id: crypto.randomUUID(),
+        seq: 1,
+        event_name: "page_view",
+        occurred_at: new Date().toISOString(),
+      });
+    if (eventError)
+      throw new Error(`event insert failed: ${eventError.message}`);
+
+    try {
+      const { error } = await testUserClient.rpc("delete_user_account", {
+        target_user_id: testUserId,
+      });
+      expect(error).toBeNull();
+
+      const { data: sessions } = await adminClient
+        .from("analytics_sessions")
+        .select("id")
+        .or(`user_id.eq.${testUserId},id.eq.${sessionId}`);
+      expect(sessions ?? []).toHaveLength(0);
+
+      const { data: events } = await adminClient
+        .from("analytics_events")
+        .select("id")
+        .or(`user_id.eq.${testUserId},session_id.eq.${sessionId}`);
+      expect(events ?? []).toHaveLength(0);
+
+      const { data: anonSession } = await adminClient
+        .from("analytics_sessions")
+        .select("id")
+        .eq("id", anonSessionId)
+        .maybeSingle();
+      expect(anonSession).not.toBeNull();
+    } finally {
+      await adminClient
+        .from("analytics_sessions")
+        .delete()
+        .in("id", [sessionId, anonSessionId]);
+    }
+  });
+
+  test("紹介した側の成果物に残る退会者のメールが置き換わる", async () => {
+    const { user: referrer } = await createTestUser();
+
+    try {
+      testMission = await createTestMission({
+        requiredArtifactType: "REFERRAL",
+        difficulty: 1,
+        maxAchievementCount: null,
+      });
+
+      // 紹介者の達成2件: 退会するユーザーを紹介したものと、別の人を紹介したもの
+      const { data: achievements, error: achievementError } = await adminClient
+        .from("achievements")
+        .insert([
+          { user_id: referrer.userId, mission_id: testMission.id },
+          { user_id: referrer.userId, mission_id: testMission.id },
+        ])
+        .select("id");
+      if (achievementError || !achievements)
+        throw new Error(
+          `achievement insert failed: ${achievementError?.message}`,
+        );
+
+      const otherEmail = `other-${crypto.randomUUID()}@example.com`;
+      const { data: artifacts, error: artifactError } = await adminClient
+        .from("mission_artifacts")
+        .insert([
+          {
+            user_id: referrer.userId,
+            achievement_id: achievements[0].id,
+            artifact_type: "REFERRAL",
+            text_content: testUserEmail.toLowerCase(),
+          },
+          {
+            user_id: referrer.userId,
+            achievement_id: achievements[1].id,
+            artifact_type: "REFERRAL",
+            text_content: otherEmail,
+          },
+        ])
+        .select("id, text_content");
+      if (artifactError || !artifacts)
+        throw new Error(`artifact insert failed: ${artifactError?.message}`);
+
+      const { error } = await testUserClient.rpc("delete_user_account", {
+        target_user_id: testUserId,
+      });
+      expect(error).toBeNull();
+
+      const { data: after } = await adminClient
+        .from("mission_artifacts")
+        .select("id, text_content")
+        .in(
+          "id",
+          artifacts.map((a) => a.id),
+        );
+      const byId = new Map((after ?? []).map((a) => [a.id, a.text_content]));
+
+      // 紹介者の達成記録自体は残り、退会者のメールだけが消える
+      expect(byId.get(artifacts[0].id)).toBe("退会済みユーザー");
+      expect(byId.get(artifacts[1].id)).toBe(otherEmail);
+
+      const { data: anyLeft } = await adminClient
+        .from("mission_artifacts")
+        .select("id")
+        .eq("text_content", testUserEmail.toLowerCase());
+      expect(anyLeft ?? []).toHaveLength(0);
+    } finally {
+      await cleanupTestUser(referrer.userId);
+    }
+  });
+
+  test("service_role からは他のユーザーも削除できる（管理者の代理削除）", async () => {
+    const { error } = await adminClient.rpc("delete_user_account", {
+      target_user_id: testUserId,
+    });
+    expect(error).toBeNull();
+
+    const { data: publicProfile } = await adminClient
+      .from("public_user_profiles")
+      .select("id")
+      .eq("id", testUserId)
+      .maybeSingle();
+    expect(publicProfile).toBeNull();
   });
 });

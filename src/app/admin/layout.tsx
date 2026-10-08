@@ -57,6 +57,7 @@ export default async function AdminLayout({
             <Link href="/admin/lottery">抽選応募設定</Link>
             <Link href="/admin/analytics">アクセス解析</Link>
             <Link href="/admin/users">ユーザー</Link>
+            <Link href="/admin/users/delete">ユーザーデータの削除</Link>
           </nav>
         </header>
 

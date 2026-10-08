@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AdminRoleToggleButton } from "@/features/admin/components/admin-role-toggle-button";
 import { listUsersForAdmin } from "@/features/admin/services/admin-users";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
@@ -23,6 +24,12 @@ export default async function AdminUsersPage() {
       <p className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
         管理者にすると、クエストの作成・削除やポイント調整など管理画面のすべての操作ができるようになります。
         権限の変更は次回ログイン時から反映されます。
+        <br />
+        お問い合わせフォームから削除の申し出があった場合は、
+        <Link href="/admin/users/delete" className="underline">
+          ユーザーデータの削除
+        </Link>
+        から行ってください。Supabaseのダッシュボードで認証ユーザーだけを消すと、プロフィールなどが残ってしまいます。
       </p>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
@@ -74,7 +81,7 @@ export default async function AdminUsersPage() {
                   {user.createdAt.slice(0, 10)}
                 </td>
                 <td className="px-4 py-2.5">
-                  <div className="flex justify-end">
+                  <div className="flex items-start justify-end gap-2">
                     <AdminRoleToggleButton
                       userId={user.id}
                       userLabel={user.name ?? user.email ?? user.id}

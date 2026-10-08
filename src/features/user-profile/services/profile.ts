@@ -1,8 +1,9 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react";
 
 import { createAdminClient } from "@/lib/supabase/adminClient";
 import { createClient } from "@/lib/supabase/client";
-import type { Tables } from "@/lib/types/supabase";
+import type { Database, Tables } from "@/lib/types/supabase";
 
 export const getUser = cache(async () => {
   const supabase = createClient();
@@ -97,9 +98,48 @@ export async function updateProfile(
   return updated;
 }
 
+/**
+ * ユーザーの関連データと認証ユーザーを削除する。
+ *
+ * 必ず `delete_user_account` RPC を先に呼び、そのあとで auth.users を消す。
+ * auth.users だけを消すと public_user_profiles などが残ってしまうため、
+ * 管理者による代理削除もこの関数を通すこと。
+ *
+ * @param rpcClient RPC を呼ぶクライアント。本人の退会では本人のセッションの
+ *   クライアント（RPC 内で本人確認される）、管理者の代理削除では service_role。
+ */
+async function removeUserAccount(
+  rpcClient: SupabaseClient<Database>,
+  userId: string,
+): Promise<void> {
+  // 1. 関連データを削除（RPC 内で本人または service_role かを確認する）
+  const { error: transactionError } = await rpcClient.rpc(
+    "delete_user_account",
+    { target_user_id: userId },
+  );
+
+  if (transactionError) {
+    console.error("退会処理でエラーが発生しました:", transactionError);
+    throw new Error(`退会処理に失敗しました: ${transactionError.message}`);
+  }
+
+  // 2. auth.users テーブルからユーザーを削除（Admin API使用）
+  const supabaseAdmin = await createAdminClient();
+  const { error: authDeleteError } =
+    await supabaseAdmin.auth.admin.deleteUser(userId);
+
+  if (authDeleteError) {
+    console.error("認証ユーザー削除でエラーが発生しました:", authDeleteError);
+    throw new Error(
+      `認証ユーザー削除に失敗しました: ${authDeleteError.message}`,
+    );
+  }
+
+  console.log("退会処理が正常に完了しました:", userId);
+}
+
 export async function deleteAccount(): Promise<void> {
   const supabaseClient = createClient();
-  const supabaseAdmin = await createAdminClient();
 
   // 現在のユーザー情報を取得
   const { data: authUser } = await supabaseClient.auth.getUser();
@@ -107,37 +147,18 @@ export async function deleteAccount(): Promise<void> {
     throw new Error("ユーザー（認証）が見つかりません");
   }
 
-  const userId = authUser.user.id;
-
-  try {
-    // 1. 関連データを削除 - 通常のクライアントを使用（関数内で認証チェック実行）
-    const { error: transactionError } = await supabaseClient.rpc(
-      "delete_user_account",
-      { target_user_id: userId },
-    );
-
-    if (transactionError) {
-      console.error("退会処理でエラーが発生しました:", transactionError);
-      throw new Error(`退会処理に失敗しました: ${transactionError.message}`);
-    }
-
-    // 2. auth.users テーブルからユーザーを削除（Admin API使用）
-    const { error: authDeleteError } =
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-
-    if (authDeleteError) {
-      console.error("認証ユーザー削除でエラーが発生しました:", authDeleteError);
-      throw new Error(
-        `認証ユーザー削除に失敗しました: ${authDeleteError.message}`,
-      );
-    }
-
-    console.log("退会処理が正常に完了しました:", userId);
-  } catch (error) {
-    console.error("退会処理でエラーが発生しました:", error);
-    throw error;
-  }
+  await removeUserAccount(supabaseClient, authUser.user.id);
 
   // サインアウト（データベース上のデータは削除済み）
   await supabaseClient.auth.signOut();
+}
+
+/**
+ * 管理者が指定ユーザーを退会させる（お問い合わせ経由の削除依頼など）。
+ *
+ * 認可（管理者か・自分自身でないか）は呼び出し側の actions 層で行うこと。
+ */
+export async function deleteAccountByAdmin(userId: string): Promise<void> {
+  const supabaseAdmin = await createAdminClient();
+  await removeUserAccount(supabaseAdmin, userId);
 }

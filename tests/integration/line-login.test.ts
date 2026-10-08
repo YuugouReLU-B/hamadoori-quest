@@ -1,4 +1,7 @@
-import { lineLogin } from "@/features/auth/use-cases/line-login";
+import {
+  lineLogin,
+  SIGNUP_CLOSED_MESSAGE,
+} from "@/features/auth/use-cases/line-login";
 import { FakeLineApiClient } from "./fake-line-api-client";
 import {
   adminClient,
@@ -46,6 +49,43 @@ describe("lineLogin ユースケース", () => {
     const found = await findUserByLineId(lineUserId);
     expect(found).not.toBeNull();
     expect(found.id).toBe(result.userId);
+  });
+
+  test("新規作成を止めているときは、新しいLINEユーザーを作らない", async () => {
+    const lineUserId = `U_test_closed_${Date.now()}`;
+    const fakeClient = new FakeLineApiClient(lineUserId, "テスト花子");
+
+    const result = await lineLogin(adminClient, fakeClient, {
+      code: "fake-code",
+      redirectUri: "http://localhost:3000/api/auth/line-callback",
+      allowNewUser: false,
+    });
+
+    expect(result).toEqual({ success: false, error: SIGNUP_CLOSED_MESSAGE });
+    expect(await findUserByLineId(lineUserId)).toBeNull();
+  });
+
+  test("新規作成を止めていても、既存のLINEユーザーはログインできる", async () => {
+    const lineUserId = `U_test_closed_existing_${Date.now()}`;
+    const fakeClient = new FakeLineApiClient(lineUserId, "テスト次郎");
+
+    const first = await lineLogin(adminClient, fakeClient, {
+      code: "fake-code",
+      redirectUri: "http://localhost:3000/api/auth/line-callback",
+    });
+    expect(first.success).toBe(true);
+    if (!first.success) return;
+    createdUserIds.push(first.userId);
+
+    const second = await lineLogin(adminClient, fakeClient, {
+      code: "fake-code-2",
+      redirectUri: "http://localhost:3000/api/auth/line-callback",
+      allowNewUser: false,
+    });
+    expect(second.success).toBe(true);
+    if (!second.success) return;
+    expect(second.isNewUser).toBe(false);
+    expect(second.userId).toBe(first.userId);
   });
 
   test("既存LINEユーザーがログインできる", async () => {

@@ -92,6 +92,7 @@ export function GeoCheckinButton({
         missionId,
         position.coords.latitude,
         position.coords.longitude,
+        position.coords.accuracy,
       );
 
       // 達成の流れのなかに「現地チェックインで取った」ことを残す。

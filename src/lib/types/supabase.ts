@@ -87,6 +87,33 @@ export type Database = {
           },
         ];
       };
+      admin_deletion_logs: {
+        Row: {
+          admin_user_id: string;
+          counts_after: Json | null;
+          counts_before: Json;
+          deleted_at: string;
+          deleted_user_id: string;
+          id: string;
+        };
+        Insert: {
+          admin_user_id: string;
+          counts_after?: Json | null;
+          counts_before: Json;
+          deleted_at?: string;
+          deleted_user_id: string;
+          id?: string;
+        };
+        Update: {
+          admin_user_id?: string;
+          counts_after?: Json | null;
+          counts_before?: Json;
+          deleted_at?: string;
+          deleted_user_id?: string;
+          id?: string;
+        };
+        Relationships: [];
+      };
       analytics_events: {
         Row: {
           engaged_ms: number | null;
@@ -292,6 +319,64 @@ export type Database = {
           visitor_id?: string;
         };
         Relationships: [];
+      };
+      geo_checkin_locations: {
+        Row: {
+          accuracy_meters: number | null;
+          created_at: string;
+          distance_meters: number | null;
+          id: string;
+          latitude: number;
+          longitude: number;
+          mission_id: string;
+          result: string;
+          user_id: string;
+        };
+        Insert: {
+          accuracy_meters?: number | null;
+          created_at?: string;
+          distance_meters?: number | null;
+          id?: string;
+          latitude: number;
+          longitude: number;
+          mission_id: string;
+          result: string;
+          user_id: string;
+        };
+        Update: {
+          accuracy_meters?: number | null;
+          created_at?: string;
+          distance_meters?: number | null;
+          id?: string;
+          latitude?: number;
+          longitude?: number;
+          mission_id?: string;
+          result?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_achievement_count_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "mission_category_view";
+            referencedColumns: ["mission_id"];
+          },
+          {
+            foreignKeyName: "geo_checkin_locations_mission_id_fkey";
+            columns: ["mission_id"];
+            isOneToOne: false;
+            referencedRelation: "missions";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       lottery_settings: {
         Row: {
@@ -2370,6 +2455,10 @@ export type Database = {
       };
     };
     Functions: {
+      admin_user_data_counts: {
+        Args: { target_user_id: string };
+        Returns: Json;
+      };
       analytics_acquisitions: {
         Args: { from_ts: string; row_limit?: number; to_ts: string };
         Returns: {

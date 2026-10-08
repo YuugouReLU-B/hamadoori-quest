@@ -1,14 +1,26 @@
 import Link from "next/link";
 import { LotterySettingsForm } from "@/features/admin/components/lottery-settings-form";
 import {
+  type LotteryTokenStatus,
   listLotteryTokensForAdmin,
   normalizeLotteryToken,
 } from "@/features/admin/services/admin-lottery-tokens";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
-import { formatPoints } from "@/lib/utils/format-points";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_LABELS: Record<LotteryTokenStatus, string> = {
+  eligible: "有効（応募条件を満たす）",
+  not_eligible: "有効（応募条件を満たしていない）",
+  withdrawn: "無効（退会済み）",
+};
+
+const STATUS_STYLES: Record<LotteryTokenStatus, string> = {
+  eligible: "bg-emerald-100 text-emerald-800",
+  not_eligible: "bg-amber-100 text-amber-800",
+  withdrawn: "bg-gray-100 text-gray-600",
+};
 
 export default async function AdminLotteryPage({
   searchParams,
@@ -46,8 +58,9 @@ export default async function AdminLotteryPage({
       <div className="mt-10 mb-4">
         <h2 className="text-lg font-bold">応募トークンの照合</h2>
         <p className="text-sm text-gray-600">
-          マイページでトークンを表示したユーザーの記録。応募フォームの回答にあるトークンが、
-          実際に発行したものか・誰のものかを確認できる。
+          応募フォームの回答にあるトークンが、当団体が発行したもので、応募条件を満たしているかだけを確認できる。
+          プライバシーポリシーで「応募フォームの情報を利用履歴と突き合わせない」としているため、
+          誰のトークンか・何ポイントかは表示しない。応募フォームの運営事業者からはトークンだけを受け取り、この結果だけを返すこと。
         </p>
       </div>
 
@@ -85,12 +98,11 @@ export default async function AdminLotteryPage({
             {searchedToken ? "照合結果" : `発行済み ${tokens.length} 件`}
           </p>
           <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="w-full min-w-[640px] text-sm">
+            <table className="w-full min-w-[480px] text-sm">
               <thead className="bg-gray-50 text-left">
                 <tr>
                   <th className="px-4 py-2.5 font-bold">トークン</th>
-                  <th className="px-4 py-2.5 font-bold">ユーザー</th>
-                  <th className="px-4 py-2.5 font-bold">現在のポイント</th>
+                  <th className="px-4 py-2.5 font-bold">照合結果</th>
                   <th className="px-4 py-2.5 font-bold">発行日時</th>
                 </tr>
               </thead>
@@ -99,25 +111,11 @@ export default async function AdminLotteryPage({
                   <tr key={item.token} className="hover:bg-gray-50">
                     <td className="px-4 py-2.5 font-mono">{item.token}</td>
                     <td className="px-4 py-2.5">
-                      {item.userId ? (
-                        <>
-                          {item.name ?? (
-                            <span className="text-gray-400">（未設定）</span>
-                          )}
-                          <div className="font-mono text-xs text-gray-500">
-                            {item.userId}
-                          </div>
-                        </>
-                      ) : (
-                        <span className="text-gray-400">退会済み</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5 text-gray-700">
-                      {item.xp === null ? (
-                        <span className="text-gray-400">—</span>
-                      ) : (
-                        formatPoints(item.xp)
-                      )}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_STYLES[item.status]}`}
+                      >
+                        {STATUS_LABELS[item.status]}
+                      </span>
                     </td>
                     <td className="px-4 py-2.5 text-gray-700">
                       {new Date(item.issuedAt).toLocaleString("ja-JP", {

@@ -19,8 +19,10 @@ type MissionsMapViewProps = {
  * 現在地から近い順に並べる。
  */
 export function MissionsMapView({ missions }: MissionsMapViewProps) {
-  // 地図インスタンスに紐付けない使い方（現在地の取得だけ利用する）
-  const { currentPos } = useCurrentLocation(null);
+  // 地図インスタンスに紐付けない使い方（現在地の取得だけ利用する）。
+  // 現在地は地図の「現在地へ」を押したときだけ取得する
+  const { currentPos, status, errorMessage, requestLocation } =
+    useCurrentLocation(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const pins: MapSpot[] = useMemo(
@@ -68,6 +70,9 @@ export function MissionsMapView({ missions }: MissionsMapViewProps) {
       <MissionsGoogleMap
         spots={pins}
         currentPos={currentPos}
+        onRequestLocation={requestLocation}
+        locating={status === "locating"}
+        locationError={errorMessage}
         selectedSpotId={selectedId}
         onSelectSpot={setSelectedId}
       />
@@ -76,7 +81,7 @@ export function MissionsMapView({ missions }: MissionsMapViewProps) {
           ? "選んだ場所を一番上に表示しています"
           : currentPos
             ? "現在地から近い順に並んでいます"
-            : "位置情報を許可すると、近い順に並び替わります"}
+            : "「現在地へ」を押すと、近い順に並び替わります"}
       </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sortedMissions.map(({ mission, userAchievementCount }) => (

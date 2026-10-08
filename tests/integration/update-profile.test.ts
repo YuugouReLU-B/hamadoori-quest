@@ -1,5 +1,4 @@
 import { updateProfile } from "@/features/user-settings/use-cases/update-profile";
-import { FakeMailClient } from "./fake-mail-client";
 import { adminClient, cleanupTestUser } from "./utils";
 
 describe("updateProfile ユースケース", () => {
@@ -41,12 +40,11 @@ describe("updateProfile ユースケース", () => {
   };
 
   test("新規ユーザーのプロフィール作成 → private_users + public_user_profiles + user_referral 作成確認", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { ...validInput, userId, email },
+      { adminSupabase: adminClient },
+      { ...validInput, userId },
     );
 
     expect(result.success).toBe(true);
@@ -82,9 +80,6 @@ describe("updateProfile ユースケース", () => {
     expect(referral!.referral_code).toBeDefined();
     expect(referral!.referral_code.length).toBe(8);
 
-    // ウェルカムメールが送信されていることを検証
-    expect(mail.sentTo).toContain(email);
-
     // user_activities にサインアップアクティビティが記録されていることを検証
     const { data: activities } = await adminClient
       .from("user_activities")
@@ -97,22 +92,20 @@ describe("updateProfile ユースケース", () => {
   });
 
   test("既存ユーザーのプロフィール更新 → 更新確認", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     // 1回目: 新規作成
     const first = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { ...validInput, userId, email },
+      { adminSupabase: adminClient },
+      { ...validInput, userId },
     );
     expect(first.success).toBe(true);
 
     // 2回目: 更新
     const second = await updateProfile(
-      { adminSupabase: adminClient, mail },
+      { adminSupabase: adminClient },
       {
         userId,
-        email,
         name: "更新太郎",
         addressPrefecture: "大阪府",
         dateOfBirth: "1985-06-20",
@@ -148,21 +141,16 @@ describe("updateProfile ユースケース", () => {
       .select("*")
       .eq("user_id", userId);
     expect(referrals!.length).toBe(1);
-
-    // 2回目はウェルカムメールが送信されていないことを検証（既存ユーザーのため）
-    expect(mail.sentTo.length).toBe(1); // 1回目のみ
   });
 
   test("バリデーションエラー（無効な都道府県）", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
+      { adminSupabase: adminClient },
       {
         ...validInput,
         userId,
-        email,
         addressPrefecture: "無効な県",
       },
     );
@@ -180,37 +168,14 @@ describe("updateProfile ユースケース", () => {
     expect(privateUser).toBeNull();
   });
 
-  test("メール送信失敗時もプロフィール作成は成功する", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient(true); // shouldFail=true
-
-    const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { ...validInput, userId, email },
-    );
-
-    // メール送信が失敗してもプロフィール作成は成功する
-    expect(result.success).toBe(true);
-
-    // DBにデータが正しく作成されていることを検証
-    const { data: privateUser } = await adminClient
-      .from("private_users")
-      .select("id")
-      .eq("id", userId)
-      .single();
-    expect(privateUser).not.toBeNull();
-  });
-
   test("バリデーションエラー（空のニックネーム）", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
+      { adminSupabase: adminClient },
       {
         ...validInput,
         userId,
-        email,
         name: "",
       },
     );
@@ -229,15 +194,13 @@ describe("updateProfile ユースケース", () => {
   });
 
   test("バリデーションエラー（無効な生年月日形式）", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
+      { adminSupabase: adminClient },
       {
         ...validInput,
         userId,
-        email,
         dateOfBirth: "1990/01/15", // YYYY-MM-DD形式ではない
       },
     );
@@ -247,36 +210,12 @@ describe("updateProfile ユースケース", () => {
     expect(result.error).toContain("生年月日");
   });
 
-  test("emailなしの新規ユーザー作成（ウェルカムメール未送信）", async () => {
-    const { userId } = await createAuthUser();
-    const mail = new FakeMailClient();
-
-    const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { ...validInput, userId, email: undefined },
-    );
-
-    expect(result.success).toBe(true);
-
-    // ウェルカムメールが送信されていないことを検証
-    expect(mail.sentTo.length).toBe(0);
-
-    // プロフィールは作成されていることを検証
-    const { data: privateUser } = await adminClient
-      .from("private_users")
-      .select("id")
-      .eq("id", userId)
-      .single();
-    expect(privateUser).not.toBeNull();
-  });
-
   test("生年月日と都道府県は任意（未指定でも作成できる）", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { userId, email, name: "ニックネームだけの人", avatarPath: null },
+      { adminSupabase: adminClient },
+      { userId, name: "ニックネームだけの人", avatarPath: null },
     );
 
     expect(result.success).toBe(true);
@@ -300,12 +239,11 @@ describe("updateProfile ユースケース", () => {
   });
 
   test("ニックネームは必須のまま", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { userId, email, name: "", avatarPath: null },
+      { adminSupabase: adminClient },
+      { userId, name: "", avatarPath: null },
     );
 
     expect(result.success).toBe(false);
@@ -314,12 +252,11 @@ describe("updateProfile ユースケース", () => {
   });
 
   test("郵便番号は取得しない（渡しても保存されない）", async () => {
-    const { userId, email } = await createAuthUser();
-    const mail = new FakeMailClient();
+    const { userId } = await createAuthUser();
 
     const result = await updateProfile(
-      { adminSupabase: adminClient, mail },
-      { ...validInput, userId, email },
+      { adminSupabase: adminClient },
+      { ...validInput, userId },
     );
 
     expect(result.success).toBe(true);

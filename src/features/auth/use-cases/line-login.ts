@@ -8,7 +8,16 @@ export type LineLoginInput = {
   code: string;
   redirectUri: string;
   onUserCreated?: (userId: string) => Promise<void>;
+  /**
+   * 新しいアカウントを作ってよいか。実証実験の終了後は false にして、
+   * 既存ユーザー（管理者を含む）のログインだけを通す。省略時は true
+   */
+  allowNewUser?: boolean;
 };
+
+/** 実証実験の終了後に新しいアカウントを作ろうとしたときの案内 */
+export const SIGNUP_CLOSED_MESSAGE =
+  "実証実験の期間が終了したため、新しい登録は受け付けていません。";
 
 export type LineLoginResult =
   | {
@@ -109,6 +118,11 @@ export async function lineLogin(
         error: "このメールアドレスは既に登録されています。",
       };
     }
+  } else if (input.allowNewUser === false) {
+    return {
+      success: false,
+      error: SIGNUP_CLOSED_MESSAGE,
+    };
   } else {
     // 新規ユーザー。生年月日は取得しなくなったため、ここでの必須チェックは行わない
     const { data: newUser, error: createError } =
