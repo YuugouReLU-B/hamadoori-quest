@@ -1,166 +1,170 @@
+import {
+  ExternalLink,
+  LegalDocument,
+  LegalItemList,
+  LegalNumberedList,
+  LegalSection,
+} from "@/components/common/legal-document";
+import { EXTERNAL_LINKS } from "@/lib/constants/external-links";
 import { OPERATOR } from "@/lib/constants/operator";
 
 export default function TermsOfService() {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
-      <div className="mb-8">
-        <h1 className="text-2xl-custom font-bold text-black mb-4">利用規約</h1>
-        <p className="text-sm-custom font-normal text-black text-justify">
-          この利用規約（以下「本規約」といいます）は、{OPERATOR.name}
-          （以下「当団体」といいます）が提供するウェブサービス「浜通りクエスト」（以下「本サービス」といいます）の利用条件を定めるものです。本サービスのご利用にあたっては、本規約に同意いただく必要があります。同意いただけない場合は、本サービスをご利用いただけません。
+    <LegalDocument
+      title="利用規約"
+      updatedAt="2026年9月29日"
+      lead={<p>運営者：{OPERATOR.name}</p>}
+    >
+      <LegalSection heading="第1条（本規約の適用）">
+        <p>
+          本規約は、{OPERATOR.name}
+          （以下「当団体」）が提供するサービス「浜通りクエスト」（以下「本サービス」）の利用条件を定めるものです。本サービスを利用する方（以下「ユーザー」）は、本規約に同意したうえでご利用ください。
         </p>
-      </div>
+      </LegalSection>
 
-      <div className="space-y-8">
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            1. サービスの目的と性質
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            本サービスは、浜通り地域のスポットやイベントへの参加を後押しすることを目的として提供されるものであり、ユーザーが任意で行ったクエストの達成に対してポイントを付与するなどのゲーミフィケーション要素を備えています。
-          </p>
-        </section>
+      <LegalSection heading="第2条（本サービスの目的と性質）">
+        <LegalNumberedList
+          items={[
+            "本サービスは、福島県浜通り地域のスポットやイベントを訪れるきっかけをつくることを目的として提供するものです。ユーザーは、ミッションを達成することでポイントを獲得できます。",
+            "本サービスは、2026年10月9日から2026年11月29日までの期間に実施する実証実験として、試験的に提供するものです。期間終了後の本サービスの継続については現時点では未定です。",
+            "本サービスは、特定の商品・サービスの購入を条件とするものではありません。どなたでも無料で参加できます。",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            2. 利用資格
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify mb-3">
-            本サービスの利用は、以下の条件をすべて満たす方に限られます。
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-sm-custom text-black mb-3">
-            <li>本規約に同意し、遵守する意思を有すること</li>
-            <li>法令および公序良俗に反しない行動を取ることができること</li>
-          </ul>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            未成年の方は、保護者の同意を得たうえでご利用ください。
-          </p>
-        </section>
+      <LegalSection heading="第3条（利用資格）">
+        <LegalNumberedList
+          items={[
+            "本サービスは、LINEアカウントをお持ちの方であればどなたでもご利用いただけます。",
+            "18歳未満の方は、保護者の同意を得たうえでご利用ください。保護者の方は、本規約の内容をご確認のうえ、同意の可否をご判断ください。",
+            <>
+              次のいずれかに当たる場合、本サービスをご利用いただけません。
+              <ul className="list-disc pl-6 mt-2 space-y-1">
+                <li>本規約に違反したことがある場合</li>
+                <li>当団体が不適当と判断した場合</li>
+              </ul>
+            </>,
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            3. ユーザー登録とアカウント管理
-          </h2>
-          <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
-            <p>
-              本サービスを利用するには、LINEアカウントによるログインが必要です。登録するニックネーム等の情報は、他人の権利を侵害しないものでなければなりません。
-            </p>
-            <p>
-              ユーザーは、自己の責任において本サービスへのログインに用いるLINEアカウントを管理し、本サービスのアカウントを第三者に利用させてはなりません。
-            </p>
-            <p>
-              当団体は、虚偽の登録など不正があると判断した場合、アカウントを停止・削除することができます。
-            </p>
-          </div>
-        </section>
+      <LegalSection heading="第4条（登録とアカウント）">
+        <LegalNumberedList
+          items={[
+            "本サービスの利用には、LINEアカウントによるログインが必要です。",
+            "ユーザーは、ニックネームを登録できます。ニックネームは他のユーザーに公開されます。他人の権利を侵害するもの、公序良俗に反するものは登録しないでください。",
+            "ユーザーは、自己の責任においてアカウントを管理するものとし、第三者に利用させてはなりません。",
+            "不正な登録や重複した登録が確認された場合、当団体はアカウントの停止または削除を行うことがあります。",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            4. ポイントおよびランキング制度
-          </h2>
-          <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
-            <p>
-              ユーザーは、当団体が定める方法により、所定のクエストを達成することでポイントを取得できます。
-            </p>
-            <p>
-              ポイントはランキング表示や抽選への応募条件などに使用されますが、金銭的価値は一切なく、換金・譲渡・財産的利用はできません。
-            </p>
-            <p>
-              当団体は、ポイント制度やランキング機能を予告なく変更または廃止することができます。
-            </p>
-          </div>
-        </section>
+      <LegalSection heading="第5条（ミッションとチェックイン）">
+        <LegalNumberedList
+          items={[
+            "ユーザーは、本サービスに掲載されたスポットやイベントを訪れ、現地で画面上のボタンを押すこと（以下「チェックイン」）により、ミッションを達成できます。",
+            "チェックインの際、当団体は端末の位置情報を取得し、対象の場所にいることの確認に使用します。位置情報の取り扱いは、プライバシーポリシーに定めるとおりです。",
+            "通信環境、端末の設定、電波状況、天候等によりチェックインができない場合があります。当団体は、チェックインができなかったことによる不利益について責任を負いません。",
+            "掲載されたスポットの営業時間、定休日、訪問の可否は変更される場合があります。訪問前に各事業者の最新の情報をご確認ください。",
+            "ユーザーは、訪問先の施設やイベントの指示、現地のルール、交通法規を守り、安全に配慮して行動してください。移動中および訪問先での事故、けが、トラブルについて、当団体は責任を負いません。",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            5. 禁止事項
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify mb-3">
-            ユーザーは、以下の行為を行ってはなりません。
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-sm-custom text-black">
-            <li>法令または公序良俗に反する行為</li>
-            <li>他人になりすます行為</li>
-            <li>
-              クエストを達成していないにもかかわらず達成を申告するなど、ポイントを不正に取得する行為
-            </li>
-            <li>
-              本サービスの全部または一部を改変・模倣し、誤認を招くような行為
-            </li>
-            <li>サーバへの過剰な負荷、システムへの妨害・改ざん・侵入行為</li>
-            <li>自動化ツール、ボット等による操作</li>
-            <li>他ユーザーの個人情報を無断で収集・利用する行為</li>
-            <li>その他、当団体が不適切と判断する一切の行為</li>
-          </ul>
-        </section>
+      <LegalSection heading="第6条（ポイント）">
+        <LegalNumberedList
+          items={[
+            "ポイントは、ミッションの達成に応じて付与されます。",
+            "ポイントに金銭的価値はなく、換金、譲渡、売買、その他の財産的な利用はできません。",
+            "当団体は、ポイントの付与条件、獲得できるポイント数、その他ポイントに関する内容を、予告なく変更または廃止することがあります。",
+            "不正な方法で取得したと当団体が判断したポイントは、取り消すことがあります。",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            6. 知的財産権
-          </h2>
-          <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
-            <p>
-              本サービスの名称、ロゴ、デザイン、ランキング情報等に関する権利は、当団体または正当な権利者に帰属します。
-            </p>
-          </div>
-        </section>
+      <LegalSection heading="第7条（景品の応募）">
+        <LegalNumberedList
+          items={[
+            "累計1,000ポイント以上を獲得したユーザーは、景品の抽選に応募できます。",
+            "応募の受付、抽選、当選のご連絡、景品の発送は、当団体とは別の事業者が運営する外部の応募フォームを通じて行います。本サービスは、応募資格を満たしたユーザーに応募フォームのご案内を表示するまでを行います。",
+            "応募に必要な氏名や住所などの情報は、本サービスでは取得しません。外部の応募フォームにおける個人情報の取り扱いは、当該フォームに掲示される案内をご確認のうえ、ユーザーご自身でご判断ください。",
+            "応募の期間、当選者数、景品の内容は、本サービスまたは応募フォームにてお知らせします。",
+            "抽選の方法および結果に関するお問い合わせには応じかねます。",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            7. クエスト成果物の取り扱い
-          </h2>
-          <div className="space-y-3 text-sm-custom font-normal text-black text-justify">
-            <p>
-              ユーザーは、クエスト達成に関する成果物（写真、動画URL、SNS投稿リンク、位置情報等）を当団体に提出することがあります。
-            </p>
-            <p>
-              成果物は内部記録・不正防止・ポイント認定の目的に限定して使用され、ユーザーの同意なく外部に公開されることはありません。
-            </p>
-          </div>
-        </section>
+      <LegalSection heading="第8条（禁止事項）">
+        <p>ユーザーは、次の行為を行ってはなりません。</p>
+        <LegalItemList
+          items={[
+            "法令または公序良俗に違反する行為",
+            "他人になりすます行為、他人のアカウントを使用する行為",
+            "現地を訪れずにチェックインする行為、位置情報を偽装する行為、その他不正にポイントを取得する行為",
+            "複数のアカウントを作成して重複して応募する行為",
+            "本サービスの複製、改変、模倣、逆アセンブル等",
+            "サーバーやネットワークに過度の負荷をかける行為、不正アクセス、改ざん",
+            "自動化された手段（ボット等）による利用",
+            "他のユーザー、掲載事業者、イベント主催者、その他の第三者に迷惑をかける行為",
+            "その他、当団体が不適切と判断する行為",
+          ]}
+        />
+      </LegalSection>
 
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            8. サービスの変更・中断・終了
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            当団体は、ユーザーへの通知の有無にかかわらず、本サービスの内容を変更・中止・終了することがあります。これにより生じた損害について、当団体は一切の責任を負いません。
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            9. 免責事項
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            本サービスは現状有姿で提供され、当団体はその正確性・完全性・有用性を保証しません。システム障害、通信障害、データ損失、外部攻撃などによりユーザーに損害が生じた場合でも、当団体に故意または重過失がある場合を除き、責任を負いません。
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            10. 規約の変更
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            当団体は、ユーザーの承諾を得ることなく、本規約を変更することができます。変更後の規約は、本サービス上で掲示された時点で効力を生じます。重要な変更については、登録メールアドレス等を通じて通知する場合があります。
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-lg-custom font-bold text-black mb-4 border-b-2 border-tm-teal pb-2">
-            11. 準拠法および管轄裁判所
-          </h2>
-          <p className="text-sm-custom font-normal text-black text-justify">
-            本規約は日本法に準拠し、本サービスに関して発生する一切の紛争については、福島地方裁判所いわき支部を第一審の専属的合意管轄裁判所とします。
-          </p>
-        </section>
-      </div>
-
-      <div className="mt-12 pt-8 border-t border-gray-200">
-        <p className="text-sm text-gray-500 text-center">
-          最終更新日: 2026/09/27
+      <LegalSection heading="第9条（知的財産権）">
+        <p>
+          本サービスの名称、ロゴ、デザイン、掲載された文章・画像等に関する権利は、当団体または正当な権利者に帰属します。
         </p>
-      </div>
-    </div>
+      </LegalSection>
+
+      <LegalSection heading="第10条（本サービスの変更・中断・終了）">
+        <LegalNumberedList
+          items={[
+            "当団体は、本サービスの内容を変更し、または提供を中断・終了することがあります。",
+            "本サービスは実証実験として提供するものであり、2026年11月29日をもって、いったん提供を終了する予定です。期間終了後の取り扱いについては、本サービス上でお知らせします。",
+            "本サービスの変更、中断、終了によりユーザーに生じた損害について、当団体は責任を負いません。",
+          ]}
+        />
+      </LegalSection>
+
+      <LegalSection heading="第11条（退会）">
+        <LegalNumberedList
+          items={[
+            "ユーザーは、いつでも退会できます。",
+            "お問い合わせフォームからお申し出いただいた場合、アカウントの削除に対応します。",
+            "退会された場合、獲得したポイントおよび達成記録は失われ、景品への応募もできなくなります。",
+          ]}
+        />
+      </LegalSection>
+
+      <LegalSection heading="第12条（免責）">
+        <LegalNumberedList
+          items={[
+            "本サービスは現状有姿で提供されます。当団体は、本サービスに不具合や中断がないこと、掲載情報が最新かつ正確であることを保証しません。",
+            "本サービスに掲載されたスポットやイベントは、それぞれの事業者・主催者が運営するものです。これらの内容、営業状況、開催の有無、そこで生じたトラブルについて、当団体は責任を負いません。",
+            "当団体は、本サービスの利用によりユーザーに生じた損害について、当団体に故意または重大な過失がある場合を除き、責任を負いません。",
+          ]}
+        />
+      </LegalSection>
+
+      <LegalSection heading="第13条（本規約の変更）">
+        <p>
+          当団体は、本規約を変更することがあります。変更後の規約は、本サービス上に掲示した時点から効力を生じます。
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="第14条（準拠法および管轄裁判所）">
+        <p>
+          本規約は日本法に準拠します。本サービスに関して当団体とユーザーとの間に紛争が生じた場合、福島地方裁判所いわき支部を第一審の専属的合意管轄裁判所とします。
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="お問い合わせ">
+        <p>
+          ご意見・お問い合わせフォーム：
+          <ExternalLink href={EXTERNAL_LINKS.feedback_action_board} />
+        </p>
+      </LegalSection>
+    </LegalDocument>
   );
 }
