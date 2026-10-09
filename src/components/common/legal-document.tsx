@@ -18,7 +18,7 @@ export function LegalDocument({
   children: ReactNode;
 }) {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
+    <div className="w-full max-w-4xl mx-auto p-6 bg-white [overflow-wrap:anywhere]">
       <div className="mb-8">
         <h1 className="text-2xl-custom font-bold text-black mb-2">{title}</h1>
         <p className="text-xs text-gray-500 mb-4">最終更新日：{updatedAt}</p>
