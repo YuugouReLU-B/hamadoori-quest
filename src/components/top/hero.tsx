@@ -46,7 +46,7 @@ export default async function Hero({ returnUrl, message }: HeroProps = {}) {
   }
 
   return (
-    <section className="relative w-full h-[600px] md:h-[720px] bg-linear-to-b from-[var(--app-brand-light)] to-[var(--app-brand-pale)] overflow-hidden mt-[-96px] pt-24">
+    <section className="relative w-full min-h-[600px] md:min-h-[720px] pb-8 bg-linear-to-b from-[var(--app-brand-light)] to-[var(--app-brand-pale)] overflow-hidden mt-[-96px] pt-24">
       {/* ロゴとボタンが乗る上半分を明るく保つ。下端は絵の色を残す */}
       <HeroBackdrop
         priority

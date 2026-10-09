@@ -31,7 +31,7 @@ export default function LineLoginButton({
   const lineLoginHref = useLineLoginHref(returnUrl);
 
   return (
-    <div className={cn("flex flex-col items-center gap-3", className)}>
+    <div className={cn("flex w-full flex-col items-center gap-3", className)}>
       {/* href は表示時に用意しておいたLINEの認可URLそのもの。
           タップから access.line.me への遷移を一回にしないと、iOSの
           ユニバーサルリンクが反応せずLINEアプリが起動しないため
@@ -43,13 +43,23 @@ export default function LineLoginButton({
         data-analytics-id="line-login"
         className={cn(
           buttonVariants({ size: "lg" }),
-          "w-full max-w-sm h-14 rounded-full text-base font-bold shadow-lg",
+          // 端末の文字サイズを大きくしていても画面からはみ出さないよう、高さは固定せず折り返す
+          "w-full max-w-sm h-auto min-h-14 whitespace-normal [word-break:keep-all] py-3 text-center rounded-full text-base font-bold shadow-lg",
           "bg-[var(--app-vendor-line-green)] hover:bg-[var(--app-vendor-line-green-hover)] text-white",
           "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl",
           isLineLoading && "pointer-events-none opacity-50",
         )}
       >
-        {isLineLoading ? "LINE連携中..." : "LINEで登録/ログイン"}
+        {/* 折り返すときは「/」の後で切る（「ログイ/ン」のように語の途中で切らない） */}
+        {isLineLoading ? (
+          "LINE連携中..."
+        ) : (
+          <>
+            LINEで登録/
+            <wbr />
+            ログイン
+          </>
+        )}
       </a>
 
       {/*
