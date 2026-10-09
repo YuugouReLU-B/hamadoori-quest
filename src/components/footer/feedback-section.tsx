@@ -10,7 +10,11 @@ export function FeedbackSection() {
         <p className="text-sm leading-relaxed text-gray-600 mb-6">
           使いにくいところや、あったらうれしい機能を教えてください。
         </p>
-        <Button asChild variant="outline">
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto min-h-9 max-w-full whitespace-normal py-2"
+        >
           <Link
             href={EXTERNAL_LINKS.feedback_action_board}
             target="_blank"

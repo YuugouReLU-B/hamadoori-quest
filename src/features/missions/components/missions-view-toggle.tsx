@@ -32,12 +32,12 @@ export function MissionsViewToggle({
         <h2 className="text-center text-2xl md:text-3xl my-5">クエスト</h2>
         {showToggle && (
           <div className="flex justify-center px-4 md:px-10">
-            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <div className="inline-flex max-w-full flex-wrap justify-center rounded-lg border border-gray-200 bg-white p-1">
               <Button
                 type="button"
                 size="sm"
                 variant={view === "list" ? "default" : "ghost"}
-                className="rounded-md px-4"
+                className="rounded-md px-3 sm:px-4"
                 onClick={() => setView("list")}
                 aria-pressed={view === "list"}
                 data-analytics-id="missions-view-list"
@@ -50,7 +50,7 @@ export function MissionsViewToggle({
                   type="button"
                   size="sm"
                   variant={view === "map" ? "default" : "ghost"}
-                  className="rounded-md px-4"
+                  className="rounded-md px-3 sm:px-4"
                   onClick={() => setView("map")}
                   aria-pressed={view === "map"}
                   data-analytics-id="missions-view-map"
@@ -64,7 +64,7 @@ export function MissionsViewToggle({
                   type="button"
                   size="sm"
                   variant={view === "calendar" ? "default" : "ghost"}
-                  className="rounded-md px-4"
+                  className="rounded-md px-3 sm:px-4"
                   onClick={() => setView("calendar")}
                   aria-pressed={view === "calendar"}
                   data-analytics-id="missions-view-calendar"
