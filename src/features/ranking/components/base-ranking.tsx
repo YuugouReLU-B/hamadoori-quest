@@ -39,8 +39,8 @@ export const BaseRanking: React.FC<BaseRankingProps> = ({
         <div
           className={
             columns === 3
-              ? "grid grid-cols-[auto_1fr_auto] gap-x-3"
-              : "grid grid-cols-[auto_1fr_auto_auto] gap-x-3"
+              ? "grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3"
+              : "grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-x-3"
           }
         >
           {children}

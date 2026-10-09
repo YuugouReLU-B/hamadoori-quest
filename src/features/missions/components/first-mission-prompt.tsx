@@ -16,7 +16,7 @@ type FirstMissionPromptProps = {
  */
 export function FirstMissionPrompt({ mission }: FirstMissionPromptProps) {
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 text-center">
+    <div className="mx-auto w-full max-w-lg px-4 py-8 text-center [overflow-wrap:anywhere]">
       <p className="text-xs font-bold text-gray-500">
         浜通りクエストへようこそ
       </p>
