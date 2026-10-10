@@ -39,8 +39,6 @@ category_links:
         sort_no: 600
       - mission_slug: event-hamakaido-trail
         sort_no: 700
-      - mission_slug: event-iwaki-cosplay
-        sort_no: 800
       - mission_slug: event-kiwi-harvest
         sort_no: 900
       - mission_slug: event-haccoba-fukudosha-tokyo
