@@ -91,15 +91,15 @@ describe("MissionsByCategory", () => {
     expect(
       screen.getAllByRole("heading", { level: 3 }).map((el) => el.textContent),
     ).toEqual([
-      "常設クエスト",
       "特設クエスト(浜通り)",
       "特設クエスト(東京)",
+      "常設クエスト",
       "SNS登録",
     ]);
     expect(screen.getAllByTestId("mission-h")).toHaveLength(1);
     expect(
       screen.getAllByTestId(/^mission-/).map((el) => el.textContent),
-    ).toEqual(["p2:0", "p:2", "h:0", "t:0", "s:0"]);
+    ).toEqual(["h:0", "t:0", "p2:0", "p:2", "s:0"]);
     expect(screen.getAllByTestId("horizontal-scroll")).toHaveLength(4);
     expect(screen.getByTestId("map-count")).toHaveTextContent("1");
     expect(screen.getByTestId("calendar-count")).toHaveTextContent("1");
