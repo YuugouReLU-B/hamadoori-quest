@@ -271,24 +271,6 @@ missions:
     event_date: 2026-10-25
     artifact_label: null
     ogp_image_url: null
-  - slug: event-iwaki-cosplay
-    title: いわきコスプレイベントに参加しよう
-    quest_category: SPECIAL_HAMADORI
-    event_category: ART
-    icon_url: /img/mission_fallback.svg
-    content: |-
-      会場に着いたら「イベントに来た」ボタンを押してください。
-      位置情報を確認してミッション達成になります。
-      開催日: 10/25
-    difficulty: 1
-    required_artifact_type: GEO_CHECKIN
-    points: 200
-    max_achievement_count: 1
-    is_featured: false
-    is_hidden: true
-    event_date: 2026-10-25
-    artifact_label: null
-    ogp_image_url: null
   - slug: event-kiwi-harvest
     title: キウイ収穫体験に参加しよう
     quest_category: SPECIAL_HAMADORI
