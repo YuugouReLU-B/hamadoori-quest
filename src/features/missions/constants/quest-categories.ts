@@ -1,9 +1,10 @@
 import type { Enums } from "@/lib/types/supabase";
 
+// 一覧の表示順。開催日のある特設クエストを先に見せる（浜通り→東京→常設→SNS）
 export const QUEST_CATEGORIES = [
-  "PERMANENT",
   "SPECIAL_HAMADORI",
   "SPECIAL_TOKYO",
+  "PERMANENT",
   "SNS",
 ] as const satisfies readonly Enums<"quest_category">[];
 export const QUEST_CATEGORY_LABELS = {
