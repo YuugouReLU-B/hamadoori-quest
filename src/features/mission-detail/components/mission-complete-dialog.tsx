@@ -18,6 +18,7 @@ import { ShareTwitterButton } from "@/features/mission-detail/components/share-b
 import { ShareUrlButton } from "@/features/mission-detail/components/share-buttons/share-url-button";
 import { loadSuggestedEvent } from "@/features/mission-detail/loaders/suggested-events-loaders";
 import type { SuggestedEvent } from "@/features/mission-detail/services/suggested-events";
+import { getEventCategoryIcon } from "@/features/missions/constants/quest-categories";
 import type { Tables } from "@/lib/types/supabase";
 import { formatPoints } from "@/lib/utils/format-points";
 
@@ -106,7 +107,10 @@ export function MissionCompleteDialog({ isOpen, onClose, mission }: Props) {
               className="flex items-center gap-3 rounded-lg border p-3 hover:bg-gray-50"
             >
               <img
-                src={suggestedEvent.icon_url ?? "/img/mission_fallback.svg"}
+                src={
+                  suggestedEvent.icon_url ||
+                  getEventCategoryIcon(suggestedEvent.event_category)
+                }
                 alt=""
                 width={40}
                 height={40}

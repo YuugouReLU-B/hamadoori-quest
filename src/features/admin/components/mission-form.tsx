@@ -183,14 +183,18 @@ export function MissionForm({
             ))}
           </select>
         </Field>
-        <Field htmlFor="event_category" label="イベントカテゴリ">
+        <Field
+          htmlFor="event_category"
+          label="イベントカテゴリ"
+          hint="SNS登録以外は必須"
+        >
           <select
             id="event_category"
             name="event_category"
             defaultValue={mission?.event_category ?? ""}
             className={inputClass}
           >
-            <option value="">未設定</option>
+            <option value="">未設定（SNS登録のみ）</option>
             {EVENT_CATEGORIES.map((value) => (
               <option key={value} value={value}>
                 {EVENT_CATEGORY_LABELS[value]}

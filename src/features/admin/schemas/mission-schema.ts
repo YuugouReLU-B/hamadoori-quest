@@ -51,6 +51,13 @@ export const missionSchema = z
     google_map_url: z.string().max(500).optional().nullable(),
   })
   .refine(
+    (data) => data.quest_category === "SNS" || data.event_category !== null,
+    {
+      message: "イベントカテゴリを選んでください（SNS登録以外は必須です）",
+      path: ["event_category"],
+    },
+  )
+  .refine(
     (data) =>
       data.required_artifact_type !== ARTIFACT_TYPES.GEO_CHECKIN.key ||
       (data.latitude !== null &&

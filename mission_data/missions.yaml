@@ -28,7 +28,7 @@ missions:
     title: タートルサイクルを訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       タートルサイクルに着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -45,7 +45,7 @@ missions:
     title: かわうちワイナリーを訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       かわうちワイナリーに着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -62,7 +62,7 @@ missions:
     title: ノーマ・ホースヴィレッジを訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       ノーマ・ホースヴィレッジに着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -79,7 +79,7 @@ missions:
     title: 福土舎を訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       福土舎に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -96,7 +96,7 @@ missions:
     title: 図図倉庫を訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       図図倉庫に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -113,7 +113,7 @@ missions:
     title: 陶吉郎窯を訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       陶吉郎窯に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -130,7 +130,7 @@ missions:
     title: 温もりの宿 ホテル双葉邸を訪問しよう
     quest_category: PERMANENT
     event_category: SPOT
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       ホテル双葉邸に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -149,7 +149,7 @@ missions:
     title: かわうちヒルクライムに参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: SPORTS
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -167,7 +167,7 @@ missions:
     title: 北泉サーフィン大会に参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: SPORTS
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -185,7 +185,7 @@ missions:
     title: 浜通り食と芸術プロジェクトに参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: ART
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -203,7 +203,7 @@ missions:
     title: 浜フェスに参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: MIXED
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       浜フェスの会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -221,7 +221,7 @@ missions:
     title: かわうちワイナリー収穫祭に参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: FOOD
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -239,7 +239,7 @@ missions:
     title: 公界茶会に参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: ART
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -257,7 +257,7 @@ missions:
     title: 浜街道トレイルに参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: SPORTS
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -275,7 +275,7 @@ missions:
     title: キウイ収穫体験に参加しよう
     quest_category: SPECIAL_HAMADORI
     event_category: FOOD
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -295,7 +295,7 @@ missions:
     title: haccoba×福土舎 コラボイベント（東京）に参加しよう
     quest_category: SPECIAL_TOKYO
     event_category: FOOD
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -313,7 +313,7 @@ missions:
     title: FUKUSHIMA HITONO-KAGAYAKI（東京）に参加しよう
     quest_category: SPECIAL_TOKYO
     event_category: MIXED
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       会場に着いたら「イベントに来た」ボタンを押してください。
       位置情報を確認してミッション達成になります。
@@ -358,7 +358,7 @@ missions:
     title: 紹介されて浜通りクエストを始めよう
     quest_category: SNS
     event_category: null
-    icon_url: /img/mission_fallback.svg
+    icon_url: null
     content: |-
       友だちの紹介URLから登録すると自動で達成になります。
     difficulty: 1

@@ -3,8 +3,8 @@ import { parseMissionCsv } from "./mission-csv-import";
 describe("parseMissionCsv", () => {
   it("GEO_CHECKINミッションの有効な行を正しくパースする", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      "event-a,イベントA,会場チェックイン,GEO_CHECKIN,200,1,2026-10-04,37.4,140.9,300,,attend-events,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "event-a,イベントA,会場チェックイン,GEO_CHECKIN,200,1,2026-10-04,37.4,140.9,300,,attend-events,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -23,8 +23,8 @@ describe("parseMissionCsv", () => {
 
   it("GEO_CHECKINで緯度経度・半径が欠けているとエラーになる", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      "spot-a,スポットA,,GEO_CHECKIN,100,1,,,,,,visit-checkpoints,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "spot-a,スポットA,,GEO_CHECKIN,100,1,,,,,,visit-checkpoints,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -41,8 +41,8 @@ describe("parseMissionCsv", () => {
     "REFERRAL",
   ])("GEO_CHECKIN以外（%s）は取り込めない", (artifactType) => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `x,X,,${artifactType},100,1,,37.4,140.9,300,,attend-events,false,false`,
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      `x,X,,${artifactType},100,1,,37.4,140.9,300,,attend-events,false,false,MIXED`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -55,8 +55,8 @@ describe("parseMissionCsv", () => {
 
   it("GEO_CHECKIN以外のrequired_artifact_typeはエラーになる", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      "link-mission,リンクミッション,,LINK,100,1,,,,,,attend-events,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "link-mission,リンクミッション,,LINK,100,1,,,,,,attend-events,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -69,8 +69,8 @@ describe("parseMissionCsv", () => {
 
   it("category_slugが空だとエラーになる", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      "event-a,イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "event-a,イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -81,8 +81,8 @@ describe("parseMissionCsv", () => {
 
   it("slugが空だとエラーになる", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      ",イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      ",イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -93,9 +93,9 @@ describe("parseMissionCsv", () => {
 
   it("複数行を行番号付きで処理する", () => {
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      "event-a,イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false",
-      "event-b,イベントB,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false",
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "event-a,イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false,MIXED",
+      "event-b,イベントB,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false,MIXED",
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -103,5 +103,21 @@ describe("parseMissionCsv", () => {
     expect(rows).toHaveLength(2);
     expect(rows[0].rowNumber).toBe(2);
     expect(rows[1].rowNumber).toBe(3);
+  });
+});
+
+describe("parseMissionCsv のイベントカテゴリ", () => {
+  it("event_categoryが空の行はエラーになる（SNS登録以外は必須）", () => {
+    const csv = [
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      "event-a,イベントA,,GEO_CHECKIN,200,1,,37.4,140.9,300,,attend-events,false,false,",
+    ].join("\n");
+
+    const rows = parseMissionCsv(csv);
+
+    expect(rows[0].data).toBeNull();
+    expect(rows[0].errors.join(" ")).toContain(
+      "イベントカテゴリを選んでください",
+    );
   });
 });

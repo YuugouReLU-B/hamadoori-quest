@@ -19,6 +19,7 @@ const CSV_COLUMNS = [
   "category_slug",
   "is_featured",
   "is_hidden",
+  "event_category",
 ];
 
 export default async function MissionCsvImportPage() {
@@ -56,6 +57,11 @@ export default async function MissionCsvImportPage() {
             <code>GEO_CHECKIN</code>の場合、<code>latitude</code> /{" "}
             <code>longitude</code> / <code>radius_meters</code>
             は必須
+          </li>
+          <li>
+            <code>event_category</code>: <code>SPOT</code> / <code>SPORTS</code>{" "}
+            / <code>ART</code> / <code>FOOD</code> / <code>MIXED</code>{" "}
+            のいずれか（必須）
           </li>
           <li>
             <code>is_featured</code> / <code>is_hidden</code>: 省略可（既定は
