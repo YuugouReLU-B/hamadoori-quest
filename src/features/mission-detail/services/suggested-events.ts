@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { pickSuggestedEvent } from "@/features/mission-detail/utils/pick-suggested-event";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Database, Tables } from "@/lib/types/supabase";
 
@@ -11,7 +12,8 @@ export type SuggestedEvent = Pick<
 
 /**
  * ミッション達成後に「他のイベントへ行ってみよう」と誘導するための
- * 未達成のQR/GEO_CHECKINミッションを1件返す。
+ * 未達成のQR/GEO_CHECKINミッションを1件返す。選び方は pickSuggestedEvent
+ * （終わったイベントは除き、開催中 → 開催前 → 常設スポットの順）。
  *
  * 対象が無ければnullを返す（誘導セクション自体を出さない判断は呼び出し側で行う）。
  *
@@ -40,19 +42,25 @@ export async function getSuggestedEvent(
 
   const { data: missions, error } = await supabase
     .from("missions")
-    .select("id, slug, title, icon_url, points, event_category")
+    .select(
+      "id, slug, title, icon_url, points, event_category, event_date, event_end_date",
+    )
     .in("required_artifact_type", [
       ARTIFACT_TYPES.QR.key,
       ARTIFACT_TYPES.GEO_CHECKIN.key,
     ])
-    .eq("is_hidden", false)
-    .order("title");
+    .eq("is_hidden", false);
 
   if (error) {
     console.error("イベント候補の取得に失敗:", error);
     return null;
   }
 
-  const candidate = (missions ?? []).find((m) => !achievedIds.has(m.id));
-  return candidate ?? null;
+  const candidate = pickSuggestedEvent(
+    (missions ?? []).filter((m) => !achievedIds.has(m.id)),
+  );
+  if (!candidate) return null;
+
+  const { id, slug, title, icon_url, points, event_category } = candidate;
+  return { id, slug, title, icon_url, points, event_category };
 }
