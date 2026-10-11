@@ -238,7 +238,7 @@ describe("Mission", () => {
     expect(missionIcon?.getAttribute("src")).toBe("/test-icon.svg");
   });
 
-  it("icon_urlもイベントカテゴリも未設定ならフォールバック画像を使用", () => {
+  it("icon_urlもイベントカテゴリも未設定なら複合イベントの画像を使用（派生元の画像は出さない）", () => {
     const missionWithoutIcon = {
       ...mockMission,
       event_category: null,
@@ -248,7 +248,7 @@ describe("Mission", () => {
     render(<Mission mission={missionWithoutIcon} userAchievementCount={0} />);
 
     const missionIcon = document.querySelector("img");
-    expect(missionIcon?.getAttribute("src")).toContain("mission_fallback.svg");
+    expect(missionIcon?.getAttribute("src")).toContain("mixed-event.png");
   });
 
   it("regionから地域チップを作る。tag1は地域チップにしない", () => {

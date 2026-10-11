@@ -40,8 +40,8 @@ describe("importMissionCsvRows", () => {
   test("QR行は取り込まない（新しく作れるのは位置情報チェックインだけ）", async () => {
     const slug = `csv-import-qr-${Date.now()}`;
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},CSVインポートQR,,QR,200,1,,,,,,${categorySlug},false,true`,
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      `${slug},CSVインポートQR,,QR,200,1,,,,,,${categorySlug},false,true,MIXED`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -61,8 +61,8 @@ describe("importMissionCsvRows", () => {
   test("GEO_CHECKIN行を登録できる（QRコードは発行しない）", async () => {
     const slug = `csv-import-geo-${Date.now()}`;
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},CSVインポートGEO,,GEO_CHECKIN,100,1,,37.4,140.9,300,,${categorySlug},false,true`,
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      `${slug},CSVインポートGEO,,GEO_CHECKIN,100,1,,37.4,140.9,300,,${categorySlug},false,true,MIXED`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -83,8 +83,8 @@ describe("importMissionCsvRows", () => {
   test("存在しないcategory_slugは行エラーになる", async () => {
     const slug = `csv-import-badcat-${Date.now()}`;
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},存在しないカテゴリ,,GEO_CHECKIN,200,1,,37.4,140.9,300,,no-such-category,false,true`,
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      `${slug},存在しないカテゴリ,,GEO_CHECKIN,200,1,,37.4,140.9,300,,no-such-category,false,true,MIXED`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);
@@ -100,8 +100,8 @@ describe("importMissionCsvRows", () => {
   test("同じslugを再登録するとエラーになる", async () => {
     const slug = `csv-import-dup-${Date.now()}`;
     const csv = [
-      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden",
-      `${slug},重複テスト,,GEO_CHECKIN,200,1,,37.4,140.9,300,,${categorySlug},false,true`,
+      "slug,title,content,required_artifact_type,points,difficulty,event_date,latitude,longitude,radius_meters,icon_url,category_slug,is_featured,is_hidden,event_category",
+      `${slug},重複テスト,,GEO_CHECKIN,200,1,,37.4,140.9,300,,${categorySlug},false,true,MIXED`,
     ].join("\n");
 
     const rows = parseMissionCsv(csv);

@@ -36,10 +36,13 @@ export const EVENT_CATEGORY_ICONS = {
   MIXED: "/img/quest-icons/mixed-event.png",
 } satisfies Record<Enums<"event_category">, string>;
 
+/**
+ * イベント種別からアイコンを決める。種別が空になるのはSNS登録のクエストだけ
+ * （それ以外は管理画面の入力チェックで必須）で、通常は icon_url の方が使われる。
+ * 以前は派生元（チームみらい）の的のアイコン mission_fallback.svg を出していた。
+ */
 export function getEventCategoryIcon(
   category: Enums<"event_category"> | null,
 ): string {
-  return category
-    ? EVENT_CATEGORY_ICONS[category]
-    : "/img/mission_fallback.svg";
+  return category ? EVENT_CATEGORY_ICONS[category] : EVENT_CATEGORY_ICONS.MIXED;
 }
