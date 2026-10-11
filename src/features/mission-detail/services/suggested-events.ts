@@ -6,7 +6,7 @@ import type { Database, Tables } from "@/lib/types/supabase";
 
 export type SuggestedEvent = Pick<
   Tables<"missions">,
-  "id" | "slug" | "title" | "icon_url" | "points"
+  "id" | "slug" | "title" | "icon_url" | "points" | "event_category"
 >;
 
 /**
@@ -40,7 +40,7 @@ export async function getSuggestedEvent(
 
   const { data: missions, error } = await supabase
     .from("missions")
-    .select("id, slug, title, icon_url, points")
+    .select("id, slug, title, icon_url, points, event_category")
     .in("required_artifact_type", [
       ARTIFACT_TYPES.QR.key,
       ARTIFACT_TYPES.GEO_CHECKIN.key,

@@ -132,10 +132,10 @@ WHERE s.slug = 'season1';
 INSERT INTO missions (id, title, icon_url, content, difficulty, points, event_date, required_artifact_type, max_achievement_count, slug)
 VALUES
   ('e2898d7e-903f-4f9a-8b1b-93f783c9afac', '(seed) ゴミ拾いをしよう (成果物不要)', NULL, '近所のゴミを拾ってみよう！清掃活動の報告は任意です。', 4, 400, NULL, 'NONE', NULL, 'seed-cleanup'),
-  ('2246205f-933f-4a86-83af-dbf6bb6cde90', '(seed) 活動ブログを書こう (リンク提出)', '/img/mission_fallback.svg', 'あなたの活動についてブログ記事を書き、URLを提出してください。', 2, 100, NULL, 'LINK', 10, 'seed-activity-blog'),
-  ('3346205f-933f-4a86-83af-dbf6bb6cde91', '(seed) 今日のベストショット (画像提出)', '/img/mission_fallback.svg', '今日の活動で見つけた素晴らしい瞬間を写真で共有してください。', 3, 200, '2025-06-01', 'IMAGE', NULL, 'seed-best-shot'),
-  ('4446205f-933f-4a86-83af-dbf6bb6cde92', '(seed) 発見！地域の宝 (位置情報付き画像)', '/img/mission_fallback.svg', 'あなたの地域で見つけた素敵な場所や物を、位置情報付きの写真で教えてください。', 4, 400, NULL, 'IMAGE_WITH_GEOLOCATION', 5, 'seed-local-treasure'),
-  ('5546205f-933f-4a86-83af-dbf6bb6cde93', '(seed) 日付付きミッション１ (成果物不要, 上限1回)', '/img/mission_fallback.svg', 'テスト用のミッションです。<a href="/">link test</a>', 5, 800, '2025-05-01', 'NONE', 1, 'seed-date-mission-1'),
+  ('2246205f-933f-4a86-83af-dbf6bb6cde90', '(seed) 活動ブログを書こう (リンク提出)', '/img/quest-icons/mixed-event.png', 'あなたの活動についてブログ記事を書き、URLを提出してください。', 2, 100, NULL, 'LINK', 10, 'seed-activity-blog'),
+  ('3346205f-933f-4a86-83af-dbf6bb6cde91', '(seed) 今日のベストショット (画像提出)', '/img/quest-icons/mixed-event.png', '今日の活動で見つけた素晴らしい瞬間を写真で共有してください。', 3, 200, '2025-06-01', 'IMAGE', NULL, 'seed-best-shot'),
+  ('4446205f-933f-4a86-83af-dbf6bb6cde92', '(seed) 発見！地域の宝 (位置情報付き画像)', '/img/quest-icons/mixed-event.png', 'あなたの地域で見つけた素敵な場所や物を、位置情報付きの写真で教えてください。', 4, 400, NULL, 'IMAGE_WITH_GEOLOCATION', 5, 'seed-local-treasure'),
+  ('5546205f-933f-4a86-83af-dbf6bb6cde93', '(seed) 日付付きミッション１ (成果物不要, 上限1回)', '/img/quest-icons/mixed-event.png', 'テスト用のミッションです。<a href="/">link test</a>', 5, 800, '2025-05-01', 'NONE', 1, 'seed-date-mission-1'),
   ('e5348472-d054-4ef4-81af-772c6323b669', '(seed) Xのニックネームを入力しよう(テキスト提出)', NULL, 'Xのニックネームを入力しよう', 1, 50, NULL, 'TEXT', NULL, 'seed-x-nickname');
 
 

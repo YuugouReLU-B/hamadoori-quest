@@ -55,7 +55,7 @@ categories:
 missions:
   - slug: "follow-anno-x"
     title: "安野たかひろの公式Xをフォローしよう"
-    icon_url: "/img/mission_fallback.svg"
+    icon_url: null
     content: "新党チームみらい党首・..."
     difficulty: 1
     required_artifact_type: "TEXT"
