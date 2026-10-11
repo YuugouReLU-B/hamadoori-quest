@@ -130,4 +130,25 @@ describe("getSuggestedEvent", () => {
 
     expect(result?.id).not.toBe(linkMission.id);
   });
+
+  test("終わったイベントは候補にならない", async () => {
+    const userId = await makeUser();
+    await achieveAllExistingCandidates(userId);
+    const excluded = await makeMission({
+      requiredArtifactType: "QR",
+      slug: `suggested-excluded4-${Date.now()}`,
+    });
+    const ended = await makeMission({
+      requiredArtifactType: "GEO_CHECKIN",
+      slug: `suggested-ended-${Date.now()}`,
+    });
+    await adminClient
+      .from("missions")
+      .update({ event_date: "2000-01-01", event_end_date: "2000-01-02" })
+      .eq("id", ended.id);
+
+    const result = await getSuggestedEvent(adminClient, userId, excluded.id);
+
+    expect(result?.id).not.toBe(ended.id);
+  });
 });
