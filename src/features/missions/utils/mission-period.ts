@@ -25,3 +25,19 @@ export function hasEventEnded(
   const endsAt = new Date(`${lastDay}T00:00:00+09:00`).getTime() + DAY_IN_MS;
   return now.getTime() >= endsAt;
 }
+
+/**
+ * 開催が始まったクエストかどうか。開催前のイベントはチェックインを受け付けない。
+ *
+ * 開催日の日本時間0時から「始まった」とみなす。開催日を持たない常設クエストは
+ * いつでも参加できるので常に true。
+ */
+export function hasEventStarted(
+  mission: Pick<MissionPeriod, "event_date">,
+  now: Date = new Date(),
+): boolean {
+  if (!mission.event_date) return true;
+
+  const startsAt = new Date(`${mission.event_date}T00:00:00+09:00`).getTime();
+  return now.getTime() >= startsAt;
+}
