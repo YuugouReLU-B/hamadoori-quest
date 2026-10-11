@@ -1,12 +1,13 @@
 "use client";
 
-import { Loader2, MapPin, Navigation } from "lucide-react";
+import { CalendarClock, Loader2, MapPin, Navigation } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState, useTransition } from "react";
 import { trackEvent } from "@/features/analytics/utils/tracker";
 import { geoCheckinAction } from "@/features/geo-checkin/actions/geo-checkin-actions";
 import { QuestClearPanel } from "@/features/mission-detail/components/quest-clear-panel";
+import { hasEventStarted } from "@/features/missions/utils/mission-period";
 import { questMapHref } from "@/lib/utils/map-links";
 
 type GeoCheckinButtonProps = {
@@ -28,6 +29,15 @@ type CheckinState = "ready" | "checking" | "success" | "error";
 
 // 演出後に達成済み表示へ切り替わるまでの猶予（この間に紙吹雪・獲得演出を見せる）
 const CELEBRATION_MS = 2400;
+
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
+
+/** "2026-10-18" → "10月18日（日）"。DATE型の値をそのまま日付として読む */
+function formatEventDay(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return `${month}月${day}日（${WEEKDAYS[weekday]}）`;
+}
 
 function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -128,6 +138,12 @@ export function GeoCheckinButton({
           setState("error");
           setMessage("このクエストは現在受付を停止しています。");
           return;
+        case "not_started":
+          setState("error");
+          setMessage(
+            "このイベントはまだ始まっていません。開催日になってからもう一度押してください。",
+          );
+          return;
         case "ended":
           setState("error");
           setMessage(
@@ -169,6 +185,40 @@ export function GeoCheckinButton({
     );
   }
 
+  const mapLink = mapHref && (
+    <a
+      href={mapHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-1 inline-flex items-center gap-1 text-sm underline underline-offset-2"
+    >
+      <MapPin className="h-4 w-4" aria-hidden="true" />
+      地図で場所を見る
+    </a>
+  );
+
+  // 開催前はボタンを出さない（サーバー側でも not_started で弾いている）。
+  // 場所は下見できるよう地図リンクだけ残す
+  if (eventDate && !hasEventStarted({ event_date: eventDate })) {
+    return (
+      <div className="rounded-xl border-2 bg-white px-6 py-8">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <CalendarClock
+            className="h-10 w-10 text-gray-700"
+            aria-hidden="true"
+          />
+          <p className="text-lg font-bold">開催日までお待ちください</p>
+          <p className="text-sm text-gray-600">
+            このイベントは{formatEventDay(eventDate)}
+            から参加できます。当日、会場に着いたら「{actionLabel}
+            」を押してください。
+          </p>
+          {mapLink}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border-2 bg-white px-6 py-8">
       <div className="flex flex-col items-center gap-3 text-center">
@@ -195,17 +245,7 @@ export function GeoCheckinButton({
 
         {message && <output className="text-sm text-red-600">{message}</output>}
 
-        {mapHref && (
-          <a
-            href={mapHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-1 text-sm underline underline-offset-2"
-          >
-            <MapPin className="h-4 w-4" aria-hidden="true" />
-            地図で場所を見る
-          </a>
-        )}
+        {mapLink}
       </div>
     </div>
   );

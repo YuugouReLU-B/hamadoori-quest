@@ -11,7 +11,10 @@ import {
   ACHIEVEMENT_LIMIT_REACHED_MESSAGE,
   achieveMission,
 } from "@/features/mission-detail/use-cases/achieve-mission";
-import { hasEventEnded } from "@/features/missions/utils/mission-period";
+import {
+  hasEventEnded,
+  hasEventStarted,
+} from "@/features/missions/utils/mission-period";
 import { ARTIFACT_TYPES } from "@/lib/types/artifact-types";
 import type { Database } from "@/lib/types/supabase";
 import { calculateDistanceMeters } from "@/lib/utils/geo-distance";
@@ -22,6 +25,7 @@ export type RedeemGeoCheckinResult =
   | { status: "invalid" }
   | { status: "unavailable"; mission: GeoCheckinMission }
   | { status: "ended"; mission: GeoCheckinMission }
+  | { status: "not_started"; mission: GeoCheckinMission }
   | { status: "not_configured"; mission: GeoCheckinMission }
   | {
       status: "too_far";
@@ -42,7 +46,7 @@ export type RedeemGeoCheckinResult =
  *
  * 距離の判定まで進んだ場合は、送られた座標と判定結果を geo_checkin_locations に
  * 1行残す（判定・不正の防止・実証実験の検証のため。プライバシーポリシー4-2）。
- * 判定前に弾くケース（存在しない・非表示・終了・未設定）は残さない。
+ * 判定前に弾くケース（存在しない・非表示・終了・開催前・未設定）は残さない。
  */
 export async function redeemGeoCheckin(
   adminSupabase: SupabaseClient<Database>,
@@ -75,6 +79,13 @@ export async function redeemGeoCheckin(
     })
   ) {
     return { status: "ended", mission };
+  }
+
+  // 開催前のイベントも受け付けない。会場が公園や施設のように開催日以外も
+  // 入れる場所だと、当日を待たずに達成できてしまうため。詳細ページでもボタンを
+  // 出していないが、URLやリクエストを直接送れるのでサーバー側でも止める。
+  if (!hasEventStarted({ event_date: mission.eventDate })) {
+    return { status: "not_started", mission };
   }
 
   if (

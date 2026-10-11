@@ -24,6 +24,7 @@ describe("位置情報チェックイン", () => {
     latitude?: number | null;
     longitude?: number | null;
     radiusMeters?: number | null;
+    eventDate?: string | null;
   }) {
     const id = crypto.randomUUID();
     const { error } = await adminClient.from("missions").insert({
@@ -46,6 +47,7 @@ describe("位置情報チェックイン", () => {
         overrides.longitude === undefined ? BASE_LNG : overrides.longitude,
       radius_meters:
         overrides.radiusMeters === undefined ? 300 : overrides.radiusMeters,
+      event_date: overrides.eventDate ?? null,
     });
     if (error) throw new Error(`ミッション作成に失敗: ${error.message}`);
     missionIds.push(id);
@@ -328,5 +330,36 @@ describe("位置情報チェックイン", () => {
     if (!result.success) {
       expect(result.error).toContain("イベントに来た");
     }
+  });
+
+  test("開催日前のイベントは半径内でも達成できず、位置も残さない", async () => {
+    const missionId = await createGeoMission({
+      slug: `geo-not-started-${Date.now()}`,
+      eventDate: "2099-12-31",
+    });
+    const { user, client } = await createTestUser();
+    userIds.push(user.userId);
+
+    const result = await redeemGeoCheckin(
+      adminClient,
+      client,
+      user.userId,
+      missionId,
+      BASE_LAT,
+      BASE_LNG,
+    );
+    expect(result.status).toBe("not_started");
+
+    const { count: achievementCount } = await adminClient
+      .from("achievements")
+      .select("*", { count: "exact", head: true })
+      .eq("mission_id", missionId);
+    expect(achievementCount).toBe(0);
+
+    const { count: locationCount } = await adminClient
+      .from("geo_checkin_locations")
+      .select("*", { count: "exact", head: true })
+      .eq("mission_id", missionId);
+    expect(locationCount).toBe(0);
   });
 });

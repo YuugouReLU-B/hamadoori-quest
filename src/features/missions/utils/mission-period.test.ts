@@ -1,4 +1,4 @@
-import { hasEventEnded } from "./mission-period";
+import { hasEventEnded, hasEventStarted } from "./mission-period";
 
 // 日本時間 2026-10-10 12:00
 const NOON_JST = new Date("2026-10-10T12:00:00+09:00");
@@ -103,5 +103,29 @@ describe("hasEventEnded", () => {
         ),
       ).toBe(false);
     });
+  });
+});
+
+describe("hasEventStarted", () => {
+  it("開催日を持たない常設クエストは常に始まっている", () => {
+    expect(hasEventStarted({ event_date: null }, NOON_JST)).toBe(true);
+  });
+
+  it("開催日が未来ならまだ始まっていない", () => {
+    expect(hasEventStarted({ event_date: "2026-10-11" }, NOON_JST)).toBe(false);
+  });
+
+  it("開催当日は始まっている", () => {
+    expect(hasEventStarted({ event_date: "2026-10-10" }, NOON_JST)).toBe(true);
+  });
+
+  it("境界は開催日の日本時間0時", () => {
+    const mission = { event_date: "2026-10-10" };
+    expect(
+      hasEventStarted(mission, new Date("2026-10-09T23:59:59+09:00")),
+    ).toBe(false);
+    expect(
+      hasEventStarted(mission, new Date("2026-10-10T00:00:00+09:00")),
+    ).toBe(true);
   });
 });
