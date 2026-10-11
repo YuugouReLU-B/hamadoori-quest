@@ -22,7 +22,9 @@ export async function createTestMission(params?: {
   maxAchievementCount?: number | null;
   isFeatured?: boolean;
 }): Promise<TestMission> {
-  const slug = params?.slug ?? `test-mission-${Date.now()}`;
+  // Date.now() だけだと並列実行で同じミリ秒に作られて slug が重複し、
+  // missions_slug_unique 違反でたまに落ちていた
+  const slug = params?.slug ?? `test-mission-${Date.now()}-${randomUUID()}`;
   const title = params?.title ?? `テストミッション ${Date.now()}`;
 
   // Get a current active season
