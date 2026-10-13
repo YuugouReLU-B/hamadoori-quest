@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { User } from "@supabase/supabase-js";
 import { getCurrentSeason } from "@/lib/services/seasons";
 import { createAdminClient } from "@/lib/supabase/adminClient";
 
@@ -26,30 +27,51 @@ export function extractRoles(appMetadata: unknown): string[] {
   return roles.filter((role): role is string => typeof role === "string");
 }
 
+const AUTH_USERS_PER_PAGE = 1000;
+const PROFILES_PER_PAGE = 1000;
+
 /**
- * 管理画面のユーザー一覧。
+ * 管理画面のユーザー一覧。全件を返す（検索・ページ分けは画面側で行う）。
  *
  * 権限は auth.users の app_metadata.roles が正なので、プロフィールだけでなく
- * Auth 側も引いて突き合わせる。1ページ200件までで、それ以上は表示しない。
+ * Auth 側も引いて突き合わせる。どちらも1回で取れる件数に上限があるため、
+ * 取り切るまでページを進める。
  */
 export async function listUsersForAdmin(): Promise<AdminUserListItem[]> {
   const supabase = await createAdminClient();
 
-  const { data, error } = await supabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 200,
-  });
-  if (error) {
-    console.error("ユーザー一覧の取得に失敗:", error);
-    return [];
+  const authUsers: User[] = [];
+  for (let page = 1; ; page++) {
+    const { data, error } = await supabase.auth.admin.listUsers({
+      page,
+      perPage: AUTH_USERS_PER_PAGE,
+    });
+    if (error) {
+      console.error("ユーザー一覧の取得に失敗:", error);
+      return [];
+    }
+    authUsers.push(...data.users);
+    if (data.users.length < AUTH_USERS_PER_PAGE) break;
   }
 
-  const { data: profiles } = await supabase
-    .from("public_user_profiles")
-    .select("id, name");
-  const nameMap = new Map((profiles ?? []).map((p) => [p.id, p.name]));
+  const nameMap = new Map<string, string | null>();
+  for (let from = 0; ; from += PROFILES_PER_PAGE) {
+    const { data: profiles, error } = await supabase
+      .from("public_user_profiles")
+      .select("id, name")
+      .order("id")
+      .range(from, from + PROFILES_PER_PAGE - 1);
+    if (error) {
+      console.error("プロフィールの取得に失敗:", error);
+      break;
+    }
+    for (const p of profiles ?? []) {
+      if (p.id) nameMap.set(p.id, p.name);
+    }
+    if (!profiles || profiles.length < PROFILES_PER_PAGE) break;
+  }
 
-  return data.users
+  return authUsers
     .map((user) => {
       const roles = extractRoles(user.app_metadata);
       return {
