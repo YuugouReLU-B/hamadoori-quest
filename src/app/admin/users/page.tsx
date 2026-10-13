@@ -1,23 +1,49 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { AdminRoleToggleButton } from "@/features/admin/components/admin-role-toggle-button";
 import { listUsersForAdmin } from "@/features/admin/services/admin-users";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
+import {
+  filterAdminUsers,
+  paginate,
+} from "@/features/admin/utils/admin-user-list";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminUsersPage() {
-  const [currentUser, users] = await Promise.all([
+function usersPageHref(query: string, page: number) {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (page > 1) params.set("page", String(page));
+  const search = params.toString();
+  return search ? `/admin/users?${search}` : "/admin/users";
+}
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
+  const { q, page: pageParam } = await searchParams;
+  const query = q?.trim() ?? "";
+  const [currentUser, allUsers] = await Promise.all([
     requireAdmin(),
     listUsersForAdmin(),
   ]);
-  const admins = users.filter((u) => u.isAdmin);
+  const adminCount = allUsers.filter((u) => u.isAdmin).length;
+  const matched = filterAdminUsers(allUsers, query);
+  const {
+    items: users,
+    page,
+    totalPages,
+  } = paginate(matched, Number(pageParam ?? 1));
 
   return (
     <section>
       <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h2 className="text-lg font-bold">ユーザー</h2>
         <p className="text-sm text-gray-600">
-          全 {users.length} 件（管理者 {admins.length}）
+          全 {allUsers.length} 件（管理者 {adminCount}）
         </p>
       </div>
 
@@ -31,6 +57,30 @@ export default async function AdminUsersPage() {
         </Link>
         から行ってください。Supabaseのダッシュボードで認証ユーザーだけを消すと、プロフィールなどが残ってしまいます。
       </p>
+
+      <form method="GET" className="mb-4 flex flex-wrap gap-2">
+        <Input
+          type="text"
+          name="q"
+          defaultValue={query}
+          placeholder="ニックネーム・メールアドレス・ユーザーID"
+          className="max-w-sm"
+        />
+        <Button type="submit" size="sm" variant="outline">
+          検索
+        </Button>
+        {query && (
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/admin/users">クリア</Link>
+          </Button>
+        )}
+      </form>
+
+      {query && (
+        <p className="mb-2 text-sm text-gray-600">
+          「{query}」に一致するユーザー {matched.length} 件
+        </p>
+      )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full min-w-[720px] text-sm">
@@ -94,7 +144,55 @@ export default async function AdminUsersPage() {
             ))}
           </tbody>
         </table>
+        {users.length === 0 && (
+          <p className="px-4 py-6 text-center text-sm text-gray-600">
+            該当するユーザーがいません
+          </p>
+        )}
       </div>
+
+      {totalPages > 1 && (
+        <nav
+          aria-label="ページ送り"
+          className="mt-4 flex flex-wrap items-center justify-center gap-1 text-sm"
+        >
+          {page > 1 && (
+            <Link
+              href={usersPageHref(query, page - 1)}
+              className="rounded-md border border-gray-200 px-3 py-1.5 hover:bg-gray-50"
+            >
+              前へ
+            </Link>
+          )}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) =>
+            n === page ? (
+              <span
+                key={n}
+                aria-current="page"
+                className="rounded-md bg-emerald-600 px-3 py-1.5 font-bold text-white"
+              >
+                {n}
+              </span>
+            ) : (
+              <Link
+                key={n}
+                href={usersPageHref(query, n)}
+                className="rounded-md border border-gray-200 px-3 py-1.5 hover:bg-gray-50"
+              >
+                {n}
+              </Link>
+            ),
+          )}
+          {page < totalPages && (
+            <Link
+              href={usersPageHref(query, page + 1)}
+              className="rounded-md border border-gray-200 px-3 py-1.5 hover:bg-gray-50"
+            >
+              次へ
+            </Link>
+          )}
+        </nav>
+      )}
     </section>
   );
 }
