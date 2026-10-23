@@ -8,6 +8,7 @@ jest.mock("lucide-react", () => ({
 }));
 
 const baseMission: Tables<"missions"> = {
+  first_published_at: null,
   id: "test-mission-1",
   title: "テストクエスト",
   content: "テストクエストの内容",
