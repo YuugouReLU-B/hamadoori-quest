@@ -33,6 +33,7 @@ function event(
       is_featured: false,
       is_hidden: false,
       featured_importance: null,
+      first_published_at: null,
       required_artifact_type: "NONE",
       artifact_label: null,
       supplement: null,

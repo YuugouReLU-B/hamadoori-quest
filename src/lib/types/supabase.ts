@@ -731,6 +731,7 @@ export type Database = {
           event_end_date: string | null;
           event_type: string | null;
           featured_importance: number | null;
+          first_published_at: string | null;
           google_map_url: string | null;
           icon_url: string | null;
           id: string;
@@ -764,6 +765,7 @@ export type Database = {
           event_end_date?: string | null;
           event_type?: string | null;
           featured_importance?: number | null;
+          first_published_at?: string | null;
           google_map_url?: string | null;
           icon_url?: string | null;
           id: string;
@@ -797,6 +799,7 @@ export type Database = {
           event_end_date?: string | null;
           event_type?: string | null;
           featured_importance?: number | null;
+          first_published_at?: string | null;
           google_map_url?: string | null;
           icon_url?: string | null;
           id?: string;
