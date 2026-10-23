@@ -112,6 +112,7 @@ export function groupMissionsByCategory(
           ogp_image_url: m.ogp_image_url,
           required_artifact_type: m.required_artifact_type || "",
           featured_importance: null,
+          first_published_at: null,
         };
       });
 

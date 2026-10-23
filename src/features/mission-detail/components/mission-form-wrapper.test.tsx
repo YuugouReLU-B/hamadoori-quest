@@ -90,6 +90,7 @@ jest.mock("@/features/missions/components/artifact-form", () => ({
 }));
 
 const baseMission: Tables<"missions"> = {
+  first_published_at: null,
   id: "test-mission-1",
   title: "テストミッション",
   content: "テストミッションの内容",
