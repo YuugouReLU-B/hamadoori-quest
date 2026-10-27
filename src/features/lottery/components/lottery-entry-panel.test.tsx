@@ -1,9 +1,14 @@
 import { render, screen } from "@testing-library/react";
+import { isLotteryPreview } from "@/features/lottery/services/lottery-preview";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { getOrIssueLotteryToken } from "@/features/lottery/services/lottery-token-store";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { LotteryEntryPanel } from "./lottery-entry-panel";
 
+jest.mock("@/features/lottery/services/lottery-preview", () => ({
+  ...jest.requireActual("@/features/lottery/services/lottery-preview"),
+  isLotteryPreview: jest.fn(),
+}));
 jest.mock("@/features/lottery/services/lottery-settings");
 jest.mock("@/features/lottery/services/lottery-token-store");
 jest.mock("@/features/user-level/services/level", () => ({
@@ -35,6 +40,7 @@ beforeEach(() => {
     updated_at: "2026-09-01T00:00:00Z",
   });
   jest.mocked(getOrIssueLotteryToken).mockResolvedValue("TEST-TOKEN");
+  jest.mocked(isLotteryPreview).mockResolvedValue(false);
 });
 
 afterEach(() => jest.useRealTimers());
@@ -91,4 +97,38 @@ it.each([
     expect(screen.getByText(/まだ応募できません/)).toBeInTheDocument();
     expect(screen.queryByText(/Pで応募できます/)).not.toBeInTheDocument();
   }
+});
+
+describe("管理者プレビュー", () => {
+  beforeEach(() => {
+    jest.mocked(isLotteryPreview).mockResolvedValue(true);
+    jest.mocked(getLotterySettings).mockResolvedValue({
+      ...settings,
+      eligible_display_from: "2026-11-02",
+      eligible_display_until: "2026-11-30",
+    });
+  });
+
+  it("開始日前・ポイント不足でも受付中の表示を見本のトークンで出す", async () => {
+    jest.mocked(getMyUserLevel).mockResolvedValue({
+      user_id: "test-user-id",
+      xp: 10,
+      line_1000pt_audience_added_at: null,
+      season_id: "season-id",
+      updated_at: "2026-09-01T00:00:00Z",
+    });
+    render(await LotteryEntryPanel());
+    expect(screen.getByText(/管理者プレビュー中/)).toBeInTheDocument();
+    expect(screen.getByText("PREVIEW000")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: settings.button_label }),
+    ).toHaveAttribute("href", settings.form_url);
+    expect(getOrIssueLotteryToken).not.toHaveBeenCalled();
+  });
+
+  it("応募期間が終わったあとでも、プレビュー中は受付中の表示を出す", async () => {
+    jest.setSystemTime(new Date("2026-12-01T00:00:00+09:00"));
+    render(await LotteryEntryPanel());
+    expect(screen.getByText("PREVIEW000")).toBeInTheDocument();
+  });
 });

@@ -1,10 +1,15 @@
 import type { User } from "@supabase/supabase-js";
 import { render, screen } from "@testing-library/react";
+import { isLotteryPreview } from "@/features/lottery/services/lottery-preview";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
 import { LotteryProgressBar } from "./lottery-progress-bar";
 
+jest.mock("@/features/lottery/services/lottery-preview", () => ({
+  ...jest.requireActual("@/features/lottery/services/lottery-preview"),
+  isLotteryPreview: jest.fn(),
+}));
 jest.mock("@/features/lottery/services/lottery-settings");
 jest.mock("@/features/user-level/services/level", () => ({
   getMyUserLevel: jest.fn(),
@@ -46,6 +51,7 @@ beforeEach(() => {
   } as unknown as User);
   jest.mocked(getLotterySettings).mockResolvedValue({ ...settings });
   mockPoints(1000);
+  jest.mocked(isLotteryPreview).mockResolvedValue(false);
 });
 
 afterEach(() => jest.useRealTimers());
@@ -143,4 +149,17 @@ it("開始日前でもnullを返さず描画する", async () => {
     eligible_display_from: "2026-11-16",
   });
   expect(await LotteryProgressBar()).not.toBeNull();
+});
+
+it("管理者プレビュー中は、開始日前・ポイント不足でも受付中として表示する", async () => {
+  jest.setSystemTime(new Date("2026-10-27T00:00:00Z"));
+  jest.mocked(isLotteryPreview).mockResolvedValue(true);
+  mockPoints(10);
+  jest.mocked(getLotterySettings).mockResolvedValue({
+    ...settings,
+    eligible_display_from: "2026-11-02",
+    eligible_display_until: "2026-11-30",
+  });
+  render(await LotteryProgressBar());
+  expect(screen.getByText("プレゼント応募はこちらから")).toBeInTheDocument();
 });

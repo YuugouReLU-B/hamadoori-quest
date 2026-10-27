@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { setLotteryPreview } from "@/features/admin/actions/lottery-preview-actions";
 import { LotterySettingsForm } from "@/features/admin/components/lottery-settings-form";
 import {
   type LotteryTokenStatus,
@@ -6,6 +7,7 @@ import {
   normalizeLotteryToken,
 } from "@/features/admin/services/admin-lottery-tokens";
 import { requireAdmin } from "@/features/admin/services/authorize-admin";
+import { isLotteryPreview } from "@/features/lottery/services/lottery-preview";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 
 export const dynamic = "force-dynamic";
@@ -27,13 +29,14 @@ export default async function AdminLotteryPage({
 }: {
   searchParams: Promise<{ token?: string }>;
 }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const { token } = await searchParams;
   const searchedToken = token ? normalizeLotteryToken(token) : "";
-  const [settings, tokens] = await Promise.all([
+  const [settings, tokens, preview] = await Promise.all([
     getLotterySettings(),
     listLotteryTokensForAdmin(searchedToken),
+    isLotteryPreview(admin),
   ]);
 
   if (!settings) {
@@ -54,6 +57,32 @@ export default async function AdminLotteryPage({
       </div>
 
       <LotterySettingsForm settings={settings} />
+
+      <div className="mt-10 mb-4">
+        <h2 className="text-lg font-bold">応募開始後の表示のプレビュー</h2>
+        <p className="text-sm text-gray-600">
+          オンにすると、このブラウザで見ている管理者だけ、マイページ・トップ・クエスト画面の応募表示が「受付中」になる（日付とポイントの条件を満たしたものとして出す）。
+          他の人の画面と設定は変わらない。トークンは見本で、本物は発行しない。1日で自動的にオフになる。
+        </p>
+      </div>
+      <form action={setLotteryPreview} className="flex items-center gap-3">
+        <input type="hidden" name="mode" value={preview ? "off" : "on"} />
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+            preview
+              ? "bg-amber-100 text-amber-800"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {preview ? "プレビュー中" : "オフ"}
+        </span>
+        <button
+          type="submit"
+          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-bold text-white"
+        >
+          {preview ? "プレビューをやめる" : "プレビューを始める"}
+        </button>
+      </form>
 
       <div className="mt-10 mb-4">
         <h2 className="text-lg font-bold">応募トークンの照合</h2>
