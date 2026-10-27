@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { CopyTokenButton } from "@/features/lottery/components/copy-token-button";
+import {
+  isLotteryPreview,
+  LOTTERY_PREVIEW_TOKEN,
+  previewLotteryInputs,
+} from "@/features/lottery/services/lottery-preview";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { getOrIssueLotteryToken } from "@/features/lottery/services/lottery-token-store";
 import {
@@ -18,6 +23,8 @@ import { formatPoints } from "@/lib/utils/format-points";
  * しきい値・文言・応募先URLは /admin/lottery から編集する（lottery_settings）。
  * 応募の受付・当選確認・景品発送は外部フォーム（プレゼント事務局側の運用）
  * に委ねるため、ここではトークンの発行と案内だけを行う。
+ * 管理者がプレビュー中（/admin/lottery で切り替え）なら、受付中の表示を見本の
+ * トークンで出す。本物のトークンは発行しない。
  */
 export async function LotteryEntryPanel() {
   const user = await getUser();
@@ -26,18 +33,24 @@ export async function LotteryEntryPanel() {
   const settings = await getLotterySettings();
   if (!settings) return null;
 
+  const preview = await isLotteryPreview(user);
+  const previewInputs = preview ? previewLotteryInputs(settings) : null;
   const userLevel = await getMyUserLevel();
-  const points = userLevel?.xp ?? 0;
+  const points = previewInputs?.points ?? userLevel?.xp ?? 0;
   const hasEnoughPoints = points >= settings.threshold_points;
   const state = getLotteryState({
     points,
     thresholdPoints: settings.threshold_points,
     eligibleDisplayFrom: settings.eligible_display_from,
     eligibleDisplayUntil: settings.eligible_display_until,
+    now: previewInputs?.now,
   });
   const isClosed = state === "closed";
   // 状態は closed を優先するため、日付側の条件は述語を併用して判定する
-  const isBeforeOpen = isBeforeOpenDate(settings.eligible_display_from);
+  const isBeforeOpen = isBeforeOpenDate(
+    settings.eligible_display_from,
+    previewInputs?.now,
+  );
   const isEligible = state === "open";
   const startDateLabel = settings.eligible_display_from
     ? new Date(
@@ -50,11 +63,20 @@ export async function LotteryEntryPanel() {
       })
     : null;
   // シークレット未設定などで発行・記録できないときは、パネルごと出さない
-  const token = isEligible ? await getOrIssueLotteryToken(user.id) : null;
+  const token = !isEligible
+    ? null
+    : preview
+      ? LOTTERY_PREVIEW_TOKEN
+      : await getOrIssueLotteryToken(user.id);
   if (isEligible && !token) return null;
 
   return (
     <div className="w-full rounded-lg border border-gray-200 bg-card p-4">
+      {preview && (
+        <p className="mb-2 rounded-md bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800">
+          管理者プレビュー中（応募開始後の表示）。他の人の画面は変わっていません。トークンは見本で、応募には使えません。
+        </p>
+      )}
       <p className="text-lg font-bold">{settings.title}</p>
       <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">
         {settings.description}
