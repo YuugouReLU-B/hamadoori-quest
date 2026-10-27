@@ -6,7 +6,6 @@ import {
   getLotteryState,
   isBeforeOpenDate,
 } from "@/features/lottery/utils/eligibility";
-import { buildLotteryFormUrl } from "@/features/lottery/utils/form-url";
 import { getMyUserLevel } from "@/features/user-level/services/level";
 import { getUser } from "@/features/user-profile/services/profile";
 import { formatPoints } from "@/lib/utils/format-points";
@@ -72,7 +71,7 @@ export async function LotteryEntryPanel() {
           {settings.form_url && (
             <Button asChild className="mt-2 w-full">
               <a
-                href={buildLotteryFormUrl(settings.form_url, token)}
+                href={settings.form_url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
