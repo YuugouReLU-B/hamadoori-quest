@@ -132,3 +132,19 @@ describe("管理者プレビュー", () => {
     expect(screen.getByText("PREVIEW000")).toBeInTheDocument();
   });
 });
+
+it("しきい値に達した人には、応募条件の説明と現在のポイントを出さない", async () => {
+  render(await LotteryEntryPanel());
+  expect(screen.queryByText(/抽選のご案内/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/現在/)).not.toBeInTheDocument();
+});
+
+it("しきい値に届いていない人には、応募条件の説明と現在のポイントを出す", async () => {
+  jest.mocked(getLotterySettings).mockResolvedValue({
+    ...settings,
+    threshold_points: 1500,
+  });
+  render(await LotteryEntryPanel());
+  expect(screen.getByText(/抽選のご案内/)).toBeInTheDocument();
+  expect(screen.getByText(/現在1000pt/)).toBeInTheDocument();
+});
