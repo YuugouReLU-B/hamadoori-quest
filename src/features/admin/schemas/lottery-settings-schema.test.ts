@@ -34,9 +34,8 @@ it.each([
   ).toBe(false);
 });
 
-it("Googleフォームの事前入力URL（{token} 入り）を保存できる", () => {
-  const url =
-    "https://docs.google.com/forms/d/e/abc/viewform?usp=pp_url&entry.123456789={token}";
+it("応募フォームのURLを保存できる", () => {
+  const url = "https://form.qooker.jp/Q/auto/ja/hamadooriquest/form/";
   expect(
     lotterySettingsSchema.parse({
       ...input,

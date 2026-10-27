@@ -148,14 +148,14 @@ export function LotterySettingsForm({ settings }: LotterySettingsFormProps) {
       <Field
         htmlFor="form_url"
         label="リンク先URL（応募フォーム）"
-        hint="空欄の間はボタンを表示しない。URLに {token} を入れると、その位置に各ユーザーのトークンが入る（Googleフォームの「事前入力したURLを取得」で、トークン欄に入れた値を {token} に置き換えて貼る。forms.gle の短縮URLでは使えない）"
+        hint="空欄の間はボタンを表示しない。トークンはURLに入らないので、利用者がフォームに貼り付ける"
       >
         <input
           id="form_url"
           name="form_url"
           type="url"
           defaultValue={settings.form_url}
-          placeholder="https://docs.google.com/forms/d/e/.../viewform?usp=pp_url&entry.123456789={token}"
+          placeholder="https://form.qooker.jp/Q/auto/ja/hamadooriquest/form/"
           className={inputClass}
         />
       </Field>
