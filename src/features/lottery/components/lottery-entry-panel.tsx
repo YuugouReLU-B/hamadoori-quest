@@ -78,10 +78,13 @@ export async function LotteryEntryPanel() {
         </p>
       )}
       <p className="text-lg font-bold">{settings.title}</p>
-      <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">
-        {settings.description}
-        （現在{formatPoints(points)}）
-      </p>
+      {/* 応募条件の説明は、しきい値に届いていない人にだけ出す */}
+      {!hasEnoughPoints && (
+        <p className="mt-1 whitespace-pre-wrap text-sm text-gray-600">
+          {settings.description}
+          （現在{formatPoints(points)}）
+        </p>
+      )}
 
       {token ? (
         <div className="mt-4 space-y-2">
