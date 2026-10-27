@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  isLotteryPreview,
+  previewLotteryInputs,
+} from "@/features/lottery/services/lottery-preview";
 import { getLotterySettings } from "@/features/lottery/services/lottery-settings";
 import { getLotteryState } from "@/features/lottery/utils/eligibility";
 import {
@@ -15,7 +19,7 @@ import { formatPoints, POINT_UNIT } from "@/lib/utils/format-points";
  * しきい値・日程は /admin/lottery の設定（lottery_settings）に従い、
  * 未達成／未オープン／受付中／終了の4状態を出し分ける。応募トークンの発行は
  * LotteryEntryPanel（マイページ）が担当するため、ここでは進捗と導線だけを
- * 表示する。
+ * 表示する。管理者がプレビュー中なら受付中として出す（lottery-preview）。
  */
 export async function LotteryProgressBar() {
   const user = await getUser();
@@ -24,14 +28,18 @@ export async function LotteryProgressBar() {
   const settings = await getLotterySettings();
   if (!settings) return null;
 
+  const previewInputs = (await isLotteryPreview(user))
+    ? previewLotteryInputs(settings)
+    : null;
   const userLevel = await getMyUserLevel();
-  const points = userLevel?.xp ?? 0;
+  const points = previewInputs?.points ?? userLevel?.xp ?? 0;
   const threshold = settings.threshold_points;
   const state = getLotteryState({
     points,
     thresholdPoints: threshold,
     eligibleDisplayFrom: settings.eligible_display_from,
     eligibleDisplayUntil: settings.eligible_display_until,
+    now: previewInputs?.now,
   });
 
   if (state === "closed") {
