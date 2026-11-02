@@ -109,7 +109,7 @@ export async function LotteryEntryPanel() {
           {settings.form_url && (
             <div className="space-y-2">
               <p className="text-sm font-bold">
-                ② 応募フォームの「応募用のコード」欄に貼り付け
+                ② 応募フォームに必要事項を記入し、「応募用のコード」欄に貼り付け
               </p>
               <Button asChild className="w-full">
                 <a
