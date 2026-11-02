@@ -18,7 +18,8 @@ import { formatPoints } from "@/lib/utils/format-points";
 /**
  * 抽選応募パネル。
  *
- * 開始日以降、累計ポイントがしきい値に達したユーザーに応募トークンを表示する。
+ * 開始日以降、累計ポイントがしきい値に達したユーザーに応募用のコード（応募トークン）を表示する。
+ * 利用者向けの呼び名は応募フォームの設問に合わせて「応募用のコード」で統一する。
  * 応募期間の終了後は、ポイントの達成・未達成に関係なく終了メッセージのみを出す。
  * しきい値・文言・応募先URLは /admin/lottery から編集する（lottery_settings）。
  * 応募の受付・当選確認・景品発送は外部フォーム（プレゼント事務局側の運用）
@@ -71,10 +72,17 @@ export async function LotteryEntryPanel() {
   if (isEligible && !token) return null;
 
   return (
-    <div className="w-full rounded-lg border border-gray-200 bg-card p-4">
+    <div
+      id="lottery"
+      className={
+        token
+          ? "w-full scroll-mt-20 rounded-xl border-2 border-primary bg-primary/15 p-4 shadow-md"
+          : "w-full scroll-mt-20 rounded-lg border border-gray-200 bg-card p-4"
+      }
+    >
       {preview && (
         <p className="mb-2 rounded-md bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800">
-          管理者プレビュー中（応募開始後の表示）。他の人の画面は変わっていません。トークンは見本で、応募には使えません。
+          管理者プレビュー中（応募開始後の表示）。他の人の画面は変わっていません。コードは見本で、応募には使えません。
         </p>
       )}
       <p className="text-lg font-bold">{settings.title}</p>
@@ -87,26 +95,33 @@ export async function LotteryEntryPanel() {
       )}
 
       {token ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-sm font-bold">あなたの応募トークン</p>
-          <p className="rounded-md bg-gray-100 px-3 py-2 font-mono text-lg tracking-wider">
-            {token}
+        <div className="mt-3 space-y-3">
+          <p className="text-sm font-bold">
+            応募できます！下の2ステップで応募してください。
           </p>
-          <CopyTokenButton token={token} />
+          <div className="space-y-2">
+            <p className="text-sm font-bold">① 応募用のコードをコピー</p>
+            <p className="rounded-md border-2 border-dashed border-gray-400 bg-white px-3 py-3 text-center font-mono text-2xl font-bold tracking-widest">
+              {token}
+            </p>
+            <CopyTokenButton token={token} />
+          </div>
           {settings.form_url && (
-            <Button asChild className="mt-2 w-full">
-              <a
-                href={settings.form_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {settings.button_label}
-              </a>
-            </Button>
+            <div className="space-y-2">
+              <p className="text-sm font-bold">
+                ② 応募フォームに必要事項を記入し、「応募用のコード」欄に貼り付け
+              </p>
+              <Button asChild className="w-full">
+                <a
+                  href={settings.form_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {settings.button_label}
+                </a>
+              </Button>
+            </div>
           )}
-          <p className="text-xs font-bold text-gray-500">
-            応募フォームの回答欄にこのトークンを貼り付けてください。
-          </p>
         </div>
       ) : (
         <div className="mt-4 space-y-2 text-sm text-gray-600">
