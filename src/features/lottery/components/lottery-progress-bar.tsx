@@ -109,7 +109,7 @@ export async function LotteryProgressBar() {
         プレゼント応募条件達成！
       </h2>
       <Link
-        href={`/users/${user.id}`}
+        href={`/users/${user.id}#lottery`}
         className="mt-2 inline-block text-sm font-bold text-gray-900 underline"
       >
         プレゼント応募はこちらから

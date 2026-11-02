@@ -148,7 +148,7 @@ export function LotterySettingsForm({ settings }: LotterySettingsFormProps) {
       <Field
         htmlFor="form_url"
         label="リンク先URL（応募フォーム）"
-        hint="空欄の間はボタンを表示しない。トークンはURLに入らないので、利用者がフォームに貼り付ける"
+        hint="空欄の間はボタンを表示しない。応募用のコードはURLに入らないので、利用者がフォームに貼り付ける"
       >
         <input
           id="form_url"

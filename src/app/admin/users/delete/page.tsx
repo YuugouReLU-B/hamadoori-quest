@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 const SEARCH_KIND_LABELS = {
   user_id: "ユーザーID",
   line_id: "LINEユーザーID",
-  lottery_token: "抽選の応募トークン",
+  lottery_token: "抽選の応募用のコード",
   nickname: "ニックネーム（部分一致）",
 } as const;
 
@@ -158,7 +158,7 @@ export default async function AdminUserDeletionPage({
             type="text"
             name="q"
             defaultValue={q}
-            placeholder="ニックネーム / ユーザーID / LINEユーザーID / 応募トークン"
+            placeholder="ニックネーム / ユーザーID / LINEユーザーID / 応募用のコード"
             aria-label="検索"
             className="w-96 max-w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           />

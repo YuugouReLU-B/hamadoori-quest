@@ -100,7 +100,7 @@ it("応募受付中はマイページへのリンクと応募期間を表示す�
   expect(screen.getByText("プレゼント応募条件達成！")).toBeInTheDocument();
   expect(
     screen.getByRole("link", { name: "プレゼント応募はこちらから" }),
-  ).toHaveAttribute("href", "/users/test-user-id");
+  ).toHaveAttribute("href", "/users/test-user-id#lottery");
   expect(screen.getByText("応募期間：2026/11/02~11/29")).toBeInTheDocument();
   expect(container.querySelector("progress")).not.toBeInTheDocument();
   expect(screen.queryByText(/1000pt/)).not.toBeInTheDocument();
