@@ -66,6 +66,9 @@ export default async function UserDetailPage({ params }: Props) {
         </div>
       </section>
 
+      {/* 抽選応募（自分のページだけ）。応募できる人が見落とさないよう上に置く */}
+      {isOwnPage && <LotteryEntryPanel />}
+
       {/* ソーシャルメディアリンク表示 */}
       <SocialBadgeSection
         x_username={user.x_username}
@@ -95,7 +98,6 @@ export default async function UserDetailPage({ params }: Props) {
               name: user.name || undefined,
             }}
           />
-          <LotteryEntryPanel />
           <AccountDeletionSection />
         </>
       )}

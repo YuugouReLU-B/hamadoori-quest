@@ -17,8 +17,8 @@ export function CopyTokenButton({ token }: Props) {
   };
 
   return (
-    <Button onClick={handleCopy} className="mt-2" variant="outline">
-      {copied ? "コピーしました！" : "トークンをコピー"}
+    <Button onClick={handleCopy} className="w-full" variant="outline">
+      {copied ? "コピーしました！" : "コードをコピー"}
     </Button>
   );
 }

@@ -62,7 +62,7 @@ export default async function AdminLotteryPage({
         <h2 className="text-lg font-bold">応募開始後の表示のプレビュー</h2>
         <p className="text-sm text-gray-600">
           オンにすると、このブラウザで見ている管理者だけ、マイページ・トップ・クエスト画面の応募表示が「受付中」になる（日付とポイントの条件を満たしたものとして出す）。
-          他の人の画面と設定は変わらない。トークンは見本で、本物は発行しない。1日で自動的にオフになる。
+          他の人の画面と設定は変わらない。コードは見本で、本物は発行しない。1日で自動的にオフになる。
         </p>
       </div>
       <form action={setLotteryPreview} className="flex items-center gap-3">
@@ -85,11 +85,11 @@ export default async function AdminLotteryPage({
       </form>
 
       <div className="mt-10 mb-4">
-        <h2 className="text-lg font-bold">応募トークンの照合</h2>
+        <h2 className="text-lg font-bold">応募用のコードの照合</h2>
         <p className="text-sm text-gray-600">
-          応募フォームの回答にあるトークンが、当団体が発行したもので、応募条件を満たしているかだけを確認できる。
+          応募フォームの回答にある応募用のコードが、当団体が発行したもので、応募条件を満たしているかだけを確認できる。
           プライバシーポリシーで「応募フォームの情報を利用履歴と突き合わせない」としているため、
-          誰のトークンか・何ポイントかは表示しない。応募フォームの運営事業者からはトークンだけを受け取り、この結果だけを返すこと。
+          誰のコードか・何ポイントかは表示しない。応募フォームの運営事業者からはコードだけを受け取り、この結果だけを返すこと。
         </p>
       </div>
 
@@ -98,8 +98,8 @@ export default async function AdminLotteryPage({
           type="text"
           name="token"
           defaultValue={searchedToken}
-          placeholder="トークンを貼り付け"
-          aria-label="照合するトークン"
+          placeholder="応募用のコードを貼り付け"
+          aria-label="照合する応募用のコード"
           className="w-64 rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
         />
         <button
@@ -119,7 +119,7 @@ export default async function AdminLotteryPage({
         <p className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
           {searchedToken
             ? `「${searchedToken}」は発行した記録がありません。`
-            : "まだ発行したトークンはありません。"}
+            : "まだ発行した応募用のコードはありません。"}
         </p>
       ) : (
         <>
@@ -130,7 +130,7 @@ export default async function AdminLotteryPage({
             <table className="w-full min-w-[480px] text-sm">
               <thead className="bg-gray-50 text-left">
                 <tr>
-                  <th className="px-4 py-2.5 font-bold">トークン</th>
+                  <th className="px-4 py-2.5 font-bold">応募用のコード</th>
                   <th className="px-4 py-2.5 font-bold">照合結果</th>
                   <th className="px-4 py-2.5 font-bold">発行日時</th>
                 </tr>
