@@ -53,7 +53,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "commander": "^11.1.0",
-    "csv-parse": "^5.6.0",
+    "csv-parse": "^7.0.3",
     "csv-stringify": "^6.9.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
@@ -63,7 +63,7 @@
     "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.511.0",
     "nanoid": "^5.1.16",
-    "next": "^16.4.2",
+    "next": "^16.4.5",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.9.17",
     "react": "^19.3.1",
@@ -71,7 +71,7 @@
     "react-qr-code": "^2.2.0",
     "recharts": "^2.15.4",
     "sonner": "^2.0.8",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.13",
@@ -106,5 +106,10 @@
   "jest-junit": {
     "outputDirectory": "./jest-report",
     "outputName": "junit.xml"
+  },
+  "pnpm": {
+    "overrides": {
+      "@supabase/auth-js@<2.70.0": "2.70.0"
+    }
   }
 }

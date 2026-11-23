@@ -45,7 +45,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      validatedFields.error.errors.map((error) => error.message).join("\n"),
+      validatedFields.error.issues.map((error) => error.message).join("\n"),
     );
   }
 

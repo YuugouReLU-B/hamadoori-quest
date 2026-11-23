@@ -13,16 +13,16 @@ export const lotterySettingsSchema = z
     eligible_display_until: z
       .union([
         z.literal(""),
-        z.undefined(),
         z.string().date("有効な日付をYYYY-MM-DD形式で入力してください"),
       ])
+      .optional()
       .transform((value) =>
         value === "" || value === undefined ? null : value,
       ),
     threshold_points: z
       .string()
       .min(1, "しきい値は必須です")
-      .pipe(z.coerce.number().int().min(0).max(1000000)),
+      .pipe(z.coerce.number<string>().int().min(0).max(1000000)),
     title: z.string().min(1, "見出しは必須です").max(100),
     description: z.string().min(1, "説明文は必須です").max(1000),
     button_label: z.string().min(1, "ボタンラベルは必須です").max(50),
